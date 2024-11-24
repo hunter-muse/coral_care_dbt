@@ -40,8 +40,18 @@ jobs:
     - name: Install dependencies
       run: |
         pip install dbt-snowflake
+
+    - name: Debug Environment
+      run: |
+        if [ -n "${{ secrets.DBT_DATABASE }}" ]; then
+          echo "DBT_DATABASE is set"
+        else
+          echo "DBT_DATABASE is not set"
+        fi
     
     - name: Create profiles.yml
+      env:
+        DBT_DATABASE: ${{ secrets.DBT_DATABASE }}
       run: |
         mkdir -p ~/.dbt
         cat > ~/.dbt/profiles.yml << EOF
@@ -50,13 +60,13 @@ jobs:
           outputs:
             prod:
               type: snowflake
-              account: \${{ secrets.DBT_ACCOUNT }}
-              user: \${{ secrets.DBT_USER }}
-              password: \${{ secrets.DBT_PASSWORD }}
-              role: \${{ secrets.DBT_ROLE }}
-              database: \${{ secrets.DBT_DATABASE }}
-              warehouse: \${{ secrets.DBT_WAREHOUSE }}
-              schema: \${{ secrets.DBT_SCHEMA }}
+              account: \${{ secrets.SNOWFLAKE_ACCOUNT }}
+              user: \${{ secrets.SNOWFLAKE_USER }}
+              password: \${{ secrets.SNOWFLAKE_PASSWORD }}
+              role: \${{ secrets.SNOWFLAKE_ROLE }}
+              database: \${{ env.DBT_DATABASE }}
+              warehouse: \${{ secrets.SNOWFLAKE_WAREHOUSE }}
+              schema: \${{ secrets.SNOWFLAKE_SCHEMA }}
               threads: 4
         EOF
     

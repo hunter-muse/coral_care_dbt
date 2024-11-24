@@ -28,6 +28,14 @@ on:
 jobs:
   dbt:
     runs-on: ubuntu-latest
+    env:
+      DBT_DATABASE: ${{ secrets.DBT_DATABASE }}
+      DBT_SCHEMA: ${{ secrets.DBT_SCHEMA }}
+      DBT_WAREHOUSE: ${{ secrets.DBT_WAREHOUSE }}
+      DBT_ACCOUNT: ${{ secrets.DBT_ACCOUNT }}
+      DBT_USER: ${{ secrets.DBT_USER }}
+      DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+      DBT_ROLE: ${{ secrets.DBT_ROLE }}
     
     steps:
     - uses: actions/checkout@v2
@@ -60,13 +68,13 @@ jobs:
           outputs:
             prod:
               type: snowflake
-              account: \${{ secrets.SNOWFLAKE_ACCOUNT }}
-              user: \${{ secrets.SNOWFLAKE_USER }}
-              password: \${{ secrets.SNOWFLAKE_PASSWORD }}
-              role: \${{ secrets.SNOWFLAKE_ROLE }}
+              account: \${{ secrets.DBT_ACCOUNT }}
+              user: \${{ secrets.DBT_USER }}
+              password: \${{ secrets.DBT_PASSWORD }}
+              role: \${{ secrets.DBT_ROLE }}
               database: \${{ env.DBT_DATABASE }}
-              warehouse: \${{ secrets.SNOWFLAKE_WAREHOUSE }}
-              schema: \${{ secrets.SNOWFLAKE_SCHEMA }}
+              warehouse: \${{ secrets.DBT_WAREHOUSE }}
+              schema: \${{ secrets.DBT_SCHEMA }}
               threads: 4
         EOF
     

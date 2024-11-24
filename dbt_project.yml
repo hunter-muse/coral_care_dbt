@@ -31,6 +31,18 @@ clean-targets:         # directories to be removed by `dbt clean`
 # files using the `{{ config(...) }}` macro.
 models:
   coral_care_dbt:
-    # Config indicated by + and applies to all files under models/example/
-    example:
+    +database: "{{ env_var('DBT_DATABASE') }}"
+    staging:
+      +tags: ['stg']
       +materialized: view
+      +schema: "{{ env_var('DBT_SCHEMA_STG') }}"
+
+    marts:
+      +tags: ['marts']
+      +materialized: table
+      +schema: "{{ env_var('DBT_SCHEMA_MARTS') }}"
+
+    intermediate:
+      +tags: ['int']
+      +materialized: table
+      +schema: "{{ env_var('DBT_SCHEMA_INT') }}"

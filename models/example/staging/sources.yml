@@ -1,0 +1,12 @@
+config-version: 2
+version: 2
+sources:
+  - name: hubspot
+    database: pc_fivetran_db
+    schema: hubspot
+
+    tables:
+      - name: contact 
+      - name: deal
+    
+

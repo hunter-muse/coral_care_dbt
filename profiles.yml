@@ -1,4 +1,4 @@
-coral_care: 
+coral_care_dbt: 
   # Your local development setup
   target: dev
  # profiles.yml

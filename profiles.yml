@@ -1,0 +1,26 @@
+coral_care: 
+  # Your local development setup
+  target: dev
+ # profiles.yml
+  outputs:
+    dev:
+      type: snowflake
+      account: fz81530.us-east4.gcp
+      database: "{{ env_var('DBT_DATABASE') }}"
+      password: "{{ env_var('DBT_PASSWORD') }}"
+      role: "{{ env_var('DBT_ROLE') }}"
+      schema: "{{ env_var('DBT_SCHEMA') }}"
+      threads: 1
+      user: "{{ env_var('DBT_USER') }}"
+      warehouse: "{{ env_var('DBT_WAREHOUSE') }}"
+
+      # CI/CD setup using env vars
+    prod:
+        type: snowflake
+        account: fz81530.us-east4.gcp
+        user: "{{ env_var('DBT_USER') }}"
+        password: "{{ env_var('DBT_PASSWORD') }}"
+        role: "{{ env_var('DBT_ROLE') }}"
+        database: "{{ env_var('DBT_DATABASE') }}"
+        warehouse: "{{ env_var('DBT_WAREHOUSE') }}"
+        schema: "{{ env_var('DBT_SCHEMA') }}"

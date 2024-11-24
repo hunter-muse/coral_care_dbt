@@ -1,0 +1,95 @@
+name: dbt CI/CD
+
+on:
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      run_type:
+        description: 'Type of run to execute'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - full
+          - test-only
+  
+  # Automated trigger on push to main
+  push:
+    branches: [ main ]
+  
+  # Pull request trigger
+  pull_request:
+    branches: [ main ]
+  
+  # Scheduled trigger - runs at 5:00 AM UTC daily
+  schedule:
+    - cron: '0 5 * * *'
+
+jobs:
+  dbt:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        pip install dbt-snowflake
+    
+    - name: Create profiles.yml
+      run: |
+        mkdir -p ~/.dbt
+        cat > ~/.dbt/profiles.yml << EOF
+        coral_care:
+          target: prod
+          outputs:
+            prod:
+              type: snowflake
+              account: \${{ secrets.SNOWFLAKE_ACCOUNT }}
+              user: \${{ secrets.SNOWFLAKE_USER }}
+              password: \${{ secrets.SNOWFLAKE_PASSWORD }}
+              role: \${{ secrets.SNOWFLAKE_ROLE }}
+              database: \${{ secrets.SNOWFLAKE_DATABASE }}
+              warehouse: \${{ secrets.SNOWFLAKE_WAREHOUSE }}
+              schema: \${{ secrets.SNOWFLAKE_SCHEMA }}
+              threads: 4
+        EOF
+    
+    - name: Run dbt deps
+      run: dbt deps
+    
+    - name: Determine execution type
+      id: exec_type
+      run: |
+        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+          echo "Running manual workflow"
+          if [[ "${{ github.event.inputs.run_type }}" == "test-only" ]]; then
+            echo "run_mode=test" >> $GITHUB_OUTPUT
+          else
+            echo "run_mode=full" >> $GITHUB_OUTPUT
+          fi
+        else
+          echo "run_mode=full" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Run dbt tests
+      if: always()
+      run: dbt test
+    
+    - name: Run dbt build
+      if: steps.exec_type.outputs.run_mode == 'full'
+      run: dbt build --fail-fast
+    
+    # - name: Notify on failure
+    #   if: failure()
+    #   uses: rtCamp/action-slack-notify@v2
+    #   env:
+    #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+    #     SLACK_COLOR: 'danger'
+    #     SLACK_MESSAGE: 'dbt run failed! Check GitHub Actions for details.'
+    #     SLACK_TITLE: 'dbt Run Failure'

@@ -36,6 +36,9 @@ jobs:
       DBT_USER: ${{ secrets.DBT_USER }}
       DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
       DBT_ROLE: ${{ secrets.DBT_ROLE }}
+      DBT_SCHEMA_STG: stg 
+      DBT_SCHEMA_MARTS: marts
+      DBT_SCHEMA_INT: int
     
     steps:
     - uses: actions/checkout@v2

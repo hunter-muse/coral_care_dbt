@@ -8,5 +8,12 @@ sources:
     tables:
       - name: contact 
       - name: deal
+
+  - name: csv_uploads
+    database: csv_uploads
+    schema: public
+    
+    tables:
+      - name: LAT_LNG_ZIP_TABLE 
     
 

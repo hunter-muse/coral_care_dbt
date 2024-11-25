@@ -58,8 +58,6 @@ jobs:
         fi
     
     - name: Create profiles.yml
-      env:
-        DBT_DATABASE: ${{ secrets.DBT_DATABASE }}
       run: |
         mkdir -p ~/.dbt
         cat > ~/.dbt/profiles.yml << EOF
@@ -68,13 +66,13 @@ jobs:
           outputs:
             prod:
               type: snowflake
-              account: \${{ secrets.DBT_ACCOUNT }}
-              user: \${{ secrets.DBT_USER }}
-              password: \${{ secrets.DBT_PASSWORD }}
-              role: \${{ secrets.DBT_ROLE }}
-              database: \${{ env.DBT_DATABASE }}
-              warehouse: \${{ secrets.DBT_WAREHOUSE }}
-              schema: \${{ secrets.DBT_SCHEMA }}
+              account: ${{ env.DBT_ACCOUNT }}
+              user: ${{ env.DBT_USER }}
+              password: ${{ env.DBT_PASSWORD }}
+              role: ${{ env.DBT_ROLE }}
+              database: ${{ env.DBT_DATABASE }}
+              warehouse: ${{ env.DBT_WAREHOUSE }}
+              schema: ${{ env.DBT_SCHEMA }}
               threads: 4
         EOF
     

@@ -29,8 +29,8 @@ jobs:
   dbt:
     runs-on: ubuntu-latest
     env:
-      DBT_DATABASE: ${{ secrets.DBT_DATABASE }}
-      DBT_SCHEMA: ${{ secrets.DBT_SCHEMA }}
+      DBT_DATABASE: DBT_PROD 
+      DBT_SCHEMA: DBT_PRODUCTION
       DBT_WAREHOUSE: ${{ secrets.DBT_WAREHOUSE }}
       DBT_ACCOUNT: ${{ secrets.DBT_ACCOUNT }}
       DBT_USER: ${{ secrets.DBT_USER }}

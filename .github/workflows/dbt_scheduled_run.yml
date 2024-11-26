@@ -39,6 +39,7 @@ jobs:
       DBT_SCHEMA_STG: stg 
       DBT_SCHEMA_MARTS: marts
       DBT_SCHEMA_INT: int
+      DBT_SCHEMA_SEEDS: seeds  # Added for seeds schema
     
     steps:
     - uses: actions/checkout@v2
@@ -95,6 +96,10 @@ jobs:
         else
           echo "run_mode=full" >> $GITHUB_OUTPUT
         fi
+
+    - name: Run dbt seed
+      if: steps.exec_type.outputs.run_mode == 'full'
+      run: dbt seed --full-refresh
     
     - name: Run dbt tests
       if: always()
@@ -103,12 +108,3 @@ jobs:
     - name: Run dbt build
       if: steps.exec_type.outputs.run_mode == 'full'
       run: dbt build --fail-fast
-    
-    # - name: Notify on failure
-    #   if: failure()
-    #   uses: rtCamp/action-slack-notify@v2
-    #   env:
-    #     SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-    #     SLACK_COLOR: 'danger'
-    #     SLACK_MESSAGE: 'dbt run failed! Check GitHub Actions for details.'
-    #     SLACK_TITLE: 'dbt Run Failure'

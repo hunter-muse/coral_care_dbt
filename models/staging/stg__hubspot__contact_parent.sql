@@ -12,13 +12,16 @@ select
     PROPERTY_CORAL_CARE_STATUS as coral_care_status,
     
     -- Location Information
-    PROPERTY_LATITUDE as latitude,
-    PROPERTY_LONGITUDE as longitude,
-    PROPERTY_ADDRESS as street_address,
-    PROPERTY_CITY as city,
-    PROPERTY_STATE as state,
-    PROPERTY_HS_STATE_CODE as state_region_code,
-    PROPERTY_ZIP as postal_code,
+    CAST(COALESCE(contact.PROPERTY_LATITUDE, lat_long_zip.LATITUDE) as string) as latitude,
+    CAST(COALESCE(contact.PROPERTY_LONGITUDE, lat_long_zip.LONGITUDE) as string) as longitude,
+    contact.PROPERTY_ADDRESS as street_address,
+    contact.PROPERTY_CITY as city,
+    contact.PROPERTY_STATE as state,
+    contact.PROPERTY_HS_STATE_CODE as state_region_code,
+    CASE 
+        WHEN LENGTH(TRIM(contact.PROPERTY_ZIP)) = 4 THEN '0' || contact.PROPERTY_ZIP
+        ELSE contact.PROPERTY_ZIP
+    END AS zip_code,
     
     -- Provider & Appointment Information
     PROPERTY_PROVIDER_TYPE_PROD as provider_type,
@@ -98,6 +101,8 @@ select
     PROPERTY_HS_FEEDBACK_LAST_NPS_RATING as last_nps_survey_rating,
     PROPERTY_NUM_ASSOCIATED_DEALS as number_of_associated_deals
 
-from {{source('hubspot', 'contact')}}
+from {{source('hubspot', 'contact')}} AS contact
+left join {{ref('lat_long_zip')}} AS lat_long_zip
+    on CAST(contact.PROPERTY_ZIP as string) = CAST(lat_long_zip.ZIP as string)
 where 
 segment = 'Parent'

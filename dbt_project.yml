@@ -46,3 +46,14 @@ models:
       +tags: ['int']
       +materialized: table
       +schema: "{{ env_var('DBT_SCHEMA_INT') }}"
+
+seeds:
+  coral_care_dbt:
+    +database: "{{ env_var('DBT_DATABASE') }}"  # Added database configuration
+    +schema: seeds  # Added schema configuration
+    lat_long_zip:
+      +column_types:
+        zip: string
+        latitude: string
+        longitude: string
+        zip_code: string

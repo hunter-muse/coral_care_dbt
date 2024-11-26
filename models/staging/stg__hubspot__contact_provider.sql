@@ -9,11 +9,14 @@ select
     PROPERTY_ADDRESS as address,
     PROPERTY_STATE as state,
     PROPERTY_SEGMENT as segment,
-    PROPERTY_ZIP as postal_code,
+    CASE 
+        WHEN LENGTH(TRIM(PROPERTY_ZIP)) = 4 THEN '0' || PROPERTY_ZIP
+        ELSE PROPERTY_ZIP
+    END AS zip_code,
     
     -- Location Information
-    PROPERTY_LATITUDE as latitude,
-    PROPERTY_LONGITUDE as longitude,
+    CAST(COALESCE(PROPERTY_LATITUDE, lat_long_zip.LATITUDE) as string) as latitude,
+    CAST(COALESCE(PROPERTY_LONGITUDE, lat_long_zip.LONGITUDE) as string) as longitude,
     
     -- Dates and Activity
     PROPERTY_CREATEDATE as created_date,
@@ -41,5 +44,7 @@ select
     -- Marketing Information
     PROPERTY_UTM_CAMPAIGN as utm_campaign
 
-from {{source('hubspot', 'contact')}}
+from {{source('hubspot', 'contact')}} AS contact
+left join {{ref('lat_long_zip')}} AS lat_long_zip
+    on CAST(contact.PROPERTY_ZIP as string) = CAST(lat_long_zip.ZIP as string)
 where PROPERTY_SEGMENT = 'Provider'

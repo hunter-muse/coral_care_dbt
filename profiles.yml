@@ -13,6 +13,7 @@ coral_care_dbt:
       threads: 1
       user: "{{ env_var('DBT_USER') }}"
       warehouse: "{{ env_var('DBT_WAREHOUSE') }}"
+      private_key_path: '{{ env_var(''PRIVATE_KEY_PATH'', '''') }}'
 
       # CI/CD setup using env vars
     prod:

@@ -9,4 +9,22 @@ sources:
       - name: contact 
       - name: deal
     
+  - name: bubble
+    database: source_bubble
+    schema: bubble_app_tables
 
+    tables:
+      - name: availability  
+      - name: dependent
+      - name: insurance
+      - name: parent
+      - name: parent_insurance
+      - name: provider
+      - name: provider_education
+      - name: provider_tag 
+      - name: session
+      - name: session_provider 
+      - name: session_type 
+      - name: temp_busy_slot 
+      - name: user 
+    

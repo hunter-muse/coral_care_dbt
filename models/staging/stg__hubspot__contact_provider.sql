@@ -44,7 +44,8 @@ select
     
     -- Marketing Information
     PROPERTY_UTM_CAMPAIGN as utm_campaign,
-    PROPERTY_WHAT_AGE_GROUPS_ARE_YOU_QUALIFIED_TO_WORK_WITH_ as qualified_age_groups,
+
+    -- Specialty Information
     PROPERTY_SPEECH_LANGUAGE_PATHOLOGY_SPECIALTIES as slp_specialties,
     PROPERTY_COMPLEX_CASES_SLP as complex_cases_slp,
     PROPERTY_PEDIATRIC_OCCUPATIONAL_THERAPY_SPECIALTIES as ot_specialties,

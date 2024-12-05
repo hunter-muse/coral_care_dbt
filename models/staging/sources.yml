@@ -8,6 +8,7 @@ sources:
     tables:
       - name: contact 
       - name: deal
+      - name: ticket 
     
   - name: bubble
     database: source_bubble

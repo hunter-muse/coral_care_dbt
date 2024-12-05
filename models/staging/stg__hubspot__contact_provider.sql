@@ -60,7 +60,15 @@ select
     -- No exact match found for "Adaptive Play"
     PROPERTY_MYOFUNCTIONAL_DISORDERS_ as myofunctional_disorders,
     PROPERTY_LOW_TECH_AAC_SYSTEMS as low_tech_aac,
-    PROPERTY_HIGH_TECH_AAC_SYSTEMS as high_tech_aac
+    PROPERTY_HIGH_TECH_AAC_SYSTEMS as high_tech_aac,
+
+    -- Provider Status and Estimates
+    PROPERTY_UNIQUE_PATIENTS_L_30 as unique_patients_l_30,
+    PROPERTY_SESSIONS_L_30 as sessions_l_30,
+    PROPERTY_PROVIDER_STATUS_DETAIL as provider_status_detail,
+    PROPERTY_PROVIDER_STATUS as provider_status,
+    PROPERTY_PROVIDER_STATUS_PRODUCT as provider_status_product,
+    PROPERTY_ESTIMATE_WEEKLY_HOURS as estimate_weekly_hours
 
 from {{source('hubspot', 'contact')}} AS contact
 left join {{ref('lat_long_zip')}} AS lat_long_zip

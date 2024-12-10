@@ -68,7 +68,8 @@ select
     PROPERTY_PROVIDER_STATUS_DETAIL as provider_status_detail,
     PROPERTY_PROVIDER_STATUS as provider_status,
     PROPERTY_PROVIDER_STATUS_PRODUCT as provider_status_product,
-    PROPERTY_ESTIMATE_WEEKLY_HOURS as estimate_weekly_hours
+    PROPERTY_ESTIMATE_WEEKLY_HOURS as estimate_weekly_hours,
+    PROPERTY_HS_V_2_DATE_ENTERED_LEAD as date_entered_lead
 
 from {{source('hubspot', 'contact')}} AS contact
 left join {{ref('lat_long_zip')}} AS lat_long_zip

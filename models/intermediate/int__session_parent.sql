@@ -23,6 +23,8 @@ ranked_dependents AS (
     SELECT 
         spd.parent_id,
         d.dependent_name,
+        d.dependent_first_name,
+        d.dependent_last_name,
         d.dependent_dob,
         d.dependent_gender,
         d.dependent_age_number,
@@ -45,16 +47,22 @@ flattened_dependents AS (
     SELECT 
         parent_id,
         MAX(CASE WHEN dependent_number = 1 THEN dependent_name END) as dependent_1_name,
+        MAX(CASE WHEN dependent_number = 1 THEN dependent_first_name END) as dependent_1_first_name,
+        MAX(CASE WHEN dependent_number = 1 THEN dependent_last_name END) as dependent_1_last_name,
         MAX(CASE WHEN dependent_number = 1 THEN dependent_dob END) as dependent_1_dob,
         MAX(CASE WHEN dependent_number = 1 THEN dependent_gender END) as dependent_1_gender,
         MAX(CASE WHEN dependent_number = 1 THEN dependent_reason_for_visit END) as dependent_1_reason_for_visit,
         
         MAX(CASE WHEN dependent_number = 2 THEN dependent_name END) as dependent_2_name,
+        MAX(CASE WHEN dependent_number = 2 THEN dependent_first_name END) as dependent_2_first_name,
+        MAX(CASE WHEN dependent_number = 2 THEN dependent_last_name END) as dependent_2_last_name,  
         MAX(CASE WHEN dependent_number = 2 THEN dependent_dob END) as dependent_2_dob,
         MAX(CASE WHEN dependent_number = 2 THEN dependent_gender END) as dependent_2_gender,
         MAX(CASE WHEN dependent_number = 2 THEN dependent_reason_for_visit END) as dependent_2_reason_for_visit,
         
         MAX(CASE WHEN dependent_number = 3 THEN dependent_name END) as dependent_3_name,
+        MAX(CASE WHEN dependent_number = 3 THEN dependent_first_name END) as dependent_3_first_name,
+        MAX(CASE WHEN dependent_number = 3 THEN dependent_last_name END) as dependent_3_last_name,
         MAX(CASE WHEN dependent_number = 3 THEN dependent_dob END) as dependent_3_dob,
         MAX(CASE WHEN dependent_number = 3 THEN dependent_gender END) as dependent_3_gender,
         MAX(CASE WHEN dependent_number = 3 THEN dependent_reason_for_visit END) as dependent_3_reason_for_visit
@@ -88,16 +96,22 @@ select
     END AS engagement_status,
     -- Add dependent information
     fd.dependent_1_name,
+    fd.dependent_1_first_name,
+    fd.dependent_1_last_name,
     fd.dependent_1_dob,
     fd.dependent_1_gender,
     fd.dependent_1_reason_for_visit,
     
     fd.dependent_2_name,
+    fd.dependent_2_first_name,
+    fd.dependent_2_last_name,
     fd.dependent_2_dob,
     fd.dependent_2_gender,
     fd.dependent_2_reason_for_visit,
     
     fd.dependent_3_name,
+    fd.dependent_3_first_name,
+    fd.dependent_3_last_name,
     fd.dependent_3_dob,
     fd.dependent_3_gender,
     fd.dependent_3_reason_for_visit

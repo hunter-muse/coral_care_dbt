@@ -33,16 +33,22 @@ session_parent.most_recent_provider_name,
 session_parent.upcoming_provider_name,
 
 session_parent.dependent_1_name,
+session_parent.dependent_1_first_name,
+session_parent.dependent_1_last_name,
 session_parent.dependent_1_dob,
 session_parent.dependent_1_gender,
 session_parent.dependent_1_reason_for_visit,
     
 session_parent.dependent_2_name,
+session_parent.dependent_2_first_name,
+session_parent.dependent_2_last_name,
 session_parent.dependent_2_dob,
 session_parent.dependent_2_gender,
 session_parent.dependent_2_reason_for_visit,
     
 session_parent.dependent_3_name,
+session_parent.dependent_3_first_name,
+session_parent.dependent_3_last_name,
 session_parent.dependent_3_dob,
 session_parent.dependent_3_gender,
 session_parent.dependent_3_reason_for_visit

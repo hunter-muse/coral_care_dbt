@@ -74,32 +74,48 @@ provider.Hourly_Rate,
 provider.IN_NETWORK, 
 provider.Insurance_List, 
 REPLACE(
+    REPLACE(
         REPLACE(
-          REPLACE(
-            provider.Languages,
-            '[',
+            REPLACE(
+                REPLACE(
+                    provider.Languages,
+                    '[',
+                    ''
+                ),
+                ']',
+                ''
+            ),
+            '"',
             ''
-          ),
-          ']',
-          ''
         ),
-        '"',
+        '''',  -- Remove single quotes
         ''
-    ) AS Spoken_Languages,
+    ),
+    ', ',     -- Replace ", " with "," to clean up spacing
+    ','
+) AS Spoken_Languages,
 provider.NPI_Number, 
 REPLACE(
+    REPLACE(
         REPLACE(
-          REPLACE(
-            provider.Practice_States,
-            '[',
+            REPLACE(
+                REPLACE(
+                    provider.Practice_States,
+                    '[',
+                    ''
+                ),
+                ']',
+                ''
+            ),
+            '"',
             ''
-          ),
-          ']',
-          ''
         ),
-        '"',
+        '''',  -- Remove single quotes
         ''
-      ) AS Provider_States_Practicing,
+    ),
+    ', ',     -- Replace ", " with "," to clean up spacing
+    ','
+) AS Provider_States_Practicing,
 provider.Provider_Specialty, 
 provider.Travel_Radius,
 provider.Education_List, 
@@ -185,7 +201,6 @@ mapped_insurances AS (
       provider_detail.Expected_Hours AS Estimated_Hours_Per_Week,
       provider_detail.Hourly_Rate,
       provider_detail.IN_NETWORK,
-      provider_detail.Insurance_List AS Accepted_Insurances,
       provider_insurance_accepted.insurances_accepted_names,
       provider_detail.Spoken_Languages,
       provider_detail.NPI_Number,

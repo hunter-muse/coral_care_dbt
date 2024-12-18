@@ -14,7 +14,7 @@ provider.travel_radius,
 provider.spoken_languages,
 provider.provider_specialty,
 provider.provider_status, 
-provider.accepted_insurances, 
+provider.insurances_accepted_names, 
 provider.provider_states_practicing, 
 provider.estimated_hours_per_week, 
 provider.first_login_date, 
@@ -24,7 +24,8 @@ session_provider.most_recent_session_date,
 session_provider.Completed_Last_30_Days,
 session_provider.unique_patient_count_Last_30_Days,
 session_provider.upcoming_session_date,
-session_provider.farthest_out_session_date
+session_provider.farthest_out_session_date,
+session_provider.total_completed_session_count
 FROM {{ref('int__provider')}} AS provider
 LEFT JOIN {{ref('int__session_provider')}} AS session_provider
 ON provider.user_provider_id = session_provider.provider_id 

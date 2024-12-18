@@ -8,7 +8,7 @@ with provider_user as (
     email as provider_email,
     signup_completed_date, 
     last_login_date,
-    created_date as provider_created_date   
+    created_date as first_login_date   
     from {{ref('stg__bubble__user')}}
     where role = 'Provider'
     ),
@@ -108,7 +108,7 @@ provider.insurance_pay as Insurance_Pay_Flag,
 provider.Created_Date,
 user.signup_completed_date,
 user.last_login_date,
-user.provider_created_date
+user.first_login_date
 from {{ ref('stg__bubble__provider') }} as provider 
 left join provider_user as user ON user.provider_first_name = provider.provider_first_name
 WHERE TRUE     
@@ -197,7 +197,7 @@ mapped_insurances AS (
       provider_detail.Created_Date,
       provider_detail.signup_completed_date,
       provider_detail.last_login_date,
-      provider_detail.provider_created_date
+      provider_detail.first_login_date
     FROM
       provider_detail
     LEFT JOIN

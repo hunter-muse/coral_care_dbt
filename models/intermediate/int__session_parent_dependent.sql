@@ -39,22 +39,22 @@ SELECT
     rs.parent_id,
     MIN(CASE WHEN rs.session_status IN ('Completed', 'Confirmed') THEN rs.payment_type END) as payment_type,
     MIN(CASE WHEN rs.session_status IN ('Completed', 'Confirmed') THEN rs.reason_for_visit END) as reason_for_visit,
-    MIN(CASE WHEN rs.session_status = 'Completed' AND rs.session_start_date <= CURRENT_DATE() THEN rs.session_start_date END) AS first_session_date,
+    MIN(CASE WHEN rs.session_status IN ('Completed') THEN rs.session_start_date END) AS first_session_date,
 
     -- Most recent session details
     MAX(CASE WHEN rs.session_status = 'Completed' AND  rs.session_start_date < CURRENT_DATE() THEN rs.session_start_date ELSE NULL END) as most_recent_session_date,
-    MAX(CASE WHEN rs.session_status = 'Completed' AND  rs.recent_rank = 1 AND rs.session_start_date < CURRENT_DATE() THEN rs.session_format END) as most_recent_appt_type,
+    MAX(CASE WHEN rs.session_status = 'Completed' AND  rs.session_start_date < CURRENT_DATE() THEN rs.session_format END) as most_recent_appt_type,
     --MAX(CASE WHEN rs.recent_rank = 1 AND rs.session_start_date < CURRENT_DATE() THEN rs.product_appt_frequency END) as most_recent_frequency,
-    MAX(CASE WHEN rs.session_status = 'Completed' AND  rs.recent_rank = 1 AND rs.session_start_date < CURRENT_DATE() THEN rs.provider_type END) as most_recent_provider_type,
-    MAX(CASE WHEN rs.session_status = 'Completed' AND  rs.recent_rank = 1 AND rs.session_start_date < CURRENT_DATE() THEN rs.provider_name_combined END) as most_recent_provider_name,
+    MAX(CASE WHEN rs.session_status = 'Completed' AND  rs.session_start_date < CURRENT_DATE() THEN rs.provider_type END) as most_recent_provider_type,
+    MAX(CASE WHEN rs.session_status = 'Completed' AND  rs.session_start_date < CURRENT_DATE() THEN rs.provider_name_combined END) as most_recent_provider_name,
 
     -- Upcoming session details
     MIN(CASE WHEN rs.session_status = 'Confirmed' AND  rs.session_start_date >= CURRENT_DATE() THEN rs.session_start_date ELSE NULL END) as upcoming_session_date,
     MIN(CASE WHEN rs.session_status = 'Confirmed' AND  rs.session_start_date >= CURRENT_DATE() THEN rs.session_start_time_only ELSE NULL END) as upcoming_session_time,
-    MAX(CASE WHEN rs.session_status = 'Confirmed' AND  rs.session_start_date >= CURRENT_DATE() THEN rs.session_format END) as upcoming_appt_type,
-    MAX(CASE WHEN rs.session_status = 'Confirmed' AND  rs.session_start_date >= CURRENT_DATE() THEN rs.provider_name_combined END) as upcoming_provider_name,
+    MIN(CASE WHEN rs.session_status = 'Confirmed' AND  rs.session_start_date >= CURRENT_DATE() THEN rs.session_format END) as upcoming_appt_type,
+    MIN(CASE WHEN rs.session_status = 'Confirmed' AND  rs.session_start_date >= CURRENT_DATE() THEN rs.provider_name_combined END) as upcoming_provider_name,
     --MAX(CASE WHEN rs.upcoming_rank = 1 THEN rs.product_appt_frequency END) as upcoming_frequency,
-    MAX(CASE WHEN rs.session_status = 'Confirmed' AND  rs.upcoming_rank = 1 THEN rs.provider_type ELSE NULL END) as upcoming_provider_type,
+    MIN(CASE WHEN rs.session_status = 'Confirmed' AND  rs.session_start_date >= CURRENT_DATE() THEN rs.provider_type ELSE NULL END) as upcoming_provider_type,
     -- Farthest out session details
     MAX(CASE WHEN rs.session_status = 'Confirmed' AND  rs.session_start_date >= CURRENT_DATE() THEN rs.session_start_date ELSE NULL END) as farthest_out_session_date,
     MAX(CASE WHEN rs.session_status = 'Confirmed' AND  rs.session_start_date >= CURRENT_DATE() THEN rs.session_format END) as farthest_out_appt_type,

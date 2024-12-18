@@ -16,6 +16,19 @@ renamed as (
         {{ adapter.quote("DEGREE_INFO") }},
         {{ adapter.quote("EXPECTED_HOURS") }},
         {{ adapter.quote("FIRST_LAST") }},
+        TRIM(
+        SPLIT_PART(TRIM(First_Last), ' ', 1)
+      ) AS provider_first_name,
+      CASE
+        WHEN TRIM(
+          SPLIT_PART(TRIM(First_Last), ' ', 2)
+        ) = '' THEN TRIM(
+          SPLIT_PART(TRIM(First_Last), '  ', 2)
+        )
+        ELSE TRIM(
+          SPLIT_PART(TRIM(First_Last), ' ', 2)
+        )
+      END AS provider_last_name,
         {{ adapter.quote("HOURLY_RATE") }},
         {{ adapter.quote("IN_NETWORK") }},
         {{ adapter.quote("INSURANCE_LIST") }},
@@ -35,8 +48,8 @@ renamed as (
         {{ adapter.quote("XANO_ID") }},
         {{ adapter.quote("LAST_XANO_SYNC_DATE") }},
         {{ adapter.quote("TIMEZONE") }},
-        {{ adapter.quote("TIMEZONE_OFFSET") }}
-
+        {{ adapter.quote("TIMEZONE_OFFSET") }},
+        {{ adapter.quote("TRAVEL_RADIUS") }}
     from source
 )
 select * from renamed

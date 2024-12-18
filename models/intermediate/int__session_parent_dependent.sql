@@ -85,6 +85,7 @@ upcoming_appt_type,
 farthest_out_appt_type,
 completed_session_count,
 most_recent_provider_name,
+most_recent_provider_type,
 upcoming_provider_name, 
 first_session_frequency,
 CASE

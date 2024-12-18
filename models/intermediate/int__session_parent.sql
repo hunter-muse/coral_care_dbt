@@ -17,7 +17,50 @@ select
     SUM(session_parent_dependent.completed_session_count) as session_count
 from {{ref('int__session_parent_dependent')}} AS session_parent_dependent
 GROUP BY 1
-) 
+), 
+
+ranked_dependents AS (
+    SELECT 
+        spd.parent_id,
+        d.dependent_name,
+        d.dependent_dob,
+        d.dependent_gender,
+        d.dependent_age_number,
+        d.dependent_age_unit,
+        FIRST_VALUE(spd.reason_for_visit) OVER (
+            PARTITION BY spd.parent_id, spd.dependent_id 
+            ORDER BY spd.first_session_date
+        ) as dependent_reason_for_visit,
+        ROW_NUMBER() OVER (
+            PARTITION BY spd.parent_id 
+            ORDER BY spd.first_session_date
+        ) as dependent_number
+    FROM {{ref('int__session_parent_dependent')}} AS spd
+    LEFT JOIN {{ref('int__dependent')}} AS d
+        ON spd.dependent_id = d.dependent_id
+    QUALIFY dependent_number <= 3  -- Limit to 3 dependents per parent
+),
+
+flattened_dependents AS (
+    SELECT 
+        parent_id,
+        MAX(CASE WHEN dependent_number = 1 THEN dependent_name END) as dependent_1_name,
+        MAX(CASE WHEN dependent_number = 1 THEN dependent_dob END) as dependent_1_dob,
+        MAX(CASE WHEN dependent_number = 1 THEN dependent_gender END) as dependent_1_gender,
+        MAX(CASE WHEN dependent_number = 1 THEN dependent_reason_for_visit END) as dependent_1_reason_for_visit,
+        
+        MAX(CASE WHEN dependent_number = 2 THEN dependent_name END) as dependent_2_name,
+        MAX(CASE WHEN dependent_number = 2 THEN dependent_dob END) as dependent_2_dob,
+        MAX(CASE WHEN dependent_number = 2 THEN dependent_gender END) as dependent_2_gender,
+        MAX(CASE WHEN dependent_number = 2 THEN dependent_reason_for_visit END) as dependent_2_reason_for_visit,
+        
+        MAX(CASE WHEN dependent_number = 3 THEN dependent_name END) as dependent_3_name,
+        MAX(CASE WHEN dependent_number = 3 THEN dependent_dob END) as dependent_3_dob,
+        MAX(CASE WHEN dependent_number = 3 THEN dependent_gender END) as dependent_3_gender,
+        MAX(CASE WHEN dependent_number = 3 THEN dependent_reason_for_visit END) as dependent_3_reason_for_visit
+    FROM ranked_dependents
+    GROUP BY parent_id
+)
 
 select 
     parent_summary.parent_id,
@@ -42,6 +85,22 @@ select
         WHEN parent_summary.upcoming_session_date IS NULL AND DATEDIFF(DAY, parent_summary.most_recent_session_date, CURRENT_DATE()) > 14 THEN 'Churned'
         WHEN parent_summary.session_count = 0 THEN 'No Treatment'
         ELSE 'Churned'
-    END AS engagement_status
-from parent_summary
-
+    END AS engagement_status,
+    -- Add dependent information
+    fd.dependent_1_name,
+    fd.dependent_1_dob,
+    fd.dependent_1_gender,
+    fd.dependent_1_reason_for_visit,
+    
+    fd.dependent_2_name,
+    fd.dependent_2_dob,
+    fd.dependent_2_gender,
+    fd.dependent_2_reason_for_visit,
+    
+    fd.dependent_3_name,
+    fd.dependent_3_dob,
+    fd.dependent_3_gender,
+    fd.dependent_3_reason_for_visit
+FROM parent_summary parent_summary
+LEFT JOIN flattened_dependents fd
+    ON parent_summary.parent_id = fd.parent_id

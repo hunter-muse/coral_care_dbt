@@ -101,6 +101,7 @@ REPLACE(
         ''
       ) AS Provider_States_Practicing,
 provider.Provider_Specialty, 
+provider.Travel_Radius,
 provider.Education_List, 
 provider.License_Type, 
 provider.cash_pay as Cash_Pay_Flag,
@@ -189,6 +190,7 @@ mapped_insurances AS (
       provider_detail.Spoken_Languages,
       provider_detail.NPI_Number,
       provider_detail.Provider_States_Practicing,
+      provider_detail.Travel_Radius,
       provider_detail.Provider_Specialty,
       provider_detail.Education_List,
       provider_detail.License_Type,

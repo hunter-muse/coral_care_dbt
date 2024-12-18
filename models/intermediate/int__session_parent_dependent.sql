@@ -40,7 +40,7 @@ SELECT
     MIN(CASE WHEN rs.session_status IN ('Completed', 'Confirmed') THEN rs.payment_type END) as payment_type,
     MIN(CASE WHEN rs.session_status IN ('Completed', 'Confirmed') THEN rs.reason_for_visit END) as reason_for_visit,
     MIN(CASE WHEN rs.session_status IN ('Completed') THEN rs.session_start_date END) AS first_session_date,
-
+    MIN(CASE WHEN rs.session_status IN ('Completed') THEN rs.session_frequency END) AS first_session_frequency,
     -- Most recent session details
     MAX(CASE WHEN rs.session_status = 'Completed' AND  rs.session_start_date < CURRENT_DATE() THEN rs.session_start_date ELSE NULL END) as most_recent_session_date,
     MAX(CASE WHEN rs.session_status = 'Completed' AND  rs.session_start_date < CURRENT_DATE() THEN rs.session_format END) as most_recent_appt_type,
@@ -86,6 +86,7 @@ farthest_out_appt_type,
 completed_session_count,
 most_recent_provider_name,
 upcoming_provider_name, 
+first_session_frequency,
 CASE
         WHEN first_session_date IS NULL
         AND completed_session_count = 0 THEN 1
@@ -93,4 +94,3 @@ CASE
       END AS NeverBookedFLG
 from 
 final 
--- where parent_id = '1727521616734x862398024099603800'

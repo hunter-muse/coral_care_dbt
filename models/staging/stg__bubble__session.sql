@@ -44,8 +44,8 @@ renamed as (
         {{ adapter.quote("SESSION_FORMAT") }},
         {{ adapter.quote("LATE_CANCELLATION_FEE_WAIVED") }},
         {{ adapter.quote("FIRST_SESSION") }},
-        {{ adapter.quote("CC_LAST_4") }}
-        --{{ adapter.quote("frequency_option_os_recurring_frequency") }}
+        {{ adapter.quote("CC_LAST_4") }},
+        {{ adapter.quote("SESSION_FREQUENCY") }}
     from source
 )
 select * from renamed

@@ -19,6 +19,7 @@ Address_city,
 Address_state, 
 recurring_differentiation, 
 provider_name,
+session_frequency,
 start_date AS session_start_date,
 DATE(start_date) as session_start_date_only,  -- Extracts 2024-04-17
 TIME(start_date) as session_start_time_only  -- Extracts 16:00:00

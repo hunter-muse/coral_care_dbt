@@ -48,9 +48,8 @@ renamed as (
         {{ adapter.quote("XANO_ID") }},
         {{ adapter.quote("LAST_XANO_SYNC_DATE") }},
         {{ adapter.quote("TIMEZONE") }},
-        {{ adapter.quote("TIMEZONE_OFFSET") }}--,
-        -- {{ adapter.quote("travel_radius__mi__number") }}
-
+        {{ adapter.quote("TIMEZONE_OFFSET") }},
+        {{ adapter.quote("TRAVEL_RADIUS") }}
     from source
 )
 select * from renamed

@@ -45,7 +45,7 @@ renamed as (
         {{ adapter.quote("LATE_CANCELLATION_FEE_WAIVED") }},
         {{ adapter.quote("FIRST_SESSION") }},
         {{ adapter.quote("CC_LAST_4") }}
-
+        --{{ adapter.quote("frequency_option_os_recurring_frequency") }}
     from source
 )
 select * from renamed

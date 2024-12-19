@@ -28,18 +28,24 @@ parent_aggregated as (
     group by dependent_first_name, dependent_last_name
 ),
 
-provider_aggregated as (
-    select 
+provider_prep as (
+    select distinct 
+        dependent_id, 
         dependent_first_name,
         dependent_last_name,
         date(session_start_date) as service_date,
-        LISTAGG(DISTINCT provider_id, ', ') WITHIN GROUP (ORDER BY provider_id) as provider_ids
+        provider_ID 
     from {{ref('int__session')}} session
     join claims_with_id using (dependent_id)
-    group by dependent_first_name, dependent_last_name, date(session_start_date)
 ),
 
-final as (
+provider as (
+select *
+from provider_prep
+qualify row_number() over (partition by dependent_first_name, dependent_last_name, service_date order by provider_id) = 1
+),
+
+combined as (
 select distinct 
     claims.RECORD_ID,
     claims.Patient_Name,
@@ -98,7 +104,7 @@ select distinct
     dep.dependent_ids,
     parent.parent_first_names,
     parent.parent_last_names,
-    provider.provider_ids
+    provider.provider_id
 from claims_with_id claims
 left join dependent_aggregated dep
     on claims.dependent_first_name = dep.dependent_first_name
@@ -106,12 +112,73 @@ left join dependent_aggregated dep
 left join parent_aggregated parent 
     on claims.dependent_first_name = parent.dependent_first_name
     and claims.dependent_last_name = parent.dependent_last_name
-left join provider_aggregated provider 
-    on claims.dependent_first_name = provider.dependent_first_name
-    and claims.dependent_last_name = provider.dependent_last_name
-    and date(claims.Date_Of_Service) = provider.service_date
-)
+left join provider  
+on claims.dependent_id = provider.dependent_id
+and date(provider.service_date) = date(claims.Date_Of_Service)
+),
 
-select *
-from final
-order by record_id
+final as (
+select 
+RECORD_ID,
+    Patient_Name,
+    dependent_first_name,
+    dependent_last_name,
+    MRN,
+    Payer_Name,
+    Date_Of_Service,
+    Year_Month,
+    Service_Type,
+    Category,
+    Claim_Status,
+    Claim_Category,
+    Charges,
+    CPT_Code1,
+    Code_1_Charge,
+    CPT_Code2,
+    Code2_Charge,
+    CPT_code3,
+    Code_3_Charge,
+    CPT_code_4,
+    Code_4_Charge,
+    CPT_Code_X_Number_of_units,
+    Payer_Claim_Number,
+    Processed_Denied_Date,
+    Allowed_Amount,
+    Paid_Amount,
+    Copay,
+    Coins,
+    Deductible,
+    Total_PTR,
+    Check_EFT_Number,
+    Check_EFT,
+    EFT_Amount,
+    EFT_Date,
+    Comment,
+    Status,
+    Total_Insurance_Projection,
+    Total_Rev_Projection,
+    Session_Type,
+    Total_Allowable,
+    Total_Collected,
+    Total_Code_Charge,
+    Paid_Status,
+    Insurer_Code_Combo,
+    Insurer_Code_Lookup,
+    Charge_Code_1,
+    Charge_Code_1_Code,
+    Charge_Code_2,
+    Charge_Code_2_Code,
+    Charge_Code_3,
+    Charge_Code_3_Code,
+    Charge_Code_4,
+    Charge_Code_4_Code,
+    Hold_1,
+    dependent_ids,
+    parent_first_names,
+    parent_last_names,
+    MAX(provider_id) AS provider_id
+from combined 
+GROUP BY ALL 
+) 
+
+select * from final 

@@ -8,7 +8,7 @@ with provider_user as (
     email as provider_email,
     signup_completed_date, 
     last_login_date,
-    created_date as first_login_date   
+    created_date as first_login_date
     from {{ref('stg__bubble__user')}}
     where role = 'Provider'
     ),
@@ -123,6 +123,7 @@ provider.License_Type,
 provider.cash_pay as Cash_Pay_Flag,
 provider.insurance_pay as Insurance_Pay_Flag,
 provider.Created_Date,
+provider.timezone_offset,
 user.signup_completed_date,
 user.last_login_date,
 user.first_login_date
@@ -214,7 +215,8 @@ mapped_insurances AS (
       provider_detail.Created_Date,
       provider_detail.signup_completed_date,
       provider_detail.last_login_date,
-      provider_detail.first_login_date
+      provider_detail.first_login_date,
+      provider_detail.timezone_offset
     FROM
       provider_detail
     LEFT JOIN

@@ -44,6 +44,7 @@ select
     
     -- Marketing Information
     PROPERTY_UTM_CAMPAIGN as utm_campaign,
+    PROPERTY_HS_ANALYTICS_SOURCE as original_traffic_source,
 
     -- Specialty Information
     PROPERTY_SPEECH_LANGUAGE_PATHOLOGY_SPECIALTIES as slp_specialties,

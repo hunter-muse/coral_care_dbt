@@ -1,5 +1,5 @@
 with source as (
-    select * from {{ ref('stg__hubspot__deal') }} deal
+    select deal.*, from {{ ref('stg__hubspot__deal') }} deal
     INNER JOIN {{ ref('stg__hubspot__contact_parent')}} parent
     ON deal.contact_id = parent.record_id 
 ),
@@ -245,3 +245,4 @@ from enriched e
 left join current_stage_summary cs on e.deal_id = cs.deal_id
 left join stage_timing_summary sts on e.deal_id = sts.deal_id
 left join funnel_progression fp on e.deal_id = fp.deal_id
+order by 2,1

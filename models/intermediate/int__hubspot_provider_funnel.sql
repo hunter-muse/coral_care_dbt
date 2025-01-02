@@ -1,13 +1,16 @@
 with source as (
-    select deal.*, from {{ ref('stg__hubspot__deal') }} deal
+    select deal.*, provider_enriched.provider_id from {{ ref('stg__hubspot__deal') }} deal
     INNER JOIN {{ ref('stg__hubspot__contact_provider')}} provider
     ON deal.contact_id = provider.record_id 
+    LEFT JOIN {{ ref('int__provider')}} provider_enriched
+    ON provider.record_id = provider_enriched.hubspot_provider_id
 ),
 
 enriched as (
     select 
         deal_id, 
         contact_id,
+        provider_id,
         case 
             when date_entered_referrals_provider_recruiting is null and date_exited_referrals_provider_recruiting is null then 'never_entered'
             when date_entered_referrals_provider_recruiting is not null and date_exited_referrals_provider_recruiting is null then 'current'
@@ -373,6 +376,7 @@ current_stage_summary as (
     select 
         deal_id,
         contact_id,
+        provider_id,
         case
             -- Provider Recruiting Stages
             when referrals_provider_recruiting_status = 'current' then 'Referrals (Provider Recruiting)'
@@ -452,6 +456,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_id,
         'referrals_provider_recruiting_status' as stage_name,
         referrals_provider_recruiting_status as status,
         1 as stage_order
@@ -463,6 +468,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_id,
         'new_provider_lead_provider_recruiting_status' as stage_name,
         new_provider_lead_provider_recruiting_status as status,
         2 as stage_order
@@ -473,7 +479,8 @@ stage_statuses as (
     
     select 
         deal_id,
-        contact_id,
+        contact_id, 
+        provider_id,
         'interview_booked_provider_recruiting_status' as stage_name,
         interview_booked_provider_recruiting_status as status,
         3 as stage_order
@@ -485,6 +492,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_id,
         'post_interview_provider_recruiting_status' as stage_name,
         post_interview_provider_recruiting_status as status,
         4 as stage_order
@@ -496,6 +504,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_id,
         'clinical_interview_provider_recruiting_status' as stage_name,
         clinical_interview_provider_recruiting_status as status,
         5 as stage_order
@@ -507,6 +516,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_id,
         'offer_letter_provider_recruiting_status' as stage_name,
         offer_letter_provider_recruiting_status as status,
         6 as stage_order
@@ -518,6 +528,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_id,
         'recruitment_complete_provider_recruiting_status' as stage_name,
         recruitment_complete_provider_recruiting_status as status,
         7 as stage_order
@@ -529,6 +540,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_id,
         'ready_to_onboard_provider_onboarding_status' as stage_name,
         ready_to_onboard_provider_onboarding_status as status,
         8 as stage_order
@@ -540,6 +552,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_id,
         'pending_onboarding_tasks_provider_onboarding_status' as stage_name,
         pending_onboarding_tasks_provider_onboarding_status as status,
         9 as stage_order
@@ -551,6 +564,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_id,
         'schedule_onboarding_call_provider_onboarding_status' as stage_name,
         schedule_onboarding_call_provider_onboarding_status as status,
         10 as stage_order
@@ -561,7 +575,8 @@ stage_statuses as (
     
     select 
         deal_id,
-        contact_id,
+        contact_id, 
+        provider_id,
         'checkr_fail_provider_onboarding_status' as stage_name,
         checkr_fail_provider_onboarding_status as status,
         11 as stage_order
@@ -572,10 +587,11 @@ stage_statuses as (
 funnel_progression as (
     select
         deal_id,
-        contact_id,
+        contact_id, 
+        provider_id,
         LISTAGG(stage_name, ' -> ') within group (order by stage_order) as progression_path
     from stage_statuses
-    group by deal_id, contact_id
+    group by deal_id, contact_id, provider_id
 )
 
 -- Final output with all the enriched data plus summaries

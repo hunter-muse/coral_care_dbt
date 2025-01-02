@@ -8,8 +8,12 @@ with provider_user as (
     email as provider_email,
     signup_completed_date, 
     last_login_date,
-    created_date as first_login_date
-    from {{ref('stg__bubble__user')}}
+    user.created_date as first_login_date,
+    record_id as hubspot_provider_id
+    from {{ref('stg__bubble__user')}} user 
+    left join {{ref('stg__hubspot__contact_provider')}} provider
+    on lower(user.first_name) = lower(provider.provider_first_name)
+    and lower(user.last_name) = lower(provider.provider_last_name)
     where role = 'Provider'
     ),
 
@@ -126,7 +130,8 @@ provider.Created_Date,
 provider.timezone_offset,
 user.signup_completed_date,
 user.last_login_date,
-user.first_login_date
+user.first_login_date,
+user.hubspot_provider_id
 from {{ ref('stg__bubble__provider') }} as provider 
 left join provider_user as user ON user.provider_first_name = provider.provider_first_name
 WHERE TRUE     
@@ -181,8 +186,9 @@ mapped_insurances AS (
   )
 
     SELECT
-      provider_detail.bubble_provider_ID,
-      provider_detail.user_provider_id,
+      provider_detail.bubble_provider_ID as bubble_provider_id,
+      provider_detail.user_provider_id AS provider_id,
+      provider_detail.hubspot_provider_id,
       provider_detail.provider_first_name,
       provider_detail.provider_last_name,
       provider_detail.provider_phone_number,
@@ -223,4 +229,3 @@ mapped_insurances AS (
       provider_insurance_accepted ON 
       provider_detail.Provider_First_Name = provider_insurance_accepted.Provider_First_Name 
       AND provider_detail.Provider_Last_Name = provider_insurance_accepted.Provider_Last_Name
-

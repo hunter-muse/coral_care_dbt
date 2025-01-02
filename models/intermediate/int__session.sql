@@ -6,7 +6,8 @@ select
     parent_detail, 
     session_format, 
     duration, 
-    provider_user as provider_id, 
+    --provider_user, 
+    provider.provider_id, 
     provider_name,
     provider_specialty AS provider_type,
     session_type as session_type_ID, 
@@ -29,4 +30,4 @@ select
     provider.timezone_offset as timezone_offset
 from {{ ref('stg__bubble__session') }} as session
 left join {{ref('int__provider')}} as provider 
-    on session.provider_user = provider.user_provider_ID
+    on session.provider_user = provider.provider_id

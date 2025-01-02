@@ -30,7 +30,7 @@ WITH ranked_sessions AS (
         COALESCE(session.provider_name, CONCAT(provider.provider_first_name, ' ', provider.provider_last_name)) as provider_name_combined 
     FROM {{ref('int__session')}} AS session
     LEFT JOIN {{ref('int__provider')}} AS provider
-    ON session.provider_id = provider.user_provider_id
+    ON session.provider_id = provider.provider_id 
 ), 
 
 final as (

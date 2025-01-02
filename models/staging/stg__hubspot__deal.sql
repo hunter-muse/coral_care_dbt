@@ -1,5 +1,5 @@
 select 
-    deal.deal_id,
+    --deal.deal_id,
     deal_contact.contact_id,
     deal.property_hs_v_2_date_exited_174666285 as date_exited_opportunities_unengaged,
     deal.property_hs_v_2_date_entered_174666285 as date_entered_opportunities_unengaged,
@@ -28,7 +28,45 @@ select
     deal.property_hs_v_2_cumulative_time_in_174666291 as cumulative_time_in_closed_lost,
     deal.property_hs_v_2_date_entered_174666291 as date_entered_closed_lost,
     deal.property_hs_v_2_date_exited_174666291 as date_exited_closed_lost,
-    deal.property_hs_v_2_latest_time_in_174666291 as latest_time_in_closed_lost
+    deal.property_hs_v_2_latest_time_in_174666291 as latest_time_in_closed_lost,
+    -- New fields from CSV
+    deal.property_hs_v_2_date_entered_245897332 as date_entered_referrals_provider_recruiting,
+    deal.property_hs_v_2_date_exited_245897332 as date_exited_referrals_provider_recruiting,
+    deal.property_hs_v_2_date_entered_181514531 as date_entered_new_provider_lead_provider_recruiting,
+    deal.property_hs_v_2_date_exited_181514531 as date_exited_new_provider_lead_provider_recruiting,
+    deal.property_hs_v_2_date_entered_181514532 as date_entered_interview_booked_provider_recruiting,
+    deal.property_hs_v_2_date_exited_181514532 as date_exited_interview_booked_provider_recruiting,
+    deal.property_hs_v_2_date_entered_181514533 as date_entered_post_interview_provider_recruiting,
+    deal.property_hs_v_2_date_exited_181514533 as date_exited_post_interview_provider_recruiting,
+    deal.property_hs_v_2_date_entered_181514534 as date_entered_clinical_interview_provider_recruiting,
+    deal.property_hs_v_2_date_exited_181514534 as date_exited_clinical_interview_provider_recruiting,
+    deal.property_hs_v_2_date_entered_181514535 as date_entered_offer_letter_provider_recruiting,
+    deal.property_hs_v_2_date_exited_181514535 as date_exited_offer_letter_provider_recruiting,
+    deal.property_hs_v_2_date_entered_181514537 as date_entered_recruitment_complete_provider_recruiting,
+    deal.property_hs_v_2_date_exited_181514537 as date_exited_recruitment_complete_provider_recruiting,
+    deal.property_hs_v_2_date_entered_181529889 as date_entered_cold_provider_recruiting,
+    deal.property_hs_v_2_date_exited_181529889 as date_exited_cold_provider_recruiting,
+    deal.property_hs_v_2_date_entered_181529890 as date_entered_closed_lost_provider_recruiting,
+    deal.property_hs_v_2_date_exited_181529890 as date_exited_closed_lost_provider_recruiting,
+    deal.property_hs_v_2_date_entered_181529891 as date_entered_disqualified_provider_recruiting,
+    deal.property_hs_v_2_date_exited_181529891 as date_exited_disqualified_provider_recruiting,
+    deal.property_hs_v_2_date_entered_200291858 as date_entered_ready_to_onboard_provider_onboarding,
+    deal.property_hs_v_2_date_exited_200291858 as date_exited_ready_to_onboard_provider_onboarding,
+    deal.property_hs_v_2_date_entered_200291859 as date_entered_pending_onboarding_tasks_provider_onboarding,
+    deal.property_hs_v_2_date_exited_200291859 as date_exited_pending_onboarding_tasks_provider_onboarding,
+    deal.property_hs_v_2_date_entered_200291860 as date_entered_schedule_onboarding_call_provider_onboarding,
+    deal.property_hs_v_2_date_exited_200291860 as date_exited_schedule_onboarding_call_provider_onboarding,
+    deal.property_hs_v_2_date_entered_200291863 as date_entered_onboarding_complete_provider_onboarding,
+    deal.property_hs_v_2_date_exited_200291863 as date_exited_onboarding_complete_provider_onboarding,
+    deal.PROPERTY_HS_DATE_ENTERED_260841100 as date_entered_checkr_fail_provider_onboarding,
+    deal.PROPERTY_HS_DATE_EXITED_260841100 as date_exited_checkr_fail_provider_onboarding,
+    deal.property_hs_v_2_date_entered_200291861 as date_entered_cold_provider_onboarding,
+    deal.property_hs_v_2_date_exited_200291861 as date_exited_cold_provider_onboarding,
+    deal.property_hs_v_2_date_entered_200291864 as date_entered_closed_lost_provider_onboarding,
+    deal.property_hs_v_2_date_exited_200291864 as date_exited_closed_lost_provider_onboarding,
+    deal.property_hs_v_2_date_entered_202963371 as date_entered_disqualified_provider_onboarding,
+    -- deal.property_hs_v_2_date_exited_202963371 as date_exited_disqualified_provider_onboarding --exited doesn't seem to exist
+    deal.*
 from {{ source('hubspot', 'deal') }} deal 
 left join {{ source('hubspot', 'deal_contact') }} deal_contact 
     on deal.deal_id = deal_contact.deal_id

@@ -1,5 +1,6 @@
 select
     -- Basic Provider Information
+    ID as record_id,
     PROPERTY_EMAIL as provider_email,
     concat(PROPERTY_FIRSTNAME, ' ', PROPERTY_LASTNAME) as provider_full_name,
     PROPERTY_FIRSTNAME AS provider_first_name, 

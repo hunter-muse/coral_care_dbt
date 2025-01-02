@@ -62,34 +62,167 @@ enriched as (
             when date_entered_closed_lost = date_exited_closed_lost then 'skipped'
             else 'completed'
         end as closed_lost_status,
-        -- Time calculations
-        -- Opportunities Unengaged
-        ROUND(CAST(cumulative_time_in_opportunities_unengaged AS FLOAT) * (1/3600), 2) as hours_in_opportunities_unengaged,
-        ROUND(CAST(cumulative_time_in_opportunities_unengaged AS FLOAT) * (1/86400), 2) as days_in_opportunities_unengaged,
-        
-        -- Leads In Progress
-        ROUND(CAST(cumulative_time_in_leads_in_progress AS FLOAT) * (1/3600), 2) as hours_in_leads_in_progress,
-        ROUND(CAST(cumulative_time_in_leads_in_progress AS FLOAT) * (1/86400), 2) as days_in_leads_in_progress,
-        
-        -- Match In Progress
-        ROUND(CAST(cumulative_time_in_match_in_progress AS FLOAT) * (1/3600), 2) as hours_in_match_in_progress,
-        ROUND(CAST(cumulative_time_in_match_in_progress AS FLOAT) * (1/86400), 2) as days_in_match_in_progress,
-        
-        -- Match Shared
-        ROUND(CAST(cumulative_time_in_match_shared AS FLOAT) * (1/3600), 2) as hours_in_match_shared,
-        ROUND(CAST(cumulative_time_in_match_shared AS FLOAT) * (1/86400), 2) as days_in_match_shared,
-        
-        -- Match Pending
-        ROUND(CAST(cumulative_time_in_match_pending AS FLOAT) * (1/3600), 2) as hours_in_match_pending,
-        ROUND(CAST(cumulative_time_in_match_pending AS FLOAT) * (1/86400), 2) as days_in_match_pending,
-        
-        -- Appointment Booked/Closed Won
-        ROUND(CAST(cumulative_time_in_appointment_booked_closed_won AS FLOAT) * (1/3600), 2) as hours_in_appointment_booked_closed_won,
-        ROUND(CAST(cumulative_time_in_appointment_booked_closed_won AS FLOAT) * (1/86400), 2) as days_in_appointment_booked_closed_won,
-        
-        -- Closed Lost
-        ROUND(CAST(cumulative_time_in_closed_lost AS FLOAT) * (1/3600), 2) as hours_in_closed_lost,
-        ROUND(CAST(cumulative_time_in_closed_lost AS FLOAT) * (1/86400), 2) as days_in_closed_lost
+-- Time calculations
+-- Opportunities Unengaged
+ROUND(
+    CAST(
+        DATEDIFF(
+            'second',
+            date_entered_opportunities_unengaged,
+            COALESCE(date_exited_opportunities_unengaged, CURRENT_TIMESTAMP())
+        ) AS FLOAT
+    ) * (1/3600),
+    2
+) as hours_in_opportunities_unengaged,
+
+ROUND(
+    CAST(
+        DATEDIFF(
+            'second',
+            date_entered_opportunities_unengaged,
+            COALESCE(date_exited_opportunities_unengaged, CURRENT_TIMESTAMP())
+        ) AS FLOAT
+    ) * (1/86400),
+    2
+) as days_in_opportunities_unengaged,
+
+-- Leads In Progress
+ROUND(
+    CAST(
+        DATEDIFF(
+            'second',
+            date_entered_leads_in_progress,
+            COALESCE(date_exited_leads_in_progress, CURRENT_TIMESTAMP())
+        ) AS FLOAT
+    ) * (1/3600),
+    2
+) as hours_in_leads_in_progress,
+
+ROUND(
+    CAST(
+        DATEDIFF(
+            'second',
+            date_entered_leads_in_progress,
+            COALESCE(date_exited_leads_in_progress, CURRENT_TIMESTAMP())
+        ) AS FLOAT
+    ) * (1/86400),
+    2
+) as days_in_leads_in_progress,
+
+-- Match In Progress
+ROUND(
+    CAST(
+        DATEDIFF(
+            'second',
+            date_entered_match_in_progress,
+            COALESCE(date_exited_match_in_progress, CURRENT_TIMESTAMP())
+        ) AS FLOAT
+    ) * (1/3600),
+    2
+) as hours_in_match_in_progress,
+
+ROUND(
+    CAST(
+        DATEDIFF(
+            'second',
+            date_entered_match_in_progress,
+            COALESCE(date_exited_match_in_progress, CURRENT_TIMESTAMP())
+        ) AS FLOAT
+    ) * (1/86400),
+    2
+) as days_in_match_in_progress,
+
+-- Match Shared
+ROUND(
+    CAST(
+        DATEDIFF(
+            'second',
+            date_entered_match_shared,
+            COALESCE(date_exited_match_shared, CURRENT_TIMESTAMP())
+        ) AS FLOAT
+    ) * (1/3600),
+    2
+) as hours_in_match_shared,
+
+ROUND(
+    CAST(
+        DATEDIFF(
+            'second',
+            date_entered_match_shared,
+            COALESCE(date_exited_match_shared, CURRENT_TIMESTAMP())
+        ) AS FLOAT
+    ) * (1/86400),
+    2
+) as days_in_match_shared,
+
+-- Match Pending
+ROUND(
+    CAST(
+        DATEDIFF(
+            'second',
+            date_entered_match_pending,
+            COALESCE(date_exited_match_pending, CURRENT_TIMESTAMP())
+        ) AS FLOAT
+    ) * (1/3600),
+    2
+) as hours_in_match_pending,
+
+ROUND(
+    CAST(
+        DATEDIFF(
+            'second',
+            date_entered_match_pending,
+            COALESCE(date_exited_match_pending, CURRENT_TIMESTAMP())
+        ) AS FLOAT
+    ) * (1/86400),
+    2
+) as days_in_match_pending,
+
+-- Appointment Booked/Closed Won
+ROUND(
+    CAST(
+        DATEDIFF(
+            'second',
+            date_entered_appointment_booked_closed_won,
+            COALESCE(date_exited_appointment_booked_closed_won, CURRENT_TIMESTAMP())
+        ) AS FLOAT
+    ) * (1/3600),
+    2
+) as hours_in_appointment_booked_closed_won,
+
+ROUND(
+    CAST(
+        DATEDIFF(
+            'second',
+            date_entered_appointment_booked_closed_won,
+            COALESCE(date_exited_appointment_booked_closed_won, CURRENT_TIMESTAMP())
+        ) AS FLOAT
+    ) * (1/86400),
+    2
+) as days_in_appointment_booked_closed_won,
+
+-- Closed Lost
+ROUND(
+    CAST(
+        DATEDIFF(
+            'second',
+            date_entered_closed_lost,
+            COALESCE(date_exited_closed_lost, CURRENT_TIMESTAMP())
+        ) AS FLOAT
+    ) * (1/3600),
+    2
+) as hours_in_closed_lost,
+
+ROUND(
+    CAST(
+        DATEDIFF(
+            'second',
+            date_entered_closed_lost,
+            COALESCE(date_exited_closed_lost, CURRENT_TIMESTAMP())
+        ) AS FLOAT
+    ) * (1/86400),
+    2
+) as days_in_closed_lost
     from source
 ),
 

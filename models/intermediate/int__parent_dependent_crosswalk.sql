@@ -12,7 +12,7 @@ from
 {{ref('int__parent')}} parent 
 LEFT JOIN 
 {{ref('int__dependent')}} dependent
-on parent.parent_user_reference = dependent.parent_id
+on parent.parent_id = dependent.parent_id
 where dependent.dependent_name is not null
 order by parent.parent_id
 

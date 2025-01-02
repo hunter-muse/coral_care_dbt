@@ -5,8 +5,8 @@ renamed as (
     select
         {{ adapter.quote("USER_ID") }},
         {{ adapter.quote("IS_DEVELOPER") }},
-        {{ adapter.quote("FIRST_NAME") }},
-        {{ adapter.quote("LAST_NAME") }},
+        TRIM({{ adapter.quote("FIRST_NAME") }}) as {{ adapter.quote("FIRST_NAME") }},
+        TRIM({{ adapter.quote("LAST_NAME") }}) as {{ adapter.quote("LAST_NAME") }},
         {{ adapter.quote("ROLE") }},
         {{ adapter.quote("SIGNUP_COMPLETED_DATE") }},
         {{ adapter.quote("SIGNUP_STEP") }},

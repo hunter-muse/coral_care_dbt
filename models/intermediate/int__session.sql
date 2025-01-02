@@ -25,7 +25,10 @@ select
     start_date AS session_start_date,
     DATE(start_date) as session_start_date_only,
     -- Adjust the time by subtracting the timezone offset minutes
-    TIME(start_date) as session_start_time_only
+    TIME(start_date) as session_start_time_only,
+    cancellation_reason,
+    cancellation_timestamp_date,
+    y_notes_completed_timestamp
     --TIME(DATEADD(MINUTE, -provider.timezone_offset, start_date)) as session_start_time_only,
     --provider.timezone_offset as timezone_offset
 from {{ ref('stg__bubble__session') }} as session

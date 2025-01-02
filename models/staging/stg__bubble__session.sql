@@ -45,7 +45,10 @@ renamed as (
         {{ adapter.quote("LATE_CANCELLATION_FEE_WAIVED") }},
         {{ adapter.quote("FIRST_SESSION") }},
         {{ adapter.quote("CC_LAST_4") }},
-        {{ adapter.quote("SESSION_FREQUENCY") }}
+        {{ adapter.quote("SESSION_FREQUENCY") }},
+        {{ adapter.quote("CANCELLATION_REASON")}},
+        {{ adapter.quote("CANCELLATION_TIMESTAMP_DATE")}},
+        {{ adapter.quote("Y_NOTES_COMPLETED_TIMESTAMP")}}
     from source
 )
 select * from renamed

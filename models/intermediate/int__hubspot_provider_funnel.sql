@@ -1,7 +1,7 @@
 with source as (
     select deal.*, from {{ ref('stg__hubspot__deal') }} deal
-    INNER JOIN {{ ref('stg__hubspot__contact_parent')}} parent
-    ON deal.contact_id = parent.record_id 
+    INNER JOIN {{ ref('stg__hubspot__contact_provider')}} provider
+    ON deal.contact_id = provider.record_id 
 ),
 
 enriched as (

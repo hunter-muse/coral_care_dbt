@@ -6,7 +6,8 @@ with source as (
 
 enriched as (
     select 
-        *,
+        deal_id, 
+        contact_id,
         case 
             when date_entered_referrals_provider_recruiting is null and date_exited_referrals_provider_recruiting is null then 'never_entered'
             when date_entered_referrals_provider_recruiting is not null and date_exited_referrals_provider_recruiting is null then 'current'

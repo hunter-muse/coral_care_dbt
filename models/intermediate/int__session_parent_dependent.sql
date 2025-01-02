@@ -26,7 +26,7 @@ WITH ranked_sessions AS (
                 ELSE NULL 
             END DESC
         ) as farthest_rank,
-        provider.provider_Specialty as provider_type,
+        --provider.provider_Specialty as provider_type,
         COALESCE(session.provider_name, CONCAT(provider.provider_first_name, ' ', provider.provider_last_name)) as provider_name_combined 
     FROM {{ref('int__session')}} AS session
     LEFT JOIN {{ref('int__provider')}} AS provider

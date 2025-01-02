@@ -60,4 +60,4 @@ session_parent.dependent_3_gender,
 session_parent.dependent_3_reason_for_visit
 FROM {{ref('int__parent')}} AS parent
 LEFT JOIN {{ref('int__session_parent')}} AS session_parent
-ON parent.parent_user_reference = session_parent.parent_id 
+ON parent.parent_id = session_parent.parent_id

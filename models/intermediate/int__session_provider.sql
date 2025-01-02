@@ -11,7 +11,7 @@ select
     DATEDIFF(DAY, session_start_date, CURRENT_DATE()) AS days_since_session
 from {{ref('int__session')}} AS session
 LEFT JOIN {{ref('int__provider')}} AS provider
-ON session.provider_id = provider.user_provider_id
+ON session.provider_id = provider.provider_id
 ),
 
 final as (

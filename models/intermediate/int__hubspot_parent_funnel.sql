@@ -1,13 +1,16 @@
 with source as (
-    select deal.*, from {{ ref('stg__hubspot__deal') }} deal
+    select deal.*, parent_enriched.* from {{ ref('stg__hubspot__deal') }} deal
     INNER JOIN {{ ref('stg__hubspot__contact_parent')}} parent
     ON deal.contact_id = parent.record_id 
+    LEFT JOIN {{ ref('int__parent')}} parent_enriched
+    ON parent.record_id = parent_enriched.hubspot_parent_id
 ),
 
 enriched as (
     select 
         deal_id, 
         contact_id,
+        parent_id, 
         -- Opportunities Unengaged Stage
         case 
             when date_entered_opportunities_unengaged is null and date_exited_opportunities_unengaged is null then 'never_entered'

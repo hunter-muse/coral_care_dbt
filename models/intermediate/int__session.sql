@@ -30,6 +30,7 @@ select
     cancellation_timestamp_date,
     y_notes_completed_timestamp,
     CASE WHEN DATEDIFF(HOUR, start_date, cancellation_timestamp_date) > -24 AND DATEDIFF(HOUR, start_date, cancellation_timestamp_date) < 0 THEN 1 ELSE 0 END as is_cancellation_before_24_hours,
+    CASE WHEN DATEDIFF(HOUR, start_date, cancellation_timestamp_date) > 0 THEN 1 ELSE 0 END AS Post_session_start_cancellation,
     DATEDIFF(HOUR, start_date, cancellation_timestamp_date) as hours_before_cancellation
     --TIME(DATEADD(MINUTE, -provider.timezone_offset, start_date)) as session_start_time_only,
     --provider.timezone_offset as timezone_offset

@@ -6,7 +6,8 @@ with source as (
 
 enriched as (
     select 
-        *,
+        deal_id, 
+        contact_id,
         -- Opportunities Unengaged Stage
         case 
             when date_entered_opportunities_unengaged is null and date_exited_opportunities_unengaged is null then 'never_entered'

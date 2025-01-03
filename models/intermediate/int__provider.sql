@@ -4,6 +4,7 @@ with provider_user as (
     First_Name AS provider_first_name,
     Last_Name AS provider_last_name,
     Role as provider_role,
+    provider_status_detail,
     source, 
     email as provider_email,
     signup_completed_date, 
@@ -131,7 +132,8 @@ provider.timezone_offset,
 user.signup_completed_date,
 user.last_login_date,
 user.first_login_date,
-user.hubspot_provider_id
+user.hubspot_provider_id,
+user.provider_status_detail
 from {{ ref('stg__bubble__provider') }} as provider 
 left join provider_user as user ON user.provider_first_name = provider.provider_first_name
 WHERE TRUE     
@@ -201,6 +203,7 @@ mapped_insurances AS (
       provider_detail.latitude,
       provider_detail.longitude,
       provider_detail.provider_status,
+      provider_detail.provider_status_detail,
       provider_detail.provider_about,
       provider_detail.Active_Flag,
       provider_detail.Certification_Info,
@@ -221,8 +224,7 @@ mapped_insurances AS (
       provider_detail.Created_Date,
       provider_detail.signup_completed_date,
       provider_detail.last_login_date,
-      provider_detail.first_login_date,
-      provider_detail.timezone_offset
+      provider_detail.first_login_date
     FROM
       provider_detail
     LEFT JOIN

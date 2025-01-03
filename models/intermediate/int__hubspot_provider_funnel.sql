@@ -9,6 +9,7 @@ with source as (
 enriched as (
     select 
         deal_id, 
+        deaL_created_date,
         contact_id,
         provider_id,
         case 

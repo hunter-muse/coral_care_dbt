@@ -9,6 +9,7 @@ with source as (
 enriched as (
     select 
         deal_id, 
+        deaL_created_date, 
         contact_id,
         parent_id, 
         -- Opportunities Unengaged Stage
@@ -234,6 +235,7 @@ ROUND(
 current_stage_summary as (
     select 
         deal_id,
+        deaL_created_date,
         contact_id,
         case
             when opportunities_unengaged_status = 'current' then 'Opportunities Unengaged'
@@ -260,6 +262,7 @@ stage_timing_summary as (
     select
         deal_id,
         contact_id,
+        deaL_created_date,
         -- Total time in funnel
         ROUND(
             COALESCE(days_in_opportunities_unengaged, 0) +

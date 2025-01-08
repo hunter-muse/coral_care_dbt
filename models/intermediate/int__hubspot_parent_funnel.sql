@@ -1,9 +1,30 @@
 with source as (
-    select deal.*, parent_enriched.* from {{ ref('stg__hubspot__deal') }} deal
+    select 
+        deal.deal_id,
+        deal.deaL_created_date,
+        deal.contact_id,
+        parent_enriched.parent_id,
+        deal.date_entered_opportunities_unengaged,
+        deal.date_exited_opportunities_unengaged,
+        deal.date_entered_leads_in_progress,
+        deal.date_exited_leads_in_progress,
+        deal.date_entered_match_in_progress,
+        deal.date_exited_match_in_progress,
+        deal.date_entered_match_shared,
+        deal.date_exited_match_shared,
+        deal.date_entered_match_pending,
+        deal.date_exited_match_pending,
+        deal.date_entered_appointment_booked_closed_won,
+        deal.date_exited_appointment_booked_closed_won,
+        deal.date_entered_closed_lost,
+        deal.date_exited_closed_lost,
+        closed_lost_families_reason,
+        closed_lost_families_reason_deprecated
+    from {{ ref('stg__hubspot__deal') }} deal
     INNER JOIN {{ ref('stg__hubspot__contact_parent')}} parent
-    ON deal.contact_id = parent.record_id 
+        ON deal.contact_id = parent.record_id 
     LEFT JOIN {{ ref('int__parent')}} parent_enriched
-    ON parent.record_id = parent_enriched.hubspot_parent_id
+        ON parent.record_id = parent_enriched.hubspot_parent_id
 ),
 
 enriched as (
@@ -11,7 +32,24 @@ enriched as (
         deal_id, 
         deaL_created_date, 
         contact_id,
-        parent_id, 
+        parent_id,
+        -- Add all date fields
+        date_entered_opportunities_unengaged,
+        date_exited_opportunities_unengaged,
+        date_entered_leads_in_progress,
+        date_exited_leads_in_progress,
+        date_entered_match_in_progress,
+        date_exited_match_in_progress,
+        date_entered_match_shared,
+        date_exited_match_shared,
+        date_entered_match_pending,
+        date_exited_match_pending,
+        date_entered_appointment_booked_closed_won,
+        date_exited_appointment_booked_closed_won,
+        date_entered_closed_lost,
+        date_exited_closed_lost,
+        coalesce(closed_lost_families_reason, closed_lost_families_reason_deprecated) as closed_lost_families_reason,
+        
         -- Opportunities Unengaged Stage
         case 
             when date_entered_opportunities_unengaged is null and date_exited_opportunities_unengaged is null then 'never_entered'

@@ -1,5 +1,5 @@
 select 
-    --deal.deal_id,
+    deal.deal_id,
     deal_contact.contact_id,
     deal.PROPERTY_CREATEDATE AS deaL_created_date,
     deal.property_hs_v_2_date_exited_174666285 as date_exited_opportunities_unengaged,
@@ -30,6 +30,8 @@ select
     deal.property_hs_v_2_date_entered_174666291 as date_entered_closed_lost,
     deal.property_hs_v_2_date_exited_174666291 as date_exited_closed_lost,
     deal.property_hs_v_2_latest_time_in_174666291 as latest_time_in_closed_lost,
+    deal.property_closed_loss_families as closed_lost_families_reason, 
+    deal.property_closed_lost_reason as closed_lost_families_reason_deprecated,
     -- New fields from CSV
     deal.property_hs_v_2_date_entered_245897332 as date_entered_referrals_provider_recruiting,
     deal.property_hs_v_2_date_exited_245897332 as date_exited_referrals_provider_recruiting,
@@ -65,9 +67,10 @@ select
     deal.property_hs_v_2_date_exited_200291861 as date_exited_cold_provider_onboarding,
     deal.property_hs_v_2_date_entered_200291864 as date_entered_closed_lost_provider_onboarding,
     deal.property_hs_v_2_date_exited_200291864 as date_exited_closed_lost_provider_onboarding,
-    deal.property_hs_v_2_date_entered_202963371 as date_entered_disqualified_provider_onboarding,
+    deal.property_closed_loss_tag as closed_lost_provider_reason,
+    deal.property_hs_v_2_date_entered_202963371 as date_entered_disqualified_provider_onboarding
     -- deal.property_hs_v_2_date_exited_202963371 as date_exited_disqualified_provider_onboarding --exited doesn't seem to exist
-    deal.*
+    --deal.*
 from {{ source('hubspot', 'deal') }} deal 
 left join {{ source('hubspot', 'deal_contact') }} deal_contact 
     on deal.deal_id = deal_contact.deal_id

@@ -1,9 +1,51 @@
 with source as (
-    select deal.*, provider_enriched.provider_id from {{ ref('stg__hubspot__deal') }} deal
+    select 
+        deal.deal_id,
+        deal.deaL_created_date,
+        deal.contact_id,
+        provider_enriched.provider_id,
+        -- Provider Recruiting Stages
+        deal.date_entered_referrals_provider_recruiting,
+        deal.date_exited_referrals_provider_recruiting,
+        deal.date_entered_new_provider_lead_provider_recruiting,
+        deal.date_exited_new_provider_lead_provider_recruiting,
+        deal.date_entered_interview_booked_provider_recruiting,
+        deal.date_exited_interview_booked_provider_recruiting,
+        deal.date_entered_post_interview_provider_recruiting,
+        deal.date_exited_post_interview_provider_recruiting,
+        deal.date_entered_clinical_interview_provider_recruiting,
+        deal.date_exited_clinical_interview_provider_recruiting,
+        deal.date_entered_offer_letter_provider_recruiting,
+        deal.date_exited_offer_letter_provider_recruiting,
+        deal.date_entered_recruitment_complete_provider_recruiting,
+        deal.date_exited_recruitment_complete_provider_recruiting,
+        deal.date_entered_cold_provider_recruiting,
+        deal.date_exited_cold_provider_recruiting,
+        deal.date_entered_closed_lost_provider_recruiting,
+        deal.date_exited_closed_lost_provider_recruiting,
+        deal.date_entered_disqualified_provider_recruiting,
+        -- Provider Onboarding Stages
+        deal.date_entered_ready_to_onboard_provider_onboarding,
+        deal.date_exited_ready_to_onboard_provider_onboarding,
+        deal.date_entered_pending_onboarding_tasks_provider_onboarding,
+        deal.date_exited_pending_onboarding_tasks_provider_onboarding,
+        deal.date_entered_schedule_onboarding_call_provider_onboarding,
+        deal.date_exited_schedule_onboarding_call_provider_onboarding,
+        deal.date_entered_onboarding_complete_provider_onboarding,
+        deal.date_exited_onboarding_complete_provider_onboarding,
+        deal.date_entered_checkr_fail_provider_onboarding,
+        deal.date_exited_checkr_fail_provider_onboarding,
+        deal.date_entered_cold_provider_onboarding,
+        deal.date_exited_cold_provider_onboarding,
+        deal.date_entered_closed_lost_provider_onboarding,
+        deal.date_exited_closed_lost_provider_onboarding,
+        deal.date_entered_disqualified_provider_onboarding,
+        deal.closed_lost_provider_reason
+    from {{ ref('stg__hubspot__deal') }} deal
     INNER JOIN {{ ref('stg__hubspot__contact_provider')}} provider
-    ON deal.contact_id = provider.record_id 
+        ON deal.contact_id = provider.record_id 
     LEFT JOIN {{ ref('int__provider')}} provider_enriched
-    ON provider.record_id = provider_enriched.hubspot_provider_id
+        ON provider.record_id = provider_enriched.hubspot_provider_id
 ),
 
 enriched as (
@@ -12,6 +54,44 @@ enriched as (
         deaL_created_date,
         contact_id,
         provider_id,
+        -- Add all date fields
+        date_entered_referrals_provider_recruiting,
+        date_exited_referrals_provider_recruiting,
+        date_entered_new_provider_lead_provider_recruiting,
+        date_exited_new_provider_lead_provider_recruiting,
+        date_entered_interview_booked_provider_recruiting,
+        date_exited_interview_booked_provider_recruiting,
+        date_entered_post_interview_provider_recruiting,
+        date_exited_post_interview_provider_recruiting,
+        date_entered_clinical_interview_provider_recruiting,
+        date_exited_clinical_interview_provider_recruiting,
+        date_entered_offer_letter_provider_recruiting,
+        date_exited_offer_letter_provider_recruiting,
+        date_entered_recruitment_complete_provider_recruiting,
+        date_exited_recruitment_complete_provider_recruiting,
+        date_entered_cold_provider_recruiting,
+        date_exited_cold_provider_recruiting,
+        date_entered_closed_lost_provider_recruiting,
+        date_exited_closed_lost_provider_recruiting,
+        date_entered_disqualified_provider_recruiting,
+        date_entered_ready_to_onboard_provider_onboarding,
+        date_exited_ready_to_onboard_provider_onboarding,
+        date_entered_pending_onboarding_tasks_provider_onboarding,
+        date_exited_pending_onboarding_tasks_provider_onboarding,
+        date_entered_schedule_onboarding_call_provider_onboarding,
+        date_exited_schedule_onboarding_call_provider_onboarding,
+        date_entered_onboarding_complete_provider_onboarding,
+        date_exited_onboarding_complete_provider_onboarding,
+        date_entered_checkr_fail_provider_onboarding,
+        date_exited_checkr_fail_provider_onboarding,
+        date_entered_cold_provider_onboarding,
+        date_exited_cold_provider_onboarding,
+        date_entered_closed_lost_provider_onboarding,
+        date_exited_closed_lost_provider_onboarding,
+        date_entered_disqualified_provider_onboarding,
+        closed_lost_provider_reason,
+        
+        -- Status case statements remain the same
         case 
             when date_entered_referrals_provider_recruiting is null and date_exited_referrals_provider_recruiting is null then 'never_entered'
             when date_entered_referrals_provider_recruiting is not null and date_exited_referrals_provider_recruiting is null then 'current'

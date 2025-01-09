@@ -29,6 +29,7 @@ select
     cancellation_reason,
     cancellation_timestamp_date,
     y_notes_completed_timestamp,
+    session.CREATED_DATE AS session_created_date, 
     CASE WHEN DATEDIFF(HOUR, start_date, cancellation_timestamp_date) > -24 AND DATEDIFF(HOUR, start_date, cancellation_timestamp_date) < 0 THEN 1 ELSE 0 END as is_cancellation_before_24_hours,
     CASE WHEN DATEDIFF(HOUR, start_date, cancellation_timestamp_date) > 0 THEN 1 ELSE 0 END AS Post_session_start_cancellation,
     DATEDIFF(HOUR, start_date, cancellation_timestamp_date) as hours_before_cancellation,

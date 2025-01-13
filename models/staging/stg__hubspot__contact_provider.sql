@@ -73,8 +73,6 @@ select
     PROPERTY_ESTIMATE_WEEKLY_HOURS as estimate_weekly_hours,
     PROPERTY_HS_V_2_DATE_ENTERED_LEAD as date_entered_lead,
     PROPERTY_SEGMENT_MULTI
-    -- COALESCE(, PROPERTY_SEGMENT) as segment,
-    -- PROPERTY_SEGMENT_MULTI,
     -- PROPERTY_SEGMENT
 
 from {{source('hubspot', 'contact')}} AS contact

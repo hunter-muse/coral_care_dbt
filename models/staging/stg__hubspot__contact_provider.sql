@@ -71,9 +71,12 @@ select
     PROPERTY_PROVIDER_STATUS as provider_status,
     PROPERTY_PROVIDER_STATUS_PRODUCT as provider_status_product,
     PROPERTY_ESTIMATE_WEEKLY_HOURS as estimate_weekly_hours,
-    PROPERTY_HS_V_2_DATE_ENTERED_LEAD as date_entered_lead
+    PROPERTY_HS_V_2_DATE_ENTERED_LEAD as date_entered_lead,
+    PROPERTY_SEGMENT_MULTI
+    -- PROPERTY_SEGMENT
 
 from {{source('hubspot', 'contact')}} AS contact
 left join {{ref('lat_long_zip')}} AS lat_long_zip
     on CAST(contact.PROPERTY_ZIP as string) = CAST(lat_long_zip.ZIP as string)
-where PROPERTY_SEGMENT = 'Provider'
+where 
+PROPERTY_SEGMENT_MULTI = 'Provider'

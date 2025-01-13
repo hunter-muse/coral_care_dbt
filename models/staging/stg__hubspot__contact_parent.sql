@@ -1,4 +1,4 @@
-select
+    select
     -- Basic Information
     ID as record_id,
     PROPERTY_FIRSTNAME as parent_first_name,
@@ -100,10 +100,10 @@ select
     PROPERTY_HS_FEEDBACK_LAST_SURVEY_DATE as last_nps_survey_date,
     PROPERTY_HS_FEEDBACK_LAST_NPS_RATING as last_nps_survey_rating,
     PROPERTY_NUM_ASSOCIATED_DEALS as number_of_associated_deals,
-    PROPERTY_HS_V_2_DATE_ENTERED_LEAD as date_entered_lead 
+    PROPERTY_HS_V_2_DATE_ENTERED_LEAD as date_entered_lead
 
 from {{source('hubspot', 'contact')}} AS contact
 left join {{ref('lat_long_zip')}} AS lat_long_zip
     on CAST(contact.PROPERTY_ZIP as string) = CAST(lat_long_zip.ZIP as string)
 where 
-segment = 'Parent'
+PROPERTY_SEGMENT_MULTI = 'Parent'

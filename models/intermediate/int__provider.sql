@@ -1,23 +1,35 @@
 with provider_user as (
     SELECT  
-    user_id as user_provider_id,
-    First_Name AS provider_first_name,
-    Last_Name AS provider_last_name,
-    Role as provider_role,
-    provider_availability_status,
-    source, 
-    email as provider_email,
-    signup_completed_date, 
-    last_login_date,
-    user.created_date as first_login_date,
-    provider.provider_lifecycle_status,
-    record_id as hubspot_provider_id
-    from {{ref('stg__bubble__user')}} user 
-    left join {{ref('stg__hubspot__contact_provider')}} provider
-    on lower(user.first_name) = lower(provider.provider_first_name)
-    and lower(user.last_name) = lower(provider.provider_last_name)
-    where role = 'Provider'
-    ),
+        -- If they exist in Hubspot, always use that ID, otherwise use Bubble ID
+        CASE
+            WHEN provider.record_id IS NOT NULL THEN 'HS_' || provider.record_id
+            ELSE user.user_id
+        END as user_provider_id,
+        COALESCE(user.First_Name, provider.provider_first_name) as provider_first_name,
+        COALESCE(user.Last_Name, provider.provider_last_name) as provider_last_name,
+        COALESCE(user.Role, 'Provider') as provider_role,
+        provider.provider_availability_status,
+        CASE 
+            WHEN user.user_id IS NOT NULL THEN user.source
+            WHEN provider.record_id IS NOT NULL THEN 'hubspot'
+            ELSE NULL 
+        END as source,
+        user.email as provider_email,
+        user.signup_completed_date, 
+        user.last_login_date,
+        user.created_date as first_login_date,
+        provider.provider_lifecycle_status,
+        provider.record_id as hubspot_provider_id,
+        provider.created_date as provider_created_date
+    from {{ref('stg__hubspot__contact_provider')}} provider
+    FULL OUTER JOIN {{ref('stg__bubble__user')}} user
+        on lower(user.first_name) = lower(provider.provider_first_name)
+        and lower(user.last_name) = lower(provider.provider_last_name)
+        and user.role = 'Provider'
+    WHERE provider.record_id IS NOT NULL  -- Include all Hubspot providers
+        OR (user.role = 'Provider')  
+    QUALIFY row_number() over (partition by provider_first_name, provider_last_name order by provider.created_date, provider_first_name, provider_last_name) = 1 --gets the most recent provider record from Hubspot
+),
 
 insurance_mapping as (
     select * from {{ ref('stg__bubble__insurance') }}
@@ -28,8 +40,8 @@ select
 Provider_ID AS bubble_provider_ID, 
 user_provider_id,
 --provider.First_Last AS provider_first_last, 
-provider.provider_first_name, 
-provider.provider_last_name, 
+coalesce(provider.provider_first_name, user.provider_first_name) as provider_first_name, 
+coalesce(provider.provider_last_name, user.provider_last_name) as provider_last_name, 
       CONCAT(
         '+1 (',
         SUBSTRING(provider.Phone, 1, 3),
@@ -38,7 +50,7 @@ provider.provider_last_name,
         '-',
         SUBSTRING(provider.Phone, 7, 4)
       ) AS provider_phone_number,
-user.provider_email,
+user.provider_email as provider_email,
 provider.Address as provider_address, 
 CASE
         WHEN REGEXP_LIKE(SUBSTRING(provider.Address, 1, 1), '^[0-9]$') THEN TRIM(SPLIT_PART(provider.Address, ',', 1))
@@ -136,16 +148,14 @@ user.first_login_date,
 user.hubspot_provider_id,
 user.provider_availability_status,
 user.provider_lifecycle_status,
-from {{ ref('stg__bubble__provider') }} as provider 
-left join provider_user as user ON user.provider_first_name = provider.provider_first_name
-WHERE TRUE     
-      AND user.provider_last_name = provider.provider_last_name
-      AND provider.provider_last_name NOT ILIKE '%test%'
-      AND provider.provider_last_name NOT ILIKE '%deprecated%'
-      AND provider.provider_last_name NOT ILIKE '%2%'
-      AND provider.provider_last_name NOT ILIKE '%DNU%'
-      AND provider.provider_last_name != 'alyssa Broadley' --duplicate 
-qualify row_number() over (partition by provider.provider_first_name, provider.provider_last_name order by provider.Created_Date DESC) = 1
+from provider_user as user
+left join {{ ref('stg__bubble__provider') }} as provider 
+    ON lower(user.provider_first_name) = lower(provider.provider_first_name)
+    AND lower(user.provider_last_name) = lower(provider.provider_last_name)
+qualify row_number() over (
+    partition by user.provider_first_name, user.provider_last_name 
+    order by provider.Created_Date DESC NULLS LAST
+) = 1
 ), 
 
 insurance_list AS (
@@ -190,8 +200,8 @@ mapped_insurances AS (
   )
 
     SELECT
-      provider_detail.bubble_provider_ID as bubble_provider_id,
       provider_detail.user_provider_id AS provider_id,
+      provider_detail.bubble_provider_ID as bubble_provider_id,
       provider_detail.hubspot_provider_id,
       provider_detail.provider_first_name,
       provider_detail.provider_last_name,

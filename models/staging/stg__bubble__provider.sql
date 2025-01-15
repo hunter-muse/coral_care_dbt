@@ -51,6 +51,13 @@ renamed as (
         {{ adapter.quote("TIMEZONE_OFFSET") }},
         {{ adapter.quote("TRAVEL_RADIUS") }}
     from source
+    
 )
-select * from renamed
+select * from renamed 
+where 
+    provider_last_name NOT ILIKE '%test%'
+    AND provider_last_name NOT ILIKE '%deprecated%'
+    AND provider_last_name NOT ILIKE '%2%'
+    AND provider_last_name NOT ILIKE '%DNU%'
+    AND (provider_last_name != 'alyssa Broadley' OR provider_last_name IS NULL)  -- Modified to handle NULL cases
   

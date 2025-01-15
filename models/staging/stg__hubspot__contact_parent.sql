@@ -107,3 +107,5 @@ left join {{ref('lat_long_zip')}} AS lat_long_zip
     on CAST(contact.PROPERTY_ZIP as string) = CAST(lat_long_zip.ZIP as string)
 where 
 PROPERTY_SEGMENT_MULTI = 'Parent'
+AND 
+is_deleted = FALSE 

@@ -74,3 +74,5 @@ select
 from {{ source('hubspot', 'deal') }} deal 
 left join {{ source('hubspot', 'deal_contact') }} deal_contact 
     on deal.deal_id = deal_contact.deal_id
+where 
+deal.is_deleted = FALSE 

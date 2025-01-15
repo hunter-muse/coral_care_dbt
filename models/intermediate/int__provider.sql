@@ -1,10 +1,10 @@
-with provider_user as (
+with provider_user_prep as (
     SELECT  
         -- If they exist in Hubspot, always use that ID, otherwise use Bubble ID
         CASE
             WHEN provider.record_id IS NOT NULL THEN 'HS_' || provider.record_id
             ELSE user.user_id
-        END as user_provider_id,
+        END as provider_id,
         COALESCE(user.First_Name, provider.provider_first_name) as provider_first_name,
         COALESCE(user.Last_Name, provider.provider_last_name) as provider_last_name,
         COALESCE(user.Role, 'Provider') as provider_role,
@@ -20,6 +20,7 @@ with provider_user as (
         user.created_date as first_login_date,
         provider.provider_lifecycle_status,
         provider.record_id as hubspot_provider_id,
+        user.user_id as bubble_provider_id,
         provider.created_date as provider_created_date
     from {{ref('stg__hubspot__contact_provider')}} provider
     FULL OUTER JOIN {{ref('stg__bubble__user')}} user
@@ -28,7 +29,12 @@ with provider_user as (
         and user.role = 'Provider'
     WHERE provider.record_id IS NOT NULL  -- Include all Hubspot providers
         OR (user.role = 'Provider')  
-    QUALIFY row_number() over (partition by provider_first_name, provider_last_name order by provider.created_date, provider_first_name, provider_last_name) = 1 --gets the most recent provider record from Hubspot
+    --QUALIFY row_number() over (partition by provider_first_name, provider_last_name order by provider.created_date, provider_first_name, provider_last_name) = 1 
+),
+
+provider_user as (
+select * from provider_user_prep
+qualify row_number() over (partition by provider_first_name, provider_last_name order by provider_created_date, provider_first_name, provider_last_name) = 1 --gets the most recent provider record from Hubspot
 ),
 
 insurance_mapping as (
@@ -37,8 +43,9 @@ insurance_mapping as (
 
 provider_detail as (
 select 
-Provider_ID AS bubble_provider_ID, 
-user_provider_id,
+user.Provider_ID, 
+bubble_provider_id,
+hubspot_provider_id,
 --provider.First_Last AS provider_first_last, 
 coalesce(provider.provider_first_name, user.provider_first_name) as provider_first_name, 
 coalesce(provider.provider_last_name, user.provider_last_name) as provider_last_name, 
@@ -145,7 +152,6 @@ provider.timezone_offset,
 user.signup_completed_date,
 user.last_login_date,
 user.first_login_date,
-user.hubspot_provider_id,
 user.provider_availability_status,
 user.provider_lifecycle_status,
 from provider_user as user
@@ -156,7 +162,7 @@ qualify row_number() over (
     partition by user.provider_first_name, user.provider_last_name 
     order by provider.Created_Date DESC NULLS LAST
 ) = 1
-), 
+),
 
 insurance_list AS (
     SELECT
@@ -200,8 +206,8 @@ mapped_insurances AS (
   )
 
     SELECT
-      provider_detail.user_provider_id AS provider_id,
-      provider_detail.bubble_provider_ID as bubble_provider_id,
+      provider_detail.provider_id,
+      provider_detail.bubble_provider_id,
       provider_detail.hubspot_provider_id,
       provider_detail.provider_first_name,
       provider_detail.provider_last_name,

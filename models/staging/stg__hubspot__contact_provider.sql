@@ -67,9 +67,9 @@ select
     -- Provider Status and Estimates
     PROPERTY_UNIQUE_PATIENTS_L_30 as unique_patients_l_30,
     PROPERTY_SESSIONS_L_30 as sessions_l_30,
-    PROPERTY_PROVIDER_STATUS_DETAIL as provider_status_detail,
-    PROPERTY_PROVIDER_STATUS as provider_status,
-    PROPERTY_PROVIDER_STATUS_PRODUCT as provider_status_product,
+    PROPERTY_PROVIDER_STATUS_DETAIL as provider_availability_status, --provider_status_detail,
+    PROPERTY_PROVIDER_STATUS as provider_lifecycle_status, --provider_status,
+    PROPERTY_PROVIDER_STATUS_PRODUCT as provider_product,--provider_status_product,
     PROPERTY_ESTIMATE_WEEKLY_HOURS as estimate_weekly_hours,
     PROPERTY_HS_V_2_DATE_ENTERED_LEAD as date_entered_lead,
     PROPERTY_SEGMENT_MULTI

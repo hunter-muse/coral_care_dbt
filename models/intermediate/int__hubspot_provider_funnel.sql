@@ -42,10 +42,8 @@ with source as (
         deal.date_entered_disqualified_provider_onboarding,
         deal.closed_lost_provider_reason
     from {{ ref('stg__hubspot__deal') }} deal
-    INNER JOIN {{ ref('stg__hubspot__contact_provider')}} provider
-        ON deal.contact_id = provider.record_id 
-    LEFT JOIN {{ ref('int__provider')}} provider_enriched
-        ON provider.record_id = provider_enriched.hubspot_provider_id
+    INNER JOIN {{ ref('int__provider')}} provider_enriched
+        ON deal.contact_id = provider_enriched.hubspot_provider_id
 ),
 
 enriched as (
@@ -676,7 +674,7 @@ funnel_progression as (
 )
 
 -- Final output with all the enriched data plus summaries
-select 
+select distinct 
     e.*,
     cs.current_stage,
     cs.hours_in_current_stage,

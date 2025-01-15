@@ -29,3 +29,5 @@ session_provider.total_completed_session_count
 FROM {{ref('int__provider')}} AS provider
 LEFT JOIN {{ref('int__session_provider')}} AS session_provider
 ON provider.provider_id = session_provider.provider_id 
+WHERE 
+provider.bubble_provider_ID is not null

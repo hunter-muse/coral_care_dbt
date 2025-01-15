@@ -4,6 +4,7 @@ with source as (
         deal.deaL_created_date,
         deal.contact_id,
         provider_enriched.provider_id,
+        provider_enriched.hubspot_provider_id,
         -- Provider Recruiting Stages
         deal.date_entered_referrals_provider_recruiting,
         deal.date_exited_referrals_provider_recruiting,
@@ -52,6 +53,7 @@ enriched as (
         deaL_created_date,
         contact_id,
         provider_id,
+        hubspot_provider_id,
         -- Add all date fields
         date_entered_referrals_provider_recruiting,
         date_exited_referrals_provider_recruiting,

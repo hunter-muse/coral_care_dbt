@@ -4,12 +4,13 @@ with provider_user as (
     First_Name AS provider_first_name,
     Last_Name AS provider_last_name,
     Role as provider_role,
-    provider_status_detail,
+    provider_availability_status,
     source, 
     email as provider_email,
     signup_completed_date, 
     last_login_date,
     user.created_date as first_login_date,
+    provider.provider_lifecycle_status,
     record_id as hubspot_provider_id
     from {{ref('stg__bubble__user')}} user 
     left join {{ref('stg__hubspot__contact_provider')}} provider
@@ -69,7 +70,7 @@ CASE
 provider.Address_Lat AS latitude, 
 provider.Address_Lng AS longitude,
 --provider.radius,  
-provider.Status AS provider_status,
+provider.Status AS provider_product,
 provider.About as provider_about, 
 provider.active as Active_Flag, 
 provider.Certification_Info, 
@@ -133,7 +134,8 @@ user.signup_completed_date,
 user.last_login_date,
 user.first_login_date,
 user.hubspot_provider_id,
-user.provider_status_detail
+user.provider_availability_status,
+user.provider_lifecycle_status,
 from {{ ref('stg__bubble__provider') }} as provider 
 left join provider_user as user ON user.provider_first_name = provider.provider_first_name
 WHERE TRUE     
@@ -202,8 +204,9 @@ mapped_insurances AS (
       provider_detail.zip AS postal_code,
       provider_detail.latitude,
       provider_detail.longitude,
-      provider_detail.provider_status,
-      provider_detail.provider_status_detail,
+      provider_detail.provider_product,
+      provider_detail.provider_availability_status,
+      provider_detail.provider_lifecycle_status,
       provider_detail.provider_about,
       provider_detail.Active_Flag,
       provider_detail.Certification_Info,

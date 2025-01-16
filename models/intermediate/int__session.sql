@@ -4,8 +4,8 @@ select
     dependant as dependent_id, 
     parent_user as parent_id,
     parent_detail, 
-    session.provider_user, 
-    provider.provider_id, 
+    provider.coral_provider_id, 
+    session.provider_user AS provider_user_id, 
     provider_name,
     session_format, 
     duration, 
@@ -42,6 +42,6 @@ select
     --provider.timezone_offset as timezone_offset
 from {{ ref('stg__bubble__session') }} as session
 left join {{ref('int__provider')}} as provider 
-    on session.provider_user = provider.bubble_provider_id
+    on session.provider_user = provider.bubble_provider_user_id
 left join {{ref('stg__bubble__user')}} as user
     on session.created_by = user.user_id

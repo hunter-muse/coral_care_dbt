@@ -1,35 +1,30 @@
 with provider_user_prep as (
     SELECT  
-        -- If they exist in Hubspot, always use that ID, otherwise use Bubble ID
-        CASE
-            WHEN provider.record_id IS NOT NULL THEN 'HS_' || provider.record_id
-            ELSE user.user_id
-        END as coral_provider_id,
-        COALESCE(user.First_Name, provider.provider_first_name) as provider_first_name,
-        COALESCE(user.Last_Name, provider.provider_last_name) as provider_last_name,
-        COALESCE(user.Role, 'Provider') as provider_role,
-        provider.provider_availability_status,
+        MD5(COALESCE(hubspot.hubspot_provider_id::VARCHAR, '') || COALESCE(bubble.user_id::VARCHAR, '')) as coral_provider_id,
+        COALESCE(bubble.first_name, hubspot.provider_first_name) as provider_first_name,
+        COALESCE(bubble.last_name, hubspot.provider_last_name) as provider_last_name,
+        COALESCE(bubble.role, 'Provider') as provider_role,
+        hubspot.provider_availability_status,
         CASE 
-            WHEN user.user_id IS NOT NULL THEN user.source
-            WHEN provider.record_id IS NOT NULL THEN 'hubspot'
+            WHEN bubble.user_id IS NOT NULL THEN bubble.source
+            WHEN hubspot.hubspot_provider_id IS NOT NULL THEN 'hubspot'
             ELSE NULL 
         END as source,
-        user.email as provider_email,
-        user.signup_completed_date, 
-        user.last_login_date,
-        user.created_date as first_login_date,
-        provider.provider_lifecycle_status,
-        provider.record_id as hubspot_provider_id,
-        user.user_id as bubble_provider_user_id,
-        provider.created_date as provider_created_date
-    from {{ref('stg__hubspot__contact_provider')}} provider
-    FULL OUTER JOIN {{ref('stg__bubble__user')}} user
-        on lower(user.first_name) = lower(provider.provider_first_name)
-        and lower(user.last_name) = lower(provider.provider_last_name)
-        and user.role = 'Provider'
-    WHERE provider.record_id IS NOT NULL  -- Include all Hubspot providers
-        OR (user.role = 'Provider')  
-    --QUALIFY row_number() over (partition by provider_first_name, provider_last_name order by provider.created_date, provider_first_name, provider_last_name) = 1 
+        bubble.email as provider_email,
+        bubble.signup_completed_date, 
+        bubble.last_login_date,
+        bubble.created_date as first_login_date,
+        hubspot.provider_lifecycle_status,
+        bubble.user_id as bubble_provider_user_id,
+        hubspot.hubspot_provider_id,
+        hubspot.created_date as provider_created_date
+    from {{ref('stg__hubspot__contact_provider')}} hubspot
+    FULL OUTER JOIN {{ref('stg__bubble__user')}} bubble
+        on lower(bubble.first_name) = lower(hubspot.provider_first_name)
+        and lower(bubble.last_name) = lower(hubspot.provider_last_name)
+        and bubble.role = 'Provider'
+    WHERE hubspot.hubspot_provider_id IS NOT NULL  -- Include all Hubspot providers
+        OR (bubble.role = 'Provider')  
 ),
 
 provider_user as (

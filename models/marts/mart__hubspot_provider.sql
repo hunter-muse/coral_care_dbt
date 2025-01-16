@@ -13,7 +13,7 @@ provider.longitude,
 provider.travel_radius, 
 provider.spoken_languages,
 provider.provider_specialty,
-provider.provider_product as provider_status, --changed the name to provide better clarity on source
+provider.provider_product_status as provider_status, --changed the name to provide better clarity on source
 provider.insurances_accepted_names, 
 provider.provider_states_practicing, 
 provider.estimated_hours_per_week, 

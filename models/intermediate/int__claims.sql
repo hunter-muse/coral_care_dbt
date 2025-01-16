@@ -47,14 +47,15 @@ qualify row_number() over (partition by dependent_first_name, dependent_last_nam
 
 combined as (
 select distinct 
-    claims.RECORD_ID,
+    claims.session_ID,
     claims.Patient_Name,
     claims.dependent_first_name,
     claims.dependent_last_name,
-    claims.MRN,
+    claims.Patient_ID,
     claims.Payer_Name,
     claims.Date_Of_Service,
     claims.Year_Month,
+    claims.Place_of_Service_Code,
     claims.Service_Type,
     claims.Category,
     claims.Claim_Status,
@@ -119,11 +120,11 @@ and date(provider.service_date) = date(claims.Date_Of_Service)
 
 final as (
 select 
-RECORD_ID,
+    session_ID,
     Patient_Name,
     dependent_first_name,
     dependent_last_name,
-    MRN,
+    Patient_ID,
     Payer_Name,
     Date_Of_Service,
     Year_Month,

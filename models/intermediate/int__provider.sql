@@ -4,7 +4,7 @@ with provider_user_prep as (
         CASE
             WHEN provider.record_id IS NOT NULL THEN 'HS_' || provider.record_id
             ELSE user.user_id
-        END as provider_id,
+        END as coral_provider_id,
         COALESCE(user.First_Name, provider.provider_first_name) as provider_first_name,
         COALESCE(user.Last_Name, provider.provider_last_name) as provider_last_name,
         COALESCE(user.Role, 'Provider') as provider_role,
@@ -20,7 +20,7 @@ with provider_user_prep as (
         user.created_date as first_login_date,
         provider.provider_lifecycle_status,
         provider.record_id as hubspot_provider_id,
-        user.user_id as bubble_provider_id,
+        user.user_id as bubble_provider_user_id,
         provider.created_date as provider_created_date
     from {{ref('stg__hubspot__contact_provider')}} provider
     FULL OUTER JOIN {{ref('stg__bubble__user')}} user
@@ -43,9 +43,10 @@ insurance_mapping as (
 
 provider_detail as (
 select 
-user.Provider_ID, 
-bubble_provider_id,
+user.coral_provider_id, 
+bubble_provider_user_id,
 hubspot_provider_id,
+provider.provider_id as bubble_provider_id,
 --provider.First_Last AS provider_first_last, 
 coalesce(provider.provider_first_name, user.provider_first_name) as provider_first_name, 
 coalesce(provider.provider_last_name, user.provider_last_name) as provider_last_name, 
@@ -206,8 +207,9 @@ mapped_insurances AS (
   )
 
     SELECT
-      provider_detail.provider_id,
+      provider_detail.coral_provider_id,
       provider_detail.bubble_provider_id,
+      provider_detail.bubble_provider_user_id,
       provider_detail.hubspot_provider_id,
       provider_detail.provider_first_name,
       provider_detail.provider_last_name,

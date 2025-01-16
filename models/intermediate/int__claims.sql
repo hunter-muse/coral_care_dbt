@@ -34,7 +34,7 @@ provider_prep as (
         dependent_first_name,
         dependent_last_name,
         date(session_start_date) as service_date,
-        provider_ID 
+        coral_provider_id 
     from {{ref('int__session')}} session
     join claims_with_id using (dependent_id)
 ),
@@ -42,7 +42,7 @@ provider_prep as (
 provider as (
 select *
 from provider_prep
-qualify row_number() over (partition by dependent_first_name, dependent_last_name, service_date order by provider_id) = 1
+qualify row_number() over (partition by dependent_first_name, dependent_last_name, service_date order by coral_provider_id) = 1
 ),
 
 combined as (
@@ -105,7 +105,7 @@ select distinct
     dep.dependent_ids,
     parent.parent_first_names,
     parent.parent_last_names,
-    provider.provider_id
+    provider.coral_provider_id
 from claims_with_id claims
 left join dependent_aggregated dep
     on claims.dependent_first_name = dep.dependent_first_name
@@ -177,7 +177,7 @@ select
     dependent_ids,
     parent_first_names,
     parent_last_names,
-    MAX(provider_id) AS provider_id
+    MAX(coral_provider_id) AS coral_provider_id
 from combined 
 GROUP BY ALL 
 ) 

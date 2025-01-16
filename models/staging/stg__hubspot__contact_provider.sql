@@ -82,3 +82,4 @@ where
 PROPERTY_SEGMENT_MULTI = 'Provider'
 AND 
 is_deleted = FALSE 
+qualify row_number() over (partition by PROPERTY_FIRSTNAME, PROPERTY_LASTNAME order by PROPERTY_CREATEDATE) = 1 --remove duplicates

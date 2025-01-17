@@ -1,4 +1,5 @@
 select 
+provider.coral_provider_id,
 provider.provider_first_name, 
 provider.provider_last_name,
 provider.provider_email, 

@@ -94,12 +94,12 @@ select
     parent_summary.session_count,
     DATEDIFF(DAY, parent_summary.most_recent_session_date, CURRENT_DATE()) as days_since_last_session,
     CASE 
-        WHEN parent_summary.upcoming_session_date IS NOT NULL THEN 'In Treatment'
+        WHEN parent_summary.upcoming_session_date IS NOT NULL THEN 'Active'
         WHEN parent_summary.upcoming_session_date IS NULL AND DATEDIFF(DAY, parent_summary.most_recent_session_date, CURRENT_DATE()) <= 14 THEN 'Pre-Churn'
         WHEN parent_summary.upcoming_session_date IS NULL AND DATEDIFF(DAY, parent_summary.most_recent_session_date, CURRENT_DATE()) > 14 THEN 'Churned'
-        WHEN parent_summary.session_count = 0 THEN 'No Treatment'
+        WHEN parent_summary.session_count = 0 THEN 'Other'
         ELSE 'Churned'
-    END AS engagement_status,
+    END AS coral_care_status,
     -- Add dependent information
     fd.dependent_1_name,
     fd.dependent_1_first_name,

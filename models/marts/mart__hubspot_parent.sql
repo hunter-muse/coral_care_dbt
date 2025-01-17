@@ -1,6 +1,6 @@
 SELECT 
 -- parent.parent_email,
--- parent.parent_id,
+parent.parent_id,
 parent.parent_first_name,
 parent.parent_last_name,
 -- parent.address AS street_address,
@@ -28,7 +28,7 @@ session_parent.most_recent_session_date,
 session_parent.first_session_frequency,
 session_parent.reason_for_visit,
 session_parent.payment_type,
-session_parent.engagement_status,
+session_parent.coral_care_status,
 session_parent.most_recent_provider_name,
 session_parent.upcoming_provider_name,
 

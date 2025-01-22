@@ -3,6 +3,8 @@ with source as (
         deal.deal_id,
         deal.deaL_created_date,
         deal.contact_id,
+        parent.parent_email AS hubspot_parent_email,
+        parent_enriched.parent_email as coral_parent_email,
         parent_enriched.parent_id,
         deal.date_entered_opportunities_unengaged,
         deal.date_exited_opportunities_unengaged,
@@ -33,6 +35,8 @@ enriched as (
         deaL_created_date, 
         contact_id,
         parent_id,
+        hubspot_parent_email,
+        coral_parent_email,
         -- Add all date fields
         date_entered_opportunities_unengaged,
         date_exited_opportunities_unengaged,

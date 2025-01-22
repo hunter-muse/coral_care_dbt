@@ -3,15 +3,15 @@ WITH ranked_sessions AS (
         session.*,
         -- Rank sessions for each type to help identify which attributes to pull
         ROW_NUMBER() OVER (
-            PARTITION BY session.dependent_id, session.parent_id
+            PARTITION BY session.dependent_id, session.coral_parent_id
             ORDER BY session.session_start_date DESC
         ) as recent_rank,
         ROW_NUMBER() OVER (
-            PARTITION BY session.dependent_id, session.parent_id
+            PARTITION BY session.dependent_id, session.coral_parent_id
             ORDER BY session.session_start_date ASC
         ) as first_session_rank,
         ROW_NUMBER() OVER (
-            PARTITION BY session.dependent_id, session.parent_id
+            PARTITION BY session.dependent_id, session.coral_parent_id
             ORDER BY CASE 
                 WHEN session.session_start_date >= CURRENT_DATE() 
                 THEN session.session_start_date 
@@ -19,7 +19,7 @@ WITH ranked_sessions AS (
             END ASC
         ) as upcoming_rank,
         ROW_NUMBER() OVER (
-            PARTITION BY session.dependent_id, session.parent_id
+            PARTITION BY session.dependent_id, session.coral_parent_id
             ORDER BY CASE 
                 WHEN session.session_start_date >= CURRENT_DATE() 
                 THEN session.session_start_date 
@@ -36,9 +36,9 @@ WITH ranked_sessions AS (
 session_numbers AS (
     SELECT 
         dependent_id,
-        parent_id,
+        coral_parent_id,
         session_start_date,
-        ROW_NUMBER() OVER (PARTITION BY dependent_id, parent_id ORDER BY session_start_date) as session_number
+        ROW_NUMBER() OVER (PARTITION BY dependent_id, coral_parent_id ORDER BY session_start_date) as session_number
     FROM ranked_sessions
     WHERE session_status = 'Completed'
 ),
@@ -46,18 +46,18 @@ session_numbers AS (
 milestone_sessions AS (
     SELECT 
         dependent_id,
-        parent_id,
+        coral_parent_id,
         MAX(CASE WHEN session_number = 1 THEN session_start_date END) as first_session_complete_ts,
         MAX(CASE WHEN session_number = 5 THEN session_start_date END) as fifth_session_complete_ts,
         MAX(CASE WHEN session_number = 25 THEN session_start_date END) as twenty_fifth_session_complete_ts
     FROM session_numbers
-    GROUP BY dependent_id, parent_id
+    GROUP BY dependent_id, coral_parent_id
 ), 
 
 final as (
     SELECT 
         rs.dependent_id, 
-        rs.parent_id,
+        rs.coral_parent_id,
         MIN(CASE WHEN rs.session_status IN ('Completed', 'Confirmed') THEN rs.payment_type END) as payment_type,
         MIN(CASE WHEN rs.session_status IN ('Completed', 'Confirmed') THEN rs.reason_for_visit END) as reason_for_visit,
         MIN(CASE WHEN rs.session_status IN ('Completed') THEN rs.session_start_date END) AS first_session_date,
@@ -81,12 +81,12 @@ final as (
         COUNT(CASE WHEN rs.session_status IN ('Completed', 'Confirmed') THEN 1 ELSE NULL END) as completed_session_count
     FROM ranked_sessions rs
     LEFT JOIN {{ref('int__parent_dependent_crosswalk')}} AS parent_dependent
-        ON rs.parent_id = parent_dependent.parent_id
+        ON rs.coral_parent_id = parent_dependent.coral_parent_id
     GROUP BY 1,2
 ) 
 
 SELECT 
-    f.parent_id, 
+    f.coral_parent_id, 
     f.dependent_id, 
     f.reason_for_visit, 
     f.payment_type, 
@@ -114,4 +114,4 @@ SELECT
 FROM final f
 LEFT JOIN milestone_sessions m 
     ON f.dependent_id = m.dependent_id 
-    AND f.parent_id = m.parent_id
+    AND f.coral_parent_id = m.coral_parent_id

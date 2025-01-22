@@ -1,5 +1,5 @@
 select distinct 
-parent.parent_id,
+parent.coral_parent_id,
 parent.parent_first_name,
 parent.parent_last_name,
 dependent.dependent_id,
@@ -12,8 +12,8 @@ from
 {{ref('int__parent')}} parent 
 LEFT JOIN 
 {{ref('int__dependent')}} dependent
-on parent.parent_id = dependent.parent_id
+on parent.coral_parent_id = dependent.coral_parent_id
 where dependent.dependent_name is not null
-order by parent.parent_id
+order by parent.coral_parent_id
 
 

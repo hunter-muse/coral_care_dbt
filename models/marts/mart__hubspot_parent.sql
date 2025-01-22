@@ -1,15 +1,15 @@
 SELECT 
  parent.parent_email,
-parent.parent_id,
+parent.coral_parent_id,
 parent.parent_first_name,
 parent.parent_last_name,
-parent.address AS street_address,
-parent.parent_location_LAT AS latitude, 
-parent.parent_location_LNG AS longitude,
-parent.city,
-parent.state AS state_region_code,
-parent.postal_code,
-parent.phone,
+parent.parent_address AS street_address,
+parent.parent_location_lat AS latitude, 
+parent.parent_location_lng AS longitude,
+parent.parent_city,
+parent.parent_state AS state_region_code,
+parent.parent_postal_code,
+parent.parent_phone,
 session_parent.most_recent_provider_type AS Provider_Type,
 session_parent.first_session_frequency AS appointment_frequency,
 session_parent.most_recent_appt_type,
@@ -60,4 +60,4 @@ session_parent.dependent_2_reason_for_visit
 -- session_parent.dependent_3_reason_for_visit
 FROM {{ref('int__parent')}} AS parent
 LEFT JOIN {{ref('int__session_parent')}} AS session_parent
-ON parent.parent_id = session_parent.parent_id
+ON parent.coral_parent_id = session_parent.coral_parent_id

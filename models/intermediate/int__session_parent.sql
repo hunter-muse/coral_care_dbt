@@ -1,6 +1,6 @@
 with parent_summary as ( 
 select 
-    session_parent_dependent.parent_id,
+    session_parent_dependent.coral_parent_id,
     MAX(session_parent_dependent.reason_for_visit) as reason_for_visit, 
     MAX(session_parent_dependent.payment_type) as payment_type, 
     MAX(session_parent_dependent.first_session_date) as first_session_date,
@@ -21,7 +21,7 @@ GROUP BY 1
 
 ranked_dependents AS (
     SELECT 
-        spd.parent_id,
+        spd.coral_parent_id,
         d.dependent_name,
         d.dependent_first_name,
         d.dependent_last_name,
@@ -30,11 +30,11 @@ ranked_dependents AS (
         d.dependent_age_number,
         d.dependent_age_unit,
         FIRST_VALUE(spd.reason_for_visit) OVER (
-            PARTITION BY spd.parent_id, spd.dependent_id 
+            PARTITION BY spd.coral_parent_id, spd.dependent_id 
             ORDER BY spd.first_session_date
         ) as dependent_reason_for_visit,
         ROW_NUMBER() OVER (
-            PARTITION BY spd.parent_id 
+            PARTITION BY spd.coral_parent_id 
             ORDER BY spd.first_session_date
         ) as dependent_number
     FROM {{ref('int__session_parent_dependent')}} AS spd
@@ -45,7 +45,7 @@ ranked_dependents AS (
 
 flattened_dependents AS (
     SELECT 
-        parent_id,
+        coral_parent_id,
         MAX(CASE WHEN dependent_number = 1 THEN dependent_name END) as dependent_1_name,
         MAX(CASE WHEN dependent_number = 1 THEN dependent_first_name END) as dependent_1_first_name,
         MAX(CASE WHEN dependent_number = 1 THEN dependent_last_name END) as dependent_1_last_name,
@@ -73,11 +73,11 @@ flattened_dependents AS (
         MAX(CASE WHEN dependent_number = 3 THEN dependent_gender END) as dependent_3_gender,
         MAX(CASE WHEN dependent_number = 3 THEN dependent_reason_for_visit END) as dependent_3_reason_for_visit
     FROM ranked_dependents
-    GROUP BY parent_id
+    GROUP BY coral_parent_id
 )
 
 select 
-    parent_summary.parent_id,
+    parent_summary.coral_parent_id,
     parent_summary.reason_for_visit,
     parent_summary.payment_type,
     parent_summary.first_session_date,
@@ -129,4 +129,4 @@ select
     fd.dependent_3_reason_for_visit
 FROM parent_summary parent_summary
 LEFT JOIN flattened_dependents fd
-    ON parent_summary.parent_id = fd.parent_id
+    ON parent_summary.coral_parent_id = fd.coral_parent_id

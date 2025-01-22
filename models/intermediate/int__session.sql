@@ -2,7 +2,7 @@ select
     session_ID, 
     appointment as appointment_id,
     dependant as dependent_id, 
-    parent_user as parent_id,
+    parent.coral_parent_id,
     parent_detail, 
     provider.coral_provider_id, 
     session.provider_user AS provider_user_id, 
@@ -45,3 +45,5 @@ left join {{ref('int__provider')}} as provider
     on session.provider_user = provider.bubble_provider_user_id
 left join {{ref('stg__bubble__user')}} as user
     on session.created_by = user.user_id
+left join {{ ref('int__parent') }} as parent
+    on session.parent_user = parent.bubble_parent_user_id

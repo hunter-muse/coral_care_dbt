@@ -95,11 +95,9 @@ renamed as (
     from source as user 
 )
 select * from renamed
-WHERE 
-last_name NOT ILIKE '%test%'
-AND 
-email not ILIKE '%joincoral%'
-AND 
-email not ILIKE '%pronoco%'
+WHERE 1=1
+AND email not ILIKE '%joincoral%'
+AND email not ILIKE '%pronoco%'
 AND email not ILIKE '%+test%'
 AND last_name not ILIKE '%parent%'
+AND last_name NOT ILIKE '%test%'

@@ -68,7 +68,8 @@ select
     deal.property_hs_v_2_date_entered_200291864 as date_entered_closed_lost_provider_onboarding,
     deal.property_hs_v_2_date_exited_200291864 as date_exited_closed_lost_provider_onboarding,
     deal.property_closed_loss_tag as closed_lost_provider_reason,
-    deal.property_hs_v_2_date_entered_202963371 as date_entered_disqualified_provider_onboarding
+    deal.property_hs_v_2_date_entered_202963371 as date_entered_disqualified_provider_onboarding,
+    row_number() over (partition by deal_contact.contact_id order by deal.PROPERTY_CREATEDATE) as rn
     -- deal.property_hs_v_2_date_exited_202963371 as date_exited_disqualified_provider_onboarding --exited doesn't seem to exist
     --deal.*
 from {{ source('hubspot', 'deal') }} deal 
@@ -76,3 +77,4 @@ left join {{ source('hubspot', 'deal_contact') }} deal_contact
     on deal.deal_id = deal_contact.deal_id
 where 
 deal.is_deleted = FALSE 
+qualify rn = 1

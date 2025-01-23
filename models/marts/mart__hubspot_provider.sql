@@ -28,8 +28,9 @@ session_provider.upcoming_session_date,
 session_provider.farthest_out_session_date,
 session_provider.total_completed_session_count,
 provider.bubble_provider_availability_status,
-provider_product_status
-FROM {{ref('int__provider')}} AS provider
+provider_product_status,
+provider_lifecycle_status
+FROM {{ref('dim__provider')}} AS provider
 LEFT JOIN {{ref('int__session_provider')}} AS session_provider
 ON provider.coral_provider_id = session_provider.coral_provider_id 
 WHERE 

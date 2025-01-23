@@ -61,3 +61,4 @@ session_parent.dependent_2_reason_for_visit
 FROM {{ref('int__parent')}} AS parent
 LEFT JOIN {{ref('int__session_parent')}} AS session_parent
 ON parent.coral_parent_id = session_parent.coral_parent_id
+WHERE parent.bubble_parent_user_id is not null

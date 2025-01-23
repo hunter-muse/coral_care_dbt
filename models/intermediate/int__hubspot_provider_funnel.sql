@@ -676,6 +676,11 @@ funnel_progression as (
 select distinct 
     e.*,
     cs.current_stage,
+    CASE 
+        WHEN cs.current_stage IS NULL THEN 'Inactive_Lead' 
+        WHEN cs.current_stage IN ('Closed Lost (Provider Recruiting)', 'Recruitment Complete (Provider Recruiting)') THEN 'Inactive_Lead' 
+        ELSE 'Active_Lead' 
+        END AS provider_lead_status, 
     cs.hours_in_current_stage,
     sts.total_days_in_funnel,
     sts.longest_stage_duration,

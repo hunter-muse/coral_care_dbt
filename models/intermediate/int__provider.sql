@@ -199,6 +199,15 @@ mapped_insurances AS (
     GROUP BY
       Provider_First_Name,
       Provider_Last_Name
+  ),
+
+  provider_availability as ( --only get providers with active availability
+    select 
+    distinct bubble_provider_id 
+    from {{ ref('int__provider_availability') }} 
+    where 
+    active = true 
+    and bubble_provider_id is not null
   )
 
     SELECT
@@ -218,7 +227,8 @@ mapped_insurances AS (
       provider_detail.latitude,
       provider_detail.longitude,
       provider_detail.provider_product_status,
-      provider_detail.provider_availability_status,
+      provider_detail.provider_availability_status AS hubspot_provider_availability_status,
+      case when provider_availability.bubble_provider_id is not null then true else false end as bubble_provider_availability_status,
       provider_detail.provider_lifecycle_status,
       provider_detail.provider_about,
       provider_detail.Active_Flag,
@@ -247,3 +257,5 @@ mapped_insurances AS (
       provider_insurance_accepted ON 
       provider_detail.Provider_First_Name = provider_insurance_accepted.Provider_First_Name 
       AND provider_detail.Provider_Last_Name = provider_insurance_accepted.Provider_Last_Name
+    LEFT JOIN
+      provider_availability ON provider_detail.bubble_provider_id = provider_availability.bubble_provider_id

@@ -427,5 +427,4 @@ from enriched e
 left join current_stage_summary cs on e.deal_id = cs.deal_id
 left join stage_timing_summary sts on e.deal_id = sts.deal_id
 left join funnel_progression fp on e.deal_id = fp.deal_id
-    where e.deal_id = 32336601923
 order by 2,1

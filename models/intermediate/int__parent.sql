@@ -25,6 +25,7 @@ parent_join as (
     COALESCE(bubble.location_lat, hubspot.latitude) as parent_location_lat,
     COALESCE(bubble.location_lng, hubspot.longitude) as parent_location_lng,
     COALESCE(bubble.last_login_date, hubspot.last_login_date) as parent_last_login_date, 
+    hubspot.provider_type AS parent_provider_type_needed, 
     bubble.created_date as parent_first_login_date
     --COALESCE(bubble.created_date, hubspot.created_date) as parent_first_login_date,
     FROM bubble_parents bubble

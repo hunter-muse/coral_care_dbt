@@ -72,7 +72,8 @@ select
     PROPERTY_PROVIDER_STATUS_PRODUCT as provider_product,--provider_status_product,
     PROPERTY_ESTIMATE_WEEKLY_HOURS as estimate_weekly_hours,
     PROPERTY_HS_V_2_DATE_ENTERED_LEAD as date_entered_lead,
-    PROPERTY_SEGMENT_MULTI
+    PROPERTY_SEGMENT_MULTI,
+    PROPERTY_CREATEDATE AS provider_hubspot_created_date
     -- PROPERTY_SEGMENT
 
 from {{source('hubspot', 'contact')}} AS contact

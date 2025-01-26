@@ -2,6 +2,7 @@ with source as (
     select 
         deal.deal_id,
         deal.deaL_created_date,
+        parent.parent_hubspot_created_date,
         deal.contact_id,
         parent.parent_email AS hubspot_parent_email,
         parent_enriched.parent_email as coral_parent_email,
@@ -33,6 +34,7 @@ enriched as (
     select 
         deal_id, 
         deaL_created_date, 
+        parent_hubspot_created_date,
         contact_id,
         coral_parent_id,
         hubspot_parent_email,

@@ -101,6 +101,7 @@
     PROPERTY_HS_FEEDBACK_LAST_NPS_RATING as last_nps_survey_rating,
     PROPERTY_NUM_ASSOCIATED_DEALS as number_of_associated_deals,
     PROPERTY_HS_V_2_DATE_ENTERED_LEAD as date_entered_lead,
+    CASE WHEN PROPERTY_hs_email_optout IS NULL THEN FALSE ELSE PROPERTY_hs_email_optout END AS unsubscribed_from_emails,
     PROPERTY_CREATEDATE AS parent_hubspot_created_date
 
 from {{source('hubspot', 'contact')}} AS contact

@@ -174,16 +174,10 @@ mapped_insurances AS (
     SELECT
       Provider_First_Name,
       Provider_Last_Name,
-      CASE
-        WHEN insurance_id = '1726511314167x111587402655465470' THEN 'Cigna'
-        WHEN insurance_id = '1710254843190x710132183505829900' THEN 'Mass General Brigham Health Plan'
-        WHEN insurance_id = '1706282212033x919311988805075000' THEN 'Harvard Pilgram Healthcare'
-        WHEN insurance_id = '1695687925125x330305090873458700' THEN 'Blue Cross Blue Shield of Massachusetts'
-        WHEN insurance_id = '1693283593098x737059778370994200' THEN 'Self Pay'
-        ELSE 'Unknown Insurance'
-      END AS insurance_name
+      CASE WHEN insurance_mapping.onboarding_label is null then 'Unknown Insurance' else insurance_mapping.onboarding_label end as insurance_name
     FROM
       insurance_list
+      LEFT JOIN insurance_mapping ON insurance_list.insurance_id = insurance_mapping.insurance_id
   ),
 
   provider_insurance_accepted AS (

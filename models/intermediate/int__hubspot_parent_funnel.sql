@@ -1,9 +1,9 @@
 with source as (
     select 
         deal.deal_id,
-        deal.deaL_created_date,
-        parent.parent_hubspot_created_date,
-        deal.contact_id,
+        CAST(deal.deaL_created_date as date) as deal_created_date,
+        CAST(parent.parent_hubspot_created_date as date) as parent_hubspot_created_date,
+        CAST(deal.contact_id as string) as contact_id,
         parent.parent_email AS hubspot_parent_email,
         parent_enriched.parent_email as coral_parent_email,
         parent_enriched.coral_parent_id,

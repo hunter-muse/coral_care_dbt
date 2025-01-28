@@ -73,7 +73,10 @@ select
     PROPERTY_ESTIMATE_WEEKLY_HOURS as estimate_weekly_hours,
     PROPERTY_HS_V_2_DATE_ENTERED_LEAD as date_entered_lead,
     PROPERTY_SEGMENT_MULTI,
-    PROPERTY_CREATEDATE AS provider_hubspot_created_date
+    PROPERTY_NOTES_LAST_CONTACTED as last_contacted,
+    PROPERTY_HS_LAST_SALES_ACTIVITY_TIMESTAMP as last_engagement_date,
+    PROPERTY_CREATEDATE AS provider_hubspot_created_date,
+    CASE WHEN PROPERTY_hs_email_optout IS NULL THEN FALSE ELSE PROPERTY_hs_email_optout END AS unsubscribed_from_emails,
     -- PROPERTY_SEGMENT
 
 from {{source('hubspot', 'contact')}} AS contact

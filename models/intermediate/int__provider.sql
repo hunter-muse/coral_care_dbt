@@ -17,6 +17,9 @@ with provider_user_prep as (
         hubspot.provider_lifecycle_status,
         bubble.user_id as bubble_provider_user_id,
         hubspot.hubspot_provider_id,
+        hubspot.unsubscribed_from_emails as provider_unsubscribed_from_emails,
+        CAST(hubspot.last_contacted as date) as provider_last_contacted,
+        CAST(hubspot.last_engagement_date as date) as provider_last_engagement_date,
         hubspot.created_date as provider_created_date
     from {{ref('stg__hubspot__contact_provider')}} hubspot
     FULL OUTER JOIN {{ref('stg__bubble__user')}} bubble
@@ -150,6 +153,9 @@ user.last_login_date,
 user.first_login_date,
 user.provider_availability_status,
 user.provider_lifecycle_status,
+user.provider_unsubscribed_from_emails,
+user.provider_last_contacted,
+user.provider_last_engagement_date,
 from provider_user as user
 left join {{ ref('stg__bubble__provider') }} as provider 
     ON lower(user.provider_first_name) = lower(provider.provider_first_name)
@@ -244,7 +250,10 @@ mapped_insurances AS (
       provider_detail.Created_Date,
       provider_detail.signup_completed_date,
       provider_detail.last_login_date,
-      provider_detail.first_login_date
+      provider_detail.first_login_date,
+      provider_detail.provider_unsubscribed_from_emails,
+      provider_detail.provider_last_contacted,
+      provider_detail.provider_last_engagement_date
     FROM
       provider_detail
     LEFT JOIN

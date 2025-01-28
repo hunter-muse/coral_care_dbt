@@ -38,6 +38,9 @@ select
       signup_completed_date,
       last_login_date,
       first_login_date,
+      provider_unsubscribed_from_emails,
+      provider_last_contacted,
+      provider_last_engagement_date,
       --provider_lifecycle_status AS provider_lifecycle_status_raw,
       CASE WHEN provider_lifecycle_status = 'Lead' THEN provider_lead_status ELSE provider_lifecycle_status END as provider_lifecycle_status,
       --provider_lead_status 

@@ -2,6 +2,7 @@ with source as (
     select 
         deal.deal_id,
         deal.deaL_created_date,
+        provider.provider_hubspot_created_date,
         provider_enriched.coral_provider_id,
         provider_enriched.hubspot_provider_id,
         -- Provider Recruiting Stages
@@ -42,14 +43,17 @@ with source as (
         deal.date_entered_disqualified_provider_onboarding,
         deal.closed_lost_provider_reason
     from {{ ref('stg__hubspot__deal') }} deal
-    INNER JOIN {{ ref('int__provider')}} provider_enriched
-        ON deal.contact_id = provider_enriched.hubspot_provider_id
+    INNER JOIN {{ ref('stg__hubspot__contact_provider')}} provider
+        ON deal.contact_id = provider.hubspot_provider_id  
+    LEFT JOIN {{ ref('int__provider')}} provider_enriched
+        ON provider.hubspot_provider_id = provider_enriched.hubspot_provider_id
 ),
 
 enriched as (
     select 
         deal_id, 
         deaL_created_date,
+        provider_hubspot_created_date, 
         coral_provider_id,
         hubspot_provider_id,
         -- Add all date fields

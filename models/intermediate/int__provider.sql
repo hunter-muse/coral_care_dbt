@@ -15,6 +15,7 @@ with provider_user_prep as (
         bubble.last_login_date,
         bubble.created_date as first_login_date,
         hubspot.provider_lifecycle_status,
+        hubspot.Specialty as hubspot_provider_specialty,
         bubble.user_id as bubble_provider_user_id,
         hubspot.hubspot_provider_id,
         hubspot.unsubscribed_from_emails as provider_unsubscribed_from_emails,
@@ -140,7 +141,7 @@ REPLACE(
     ', ',     -- Replace ", " with "," to clean up spacing
     ','
 ) AS Provider_States_Practicing,
-provider.Provider_Specialty, 
+COALESCE(provider.Provider_Specialty, user.hubspot_provider_specialty) AS Provider_Specialty, 
 provider.Travel_Radius,
 provider.Education_List, 
 provider.License_Type, 

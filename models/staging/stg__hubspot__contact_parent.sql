@@ -55,7 +55,7 @@
     
     -- Payment & Insurance Information
     PROPERTY_TYPE_OF_PAYMENT_PROD as type_of_payment,
-    PROPERTY_INSURANCE_PROVIDER_PROD as insurance_provider,
+    COALESCE(PROPERTY_WHO_IS_YOUR_HEALTH_INSURANCE_PROVIDER_, PROPERTY_INSURANCE_PROVIDER_PROD) as insurance_provider,
     
     -- Login & Appointment Dates
     PROPERTY_LAST_LOGIN_DATE as last_login_date,
@@ -101,6 +101,8 @@
     PROPERTY_HS_FEEDBACK_LAST_NPS_RATING as last_nps_survey_rating,
     PROPERTY_NUM_ASSOCIATED_DEALS as number_of_associated_deals,
     PROPERTY_HS_V_2_DATE_ENTERED_LEAD as date_entered_lead,
+    PROPERTY_HOW_DID_YOU_HEAR_ABOUT_US_ AS hear_about_us_source_parent, 
+    PROPERTY_RE_ENGAGE_NOTES as parent_re_engage_notes,
     CASE WHEN PROPERTY_hs_email_optout IS NULL THEN FALSE ELSE PROPERTY_hs_email_optout END AS unsubscribed_from_emails,
     PROPERTY_CREATEDATE AS parent_hubspot_created_date
 

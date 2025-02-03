@@ -39,6 +39,7 @@ select
       last_login_date,
       first_login_date,
       provider_unsubscribed_from_emails,
+      hear_about_us_source_provider,
       provider_last_contacted,
       provider_last_engagement_date,
       --provider_lifecycle_status AS provider_lifecycle_status_raw,

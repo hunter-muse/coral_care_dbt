@@ -75,6 +75,7 @@ select
     PROPERTY_SEGMENT_MULTI,
     PROPERTY_NOTES_LAST_CONTACTED as last_contacted,
     PROPERTY_HS_LAST_SALES_ACTIVITY_TIMESTAMP as last_engagement_date,
+    PROPERTY_HEAR_ABOUT_US_PROVIDER_2 as hear_about_us_source_provider, 
     PROPERTY_CREATEDATE AS provider_hubspot_created_date,
     CASE WHEN PROPERTY_hs_email_optout IS NULL THEN FALSE ELSE PROPERTY_hs_email_optout END AS unsubscribed_from_emails,
     -- PROPERTY_SEGMENT

@@ -27,6 +27,8 @@ parent_join as (
     CAST(COALESCE(bubble.last_login_date, hubspot.last_login_date) as date) as parent_last_login_date, 
     hubspot.provider_type AS parent_provider_type_needed, 
     hubspot.unsubscribed_from_emails as parent_unsubscribed_from_emails,
+    hubspot.hear_about_us_source_parent, 
+    hubspot.parent_re_engage_notes,
     CAST(hubspot.last_contacted as date) as parent_last_contacted,
     CAST(hubspot.last_engagement_date as date) as parent_last_engagement_date,
     CAST(bubble.created_date as date) as parent_first_login_date

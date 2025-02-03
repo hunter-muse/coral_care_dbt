@@ -19,6 +19,7 @@ with provider_user_prep as (
         bubble.user_id as bubble_provider_user_id,
         hubspot.hubspot_provider_id,
         hubspot.unsubscribed_from_emails as provider_unsubscribed_from_emails,
+        hubspot.hear_about_us_source_provider, 
         CAST(hubspot.last_contacted as date) as provider_last_contacted,
         CAST(hubspot.last_engagement_date as date) as provider_last_engagement_date,
         hubspot.created_date as provider_created_date
@@ -156,6 +157,7 @@ user.provider_availability_status,
 user.provider_lifecycle_status,
 user.provider_unsubscribed_from_emails,
 user.provider_last_contacted,
+user.hear_about_us_source_provider,
 user.provider_last_engagement_date,
 from provider_user as user
 left join {{ ref('stg__bubble__provider') }} as provider 
@@ -253,6 +255,7 @@ mapped_insurances AS (
       provider_detail.last_login_date,
       provider_detail.first_login_date,
       provider_detail.provider_unsubscribed_from_emails,
+      provider_detail.hear_about_us_source_provider,
       provider_detail.provider_last_contacted,
       provider_detail.provider_last_engagement_date
     FROM

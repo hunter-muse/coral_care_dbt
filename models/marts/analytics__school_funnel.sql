@@ -1,0 +1,1 @@
+select * from {{ ref('int__hubspot_school_funnel') }}

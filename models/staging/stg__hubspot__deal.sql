@@ -69,6 +69,20 @@ select
     deal.property_hs_v_2_date_exited_200291864 as date_exited_closed_lost_provider_onboarding,
     deal.property_closed_loss_tag as closed_lost_provider_reason,
     deal.property_hs_v_2_date_entered_202963371 as date_entered_disqualified_provider_onboarding,
+    deal.property_hs_v_2_date_entered_183419161 as date_entered_new_school_lead,
+    deal.property_hs_v_2_date_exited_183419161 as date_exited_new_school_lead,
+    deal.property_hs_v_2_date_entered_183419162 as date_entered_call_scheduled,
+    deal.property_hs_v_2_date_exited_183419162 as date_exited_call_scheduled,
+    deal.property_hs_v_2_date_entered_183419165 as date_entered_call_completed,
+    deal.property_hs_v_2_date_exited_183419165 as date_exited_call_completed,
+    deal.property_hs_v_2_date_entered_183419166 as date_entered_provider_matching,
+    deal.property_hs_v_2_date_exited_183419166 as date_exited_provider_matching,
+    deal.property_hs_v_2_date_entered_183419167 as date_entered_screening_confirmed,
+    deal.property_hs_v_2_date_exited_183419167 as date_exited_screening_confirmed,
+    deal.property_hs_v_2_date_entered_221367334 as date_entered_screening_complete_won,
+    deal.property_hs_v_2_date_entered_221367335 as date_entered_cold_school_pipeline,
+    deal.property_hs_v_2_date_exited_221367335 as date_exited_cold_school_pipeline,
+    deal.property_hs_v_2_date_entered_221360262 as date_entered_closed_lost_school_pipeline,
     row_number() over (partition by deal_contact.contact_id order by deal.PROPERTY_CREATEDATE) as rn
     -- deal.property_hs_v_2_date_exited_202963371 as date_exited_disqualified_provider_onboarding --exited doesn't seem to exist
     --deal.*

@@ -206,8 +206,8 @@ mapped_insurances AS (
 
   provider_availability as ( --only get providers with active availability
     select 
-    distinct bubble_provider_id 
-    from {{ ref('int__provider_availability') }} 
+    distinct provider_detail as bubble_provider_id
+    from {{ ref('stg__bubble__availability') }} 
     where 
     active = true 
     and bubble_provider_id is not null

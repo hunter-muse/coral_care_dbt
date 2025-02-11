@@ -1,32 +1,15 @@
 WITH RankedContacts AS (
   SELECT 
-    *,
-    -- Create a matching group and get the earliest created email
-    FIRST_VALUE(PROPERTY_EMAIL) OVER (
-      PARTITION BY 
-        PROPERTY_FIRSTNAME,
-        PROPERTY_LASTNAME
-      ORDER BY 
-        PROPERTY_CREATEDATE ASC  -- Get the earliest created record's email
-    ) as canonical_email,
-    ROW_NUMBER() OVER (
-      PARTITION BY  PROPERTY_FIRSTNAME,
-        PROPERTY_LASTNAME
-      ORDER BY 
-        -- Prioritize records with more complete information
-        (CASE WHEN PROPERTY_ADDRESS IS NOT NULL THEN 1 ELSE 0 END +
-         CASE WHEN PROPERTY_APPOINTMENT_TYPE IS NOT NULL THEN 1 ELSE 0 END +
-         CASE WHEN PROPERTY_STATE IS NOT NULL THEN 1 ELSE 0 END) DESC,
-        PROPERTY_LASTMODIFIEDDATE DESC
-    ) as rn
+    *, 
+    ROW_NUMBER() OVER (PARTITION BY PROPERTY_FIRSTNAME, PROPERTY_LASTNAME, PROPERTY_PHONE ORDER BY PROPERTY_CREATEDATE ASC) as rn
   FROM {{source('hubspot', 'contact')}} AS contact
   LEFT JOIN {{ref('lat_long_zip')}} AS lat_long_zip
     ON CAST(contact.PROPERTY_ZIP as string) = CAST(lat_long_zip.ZIP as string)
-  WHERE 
-    PROPERTY_SEGMENT_MULTI = 'Parent'
+  WHERE 1=1  
+    AND PROPERTY_SEGMENT_MULTI = 'Parent'
     AND is_deleted = FALSE
-)
     
+)
     select
     -- Basic Information
     ID as record_id,
@@ -139,7 +122,7 @@ from RankedContacts AS contact
 left join {{ref('lat_long_zip')}} AS lat_long_zip
     on CAST(contact.PROPERTY_ZIP as string) = CAST(lat_long_zip.ZIP as string)
 where 
-PROPERTY_SEGMENT_MULTI = 'Parent'
-AND 
 is_deleted = FALSE 
-AND rn = 1
+and rn = 1
+
+

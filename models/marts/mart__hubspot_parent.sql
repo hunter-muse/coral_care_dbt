@@ -17,7 +17,7 @@ session_parent.upcoming_appt_type,
 session_parent.session_count,
 /*added dependent fields here */
 session_parent.payment_type AS type_of_payment,
-parent.insurance_providers,
+parent.parent_insurance_provider AS insurance_providers,
 CAST(parent.parent_last_login_date as date) as parent_last_login_date,
 CAST(parent.parent_first_login_date as date) as parent_first_login_date,
 CAST(session_parent.upcoming_session_date as date) as upcoming_session_date,

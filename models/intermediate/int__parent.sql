@@ -24,6 +24,7 @@ parent_join as (
     COALESCE(bubble.postal_code, hubspot.zip_code) as parent_postal_code,
     COALESCE(bubble.location_lat, hubspot.latitude) as parent_location_lat,
     COALESCE(bubble.location_lng, hubspot.longitude) as parent_location_lng,
+    hubspot.insurance_provider as parent_insurance_provider,
     CAST(COALESCE(bubble.last_login_date, hubspot.last_login_date) as date) as parent_last_login_date, 
     hubspot.provider_type AS parent_provider_type_needed, 
     hubspot.unsubscribed_from_emails as parent_unsubscribed_from_emails,
@@ -40,10 +41,4 @@ parent_join as (
 )
     
 select parent_join.*,    
-LISTAGG(DISTINCT insurance.insurance_name, ', ') WITHIN GROUP (ORDER BY insurance.insurance_name) as insurance_providers 
 from parent_join
-LEFT JOIN {{ref('stg__bubble__parent_insurance')}} as parent_insurance
-on parent_join.bubble_parent_id = parent_insurance.parent_reference 
-LEFT JOIN {{ref('stg__bubble__insurance')}} as insurance
-on parent_insurance.insurance_provider = insurance.insurance_id 
-GROUP BY ALL

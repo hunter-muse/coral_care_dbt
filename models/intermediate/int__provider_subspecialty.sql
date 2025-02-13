@@ -12,6 +12,7 @@ on provider.hubspot_provider_Id = hubspot_provider.hubspot_provider_id
 
 select 
 coral_provider_id
+, total_specialities
 , case when position('Infants' IN qualified_age_groups) > 0 then True else False end as Infants
 , case when position('Toddlers' IN qualified_age_groups) > 0 then True else False end as Toddlers
 , case when position('Preschoolers' IN qualified_age_groups) > 0 then True else False end as Preschoolers

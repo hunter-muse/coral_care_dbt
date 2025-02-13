@@ -28,8 +28,7 @@ WITH RankedContacts AS (
     CAST(COALESCE(contact.PROPERTY_LONGITUDE, lat_long_zip.LONGITUDE) as string) as longitude,
     contact.PROPERTY_ADDRESS as street_address,
     contact.PROPERTY_CITY as city,
-    contact.PROPERTY_STATE as state,
-    contact.PROPERTY_HS_STATE_CODE as state_region_code,
+    COALESCE(contact.PROPERTY_HS_STATE_CODE, contact.PROPERTY_STATE) as state_region_code,
     CASE 
         WHEN LENGTH(TRIM(contact.PROPERTY_ZIP)) = 4 THEN '0' || contact.PROPERTY_ZIP
         ELSE contact.PROPERTY_ZIP

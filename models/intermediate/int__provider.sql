@@ -38,7 +38,7 @@ qualify row_number() over (partition by provider_first_name, provider_last_name 
 ),
 
 insurance_mapping as (
-    select * from {{ ref('stg__bubble__insurance') }}
+    select insurance_id, insurance_name from {{ ref('stg__bubble__insurance') }}
 ),
 
 provider_detail as (
@@ -183,7 +183,7 @@ mapped_insurances AS (
     SELECT
       Provider_First_Name,
       Provider_Last_Name,
-      CASE WHEN insurance_mapping.onboarding_label is null then 'Unknown Insurance' else insurance_mapping.onboarding_label end as insurance_name
+      CASE WHEN insurance_mapping.insurance_name is null then 'Unknown Insurance' else insurance_mapping.insurance_name end as insurance_name
     FROM
       insurance_list
       LEFT JOIN insurance_mapping ON insurance_list.insurance_id = insurance_mapping.insurance_id

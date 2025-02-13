@@ -47,6 +47,7 @@ parent_join as (
             THEN NULL
         ELSE 'Other'
     END as parent_insurance_provider,
+    hubspot.insurance_provider as test_insurance_provider, 
     CAST(COALESCE(bubble.last_login_date, hubspot.last_login_date) as date) as parent_last_login_date, 
     hubspot.provider_type AS parent_provider_type_needed, 
     hubspot.unsubscribed_from_emails as parent_unsubscribed_from_emails,
@@ -54,7 +55,14 @@ parent_join as (
     hubspot.parent_re_engage_notes,
     CAST(hubspot.last_contacted as date) as parent_last_contacted,
     CAST(hubspot.last_engagement_date as date) as parent_last_engagement_date,
-    CAST(bubble.created_date as date) as parent_first_login_date
+    CAST(bubble.created_date as date) as parent_first_login_date,
+    hubspot.parent_sunday_availability,
+    hubspot.parent_monday_availability,
+    hubspot.parent_tuesday_availability,
+    hubspot.parent_wednesday_availability,
+    hubspot.parent_thursday_availability,
+    hubspot.parent_friday_availability,
+    hubspot.parent_saturday_availability
     FROM bubble_parents bubble
     FULL OUTER JOIN {{ref('stg__hubspot__contact_parent')}} as hubspot
         on TRIM(lower(bubble.first_name)) = TRIM(lower(hubspot.parent_first_name))

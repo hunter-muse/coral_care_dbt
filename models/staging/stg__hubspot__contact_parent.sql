@@ -116,6 +116,13 @@ WITH RankedContacts AS (
     PROPERTY_HOW_DID_YOU_HEAR_ABOUT_US_ AS hear_about_us_source_parent, 
     PROPERTY_RE_ENGAGE_NOTES as parent_re_engage_notes,
     CASE WHEN PROPERTY_hs_email_optout IS NULL THEN FALSE ELSE PROPERTY_hs_email_optout END AS unsubscribed_from_emails,
+    PROPERTY_SUNDAY as parent_sunday_availability,
+    PROPERTY_MONDAY as parent_monday_availability,
+    PROPERTY_TUESDAY as parent_tuesday_availability,
+    PROPERTY_WEDNESDAY as parent_wednesday_availability,
+    PROPERTY_THURSDAY as parent_thursday_availability,
+    PROPERTY_FRIDAY as parent_friday_availability,
+    PROPERTY_SATURDAY as parent_saturday_availability,
     PROPERTY_CREATEDATE AS parent_hubspot_created_date
 
 from RankedContacts AS contact

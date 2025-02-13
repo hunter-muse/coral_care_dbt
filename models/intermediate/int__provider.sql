@@ -10,7 +10,13 @@ with provider_user_prep as (
             WHEN hubspot.hubspot_provider_id IS NOT NULL THEN 'hubspot'
             ELSE NULL 
         END as source,
-        bubble.email as provider_email,
+        COALESCE(hubspot.provider_email, bubble.email) as provider_email,
+        hubspot.phone_number,
+        hubspot.state,
+        hubspot.radius,
+        hubspot.latitude,
+        hubspot.longitude,
+        hubspot.insurance_accepted,
         bubble.signup_completed_date, 
         bubble.last_login_date,
         bubble.created_date as first_login_date,
@@ -28,7 +34,8 @@ with provider_user_prep as (
         on lower(bubble.first_name) = lower(hubspot.provider_first_name)
         and lower(bubble.last_name) = lower(hubspot.provider_last_name)
         and bubble.role = 'Provider'
-    WHERE hubspot.hubspot_provider_id IS NOT NULL  -- Include all Hubspot providers
+    WHERE 
+    hubspot.hubspot_provider_id IS NOT NULL  -- Include all Hubspot providers
         OR (bubble.role = 'Provider')  
 ),
 
@@ -50,14 +57,14 @@ provider.provider_id as bubble_provider_id,
 --provider.First_Last AS provider_first_last, 
 coalesce(provider.provider_first_name, user.provider_first_name) as provider_first_name, 
 coalesce(provider.provider_last_name, user.provider_last_name) as provider_last_name, 
-      CONCAT(
+coalesce(user.phone_number, CONCAT(
         '+1 (',
         SUBSTRING(provider.Phone, 1, 3),
         ')-',
         SUBSTRING(provider.Phone, 4, 3),
         '-',
         SUBSTRING(provider.Phone, 7, 4)
-      ) AS provider_phone_number,
+      )) AS provider_phone_number,
 user.provider_email as provider_email,
 provider.Address as provider_address, 
 CASE
@@ -87,9 +94,9 @@ CASE
           REGEXP_SUBSTR(SPLIT_PART(provider.Address, ',', 2), '[0-9]{5}')
         )
       END AS zip,
-provider.Address_Lat AS latitude, 
-provider.Address_Lng AS longitude,
---provider.radius,  
+coalesce(user.latitude, provider.Address_Lat) AS latitude, 
+coalesce(user.longitude, provider.Address_Lng) AS longitude,
+user.state as hubspot_state,
 provider.Status AS provider_product_status,
 provider.About as provider_about, 
 provider.active as Active_Flag, 
@@ -99,6 +106,7 @@ provider.Expected_Hours,
 provider.Hourly_Rate,
 provider.IN_NETWORK, 
 provider.Insurance_List, 
+user.insurance_accepted,
 REPLACE(
     REPLACE(
         REPLACE(
@@ -143,12 +151,12 @@ REPLACE(
     ','
 ) AS Provider_States_Practicing,
 COALESCE(provider.Provider_Specialty, user.hubspot_provider_specialty) AS Provider_Specialty, 
-provider.Travel_Radius,
+COALESCE(user.radius, provider.Travel_Radius) AS Travel_Radius,
 provider.Education_List, 
 provider.License_Type, 
 provider.cash_pay as Cash_Pay_Flag,
 provider.insurance_pay as Insurance_Pay_Flag,
-provider.Created_Date,
+COALESCE(user.provider_created_date,provider.Created_Date) as created_date, 
 provider.timezone_offset,
 user.signup_completed_date,
 user.last_login_date,
@@ -225,7 +233,7 @@ mapped_insurances AS (
       provider_detail.provider_address,
       provider_detail.address,
       provider_detail.city,
-      provider_detail.state,
+      coalesce(hubspot_state, provider_detail.state) as state,
       provider_detail.zip AS postal_code,
       provider_detail.latitude,
       provider_detail.longitude,
@@ -240,7 +248,7 @@ mapped_insurances AS (
       provider_detail.Expected_Hours AS Estimated_Hours_Per_Week,
       provider_detail.Hourly_Rate,
       provider_detail.IN_NETWORK,
-      provider_insurance_accepted.insurances_accepted_names,
+      coalesce(insurance_accepted, provider_insurance_accepted.insurances_accepted_names) as insurances_accepted_names,
       provider_detail.Spoken_Languages,
       provider_detail.NPI_Number,
       provider_detail.Provider_States_Practicing,
@@ -250,7 +258,7 @@ mapped_insurances AS (
       provider_detail.License_Type,
       provider_detail.cash_pay_flag,
       provider_detail.insurance_pay_flag,
-      provider_detail.Created_Date,
+      provider_detail.created_date,
       provider_detail.signup_completed_date,
       provider_detail.last_login_date,
       provider_detail.first_login_date,

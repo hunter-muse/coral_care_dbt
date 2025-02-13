@@ -18,10 +18,10 @@ parent_join as (
     bubble.location_address as parent_location_address,
     COALESCE(bubble.address, hubspot.street_address) as parent_address,
     COALESCE(bubble.city, hubspot.city) as parent_city,
-    COALESCE(bubble.state, hubspot.state) as parent_state,
-    COALESCE(bubble.postal_code, hubspot.zip_code) as parent_postal_code,
-    COALESCE(bubble.location_lat, hubspot.latitude) as parent_location_lat,
-    COALESCE(bubble.location_lng, hubspot.longitude) as parent_location_lng,
+    COALESCE(hubspot.state_region_code,bubble.state) as parent_state,
+    COALESCE(hubspot.zip_code, bubble.postal_code ) as parent_postal_code,
+    COALESCE(hubspot.latitude, bubble.location_lat) as parent_location_lat,
+    COALESCE(hubspot.longitude, bubble.location_lng) as parent_location_lng,
     CASE 
         WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('self-pay', 'out-of-network') 
             THEN 'Self-Pay (includes out-of-network)'

@@ -47,7 +47,6 @@ parent_join as (
             THEN NULL
         ELSE 'Other'
     END as parent_insurance_provider,
-    hubspot.insurance_provider as test_insurance_provider, 
     CAST(COALESCE(bubble.last_login_date, hubspot.last_login_date) as date) as parent_last_login_date, 
     hubspot.provider_type AS parent_provider_type_needed, 
     hubspot.unsubscribed_from_emails as parent_unsubscribed_from_emails,

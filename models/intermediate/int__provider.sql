@@ -151,7 +151,7 @@ REPLACE(
     ','
 ) AS Provider_States_Practicing,
 COALESCE(provider.Provider_Specialty, user.hubspot_provider_specialty) AS Provider_Specialty, 
-COALESCE(user.radius, provider.Travel_Radius) AS Travel_Radius,
+COALESCE(provider.Travel_Radius, user.radius ) AS Travel_Radius,
 provider.Education_List, 
 provider.License_Type, 
 provider.cash_pay as Cash_Pay_Flag,

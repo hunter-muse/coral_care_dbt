@@ -4,17 +4,17 @@ with source as (
 renamed as (
     select
         {{ adapter.quote("SESSION_ID") }},
-        {{ adapter.quote("CREATED_DATE") }},
+        CAST({{ adapter.quote("CREATED_DATE") }} AS TIMESTAMP) AS created_date,
         {{ adapter.quote("CREATED_BY") }},
-        {{ adapter.quote("MODIFIED_DATE") }},
+        CAST({{ adapter.quote("MODIFIED_DATE") }} AS TIMESTAMP) AS modified_date,
         {{ adapter.quote("APPOINTMENT") }},
         {{ adapter.quote("DEPENDANT") }},
-        {{ adapter.quote("END_DATE") }},
+        CAST({{ adapter.quote("END_DATE") }} AS TIMESTAMP) AS end_date,
         {{ adapter.quote("PARENT_USER") }},
         {{ adapter.quote("PROVIDER_USER") }},
         {{ adapter.quote("PROVIDER_DETAILS") }},
         {{ adapter.quote("SESSION_TYPE") }},
-        {{ adapter.quote("START_DATE") }},
+        CAST({{ adapter.quote("START_DATE") }} AS TIMESTAMP) AS start_date,
         {{ adapter.quote("STATUS") }},
         {{ adapter.quote("STRIPE_PAYMENT_ID") }},
         {{ adapter.quote("TOTAL_COST") }},
@@ -39,7 +39,7 @@ renamed as (
         {{ adapter.quote("LEGACY_WITH_INSURANCE") }},
         {{ adapter.quote("PARENT_DETAIL") }},
         {{ adapter.quote("XANO_ID") }},
-        {{ adapter.quote("XANO_LAST_SYNC_DATE") }},
+        CAST({{ adapter.quote("XANO_LAST_SYNC_DATE")}} AS TIMESTAMP) AS xano_last_sync_date,
         {{ adapter.quote("DURATION") }},
         {{ adapter.quote("SESSION_FORMAT") }},
         {{ adapter.quote("LATE_CANCELLATION_FEE_WAIVED") }},
@@ -47,8 +47,8 @@ renamed as (
         {{ adapter.quote("CC_LAST_4") }},
         {{ adapter.quote("SESSION_FREQUENCY") }},
         {{ adapter.quote("CANCELLATION_REASON")}},
-        {{ adapter.quote("CANCELLATION_TIMESTAMP_DATE")}},
-        {{ adapter.quote("Y_NOTES_COMPLETED_TIMESTAMP")}}
+        CAST({{ adapter.quote("CANCELLATION_TIMESTAMP_DATE")}} AS TIMESTAMP) AS cancellation_timestamp_date,
+        CAST({{ adapter.quote("Y_NOTES_COMPLETED_TIMESTAMP")}} AS TIMESTAMP) AS y_notes_completed_timestamp
     from source
 )
 select * from renamed

@@ -1,6 +1,7 @@
 select 
     deal.deal_id,
     deal_contact.contact_id,
+    deal.property_dealname as deal_name,
     deal.PROPERTY_CREATEDATE AS deaL_created_date,
     deal.property_hs_v_2_date_exited_174666285 as date_exited_opportunities_unengaged,
     deal.property_hs_v_2_date_entered_174666285 as date_entered_opportunities_unengaged,

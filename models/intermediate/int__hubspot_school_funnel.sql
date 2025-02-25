@@ -1,6 +1,7 @@
 with source as (
     select 
         deal.deal_id,
+        deal.deal_name,
         CAST(deal.deal_created_date as date) as deal_created_date,
         CAST(school.school_created_date as date) as school_hubspot_created_date,
         CAST(deal.contact_id as string) as hubspot_school_id,

@@ -11,8 +11,8 @@ renamed as (
         {{ adapter.quote("GENDER") }},
         {{ adapter.quote("DEPENDENT_NAME") }},
         {{ adapter.quote("SHARE_DETAILS") }},
-        {{ adapter.quote("PARENT_ID") }},
-        {{ adapter.quote("PROVIDER_ID_LIST") }}
+        {{ adapter.quote("PARENT_ID") }}
+        --{{ adapter.quote("PROVIDER_ID_LIST") }}
 
     from source
 )

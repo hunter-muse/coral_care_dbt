@@ -22,7 +22,7 @@ WITH provider_availability AS (
         HOUR(end_time) - GREATEST(HOUR(start_time), 17)
       ELSE 0 
     END AS evening_hours
-  FROM {{ source('bubble', 'availability') }} availability
+  FROM {{ref('stg__bubble__availability')}} availability
   left join {{ref('int__provider')}} provider on provider_detail = provider.bubble_provider_id
 )
 
@@ -80,3 +80,5 @@ SELECT
 
 FROM provider_availability
 GROUP BY provider_detail, coral_provider_id
+
+

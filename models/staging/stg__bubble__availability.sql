@@ -6,10 +6,10 @@ renamed as (
         {{ adapter.quote("AVAILABILITY_ID") }},
         {{ adapter.quote("ACTIVE") }},
         {{ adapter.quote("CREATED_BY") }},
-        {{ adapter.quote("CREATED_DATE") }},
+        CAST({{ adapter.quote("CREATED_DATE") }} AS TIMESTAMP) AS created_date,
         {{ adapter.quote("DURATION") }},
-        {{ adapter.quote("END_TIME") }},
-        {{ adapter.quote("MODIFIED_DATE") }},
+        CAST({{ adapter.quote("END_TIME") }} AS TIMESTAMP) AS end_time,
+        CAST({{ adapter.quote("MODIFIED_DATE") }} AS TIMESTAMP) AS modified_date,
         {{ adapter.quote("NUMBER_120") }},
         {{ adapter.quote("NUMBER_30") }},
         {{ adapter.quote("NUMBER_45") }},
@@ -18,7 +18,7 @@ renamed as (
         {{ adapter.quote("NUMBER_90") }},
         {{ adapter.quote("OFFSET") }},
         {{ adapter.quote("PROVIDER_DETAIL") }},
-        {{ adapter.quote("START_TIME") }},
+        CAST({{ adapter.quote("START_TIME") }} AS TIMESTAMP) AS start_time,
         {{ adapter.quote("TIMEZONE") }},
         {{ adapter.quote("WORKING_DAYS") }}
 

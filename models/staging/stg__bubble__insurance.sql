@@ -11,11 +11,11 @@ renamed as (
         {{ adapter.quote("LAST_XANO_SYNC_DATE") }},
         {{ adapter.quote("XANO_ID_TEXT") }},
         {{ adapter.quote("CASH_PAY__BOOLEAN") }},
-        {{ adapter.quote("INSURANCE_STATUS") }},
+        --{{ adapter.quote("INSURANCE_STATUS") }},
         {{ adapter.quote("INSURANCE_NAME") }},
-        {{ adapter.quote("SLUG") }},
-        {{ adapter.quote("CREATED_AT") }},
-        {{ adapter.quote("UPDATED_AT") }}
+        {{ adapter.quote("SLUG") }}
+        --{{ adapter.quote("CREATED_AT") }},
+        --{{ adapter.quote("UPDATED_AT") }}
 
     from source
 )

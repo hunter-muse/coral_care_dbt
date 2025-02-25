@@ -681,10 +681,11 @@ select distinct
     e.*,
     cs.current_stage,
     CASE 
-        WHEN cs.current_stage IS NULL THEN 'Inactive_Lead' 
-        WHEN cs.current_stage IN ('Closed Lost (Provider Recruiting)', 'Recruitment Complete (Provider Recruiting)') THEN 'Inactive_Lead' 
+        WHEN cs.current_stage IS NULL THEN 'Inactive_Lead'
+        WHEN cs.current_stage IN ('Closed Lost (Provider Recruiting)', 'Recruitment Complete (Provider Recruiting)') THEN 'Inactive_Lead'
+        WHEN cs.current_stage IN ('Pending Onboarding Tasks (Provider Onboarding)', 'Schedule Onboarding Call (Provider Onboarding)') THEN 'Onboarding'
         ELSE 'Active_Lead' 
-        END AS provider_lead_status, 
+    END AS provider_lead_status,
     cs.hours_in_current_stage,
     sts.total_days_in_funnel,
     sts.longest_stage_duration,

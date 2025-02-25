@@ -10,8 +10,7 @@ renamed as (
         {{ adapter.quote("SLUG") }},
         {{ adapter.quote("ACTIVE") }},
         {{ adapter.quote("NAME") }},
-        {{ adapter.quote("XANO_ID") }},
-        {{ adapter.quote("LAST_XANO_SYNC_DATE") }}
+        {{ adapter.quote("XANO_ID") }}
 
     from source
 )

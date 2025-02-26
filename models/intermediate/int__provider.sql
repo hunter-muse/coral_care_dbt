@@ -167,6 +167,8 @@ user.provider_unsubscribed_from_emails,
 user.provider_last_contacted,
 user.hear_about_us_source_provider,
 user.provider_last_engagement_date,
+provider.ACCEPT_NEW_PATIENTS,
+provider.TARGET_CASELOAD
 from provider_user as user
 left join {{ ref('stg__bubble__provider') }} as provider 
     ON lower(user.provider_first_name) = lower(provider.provider_first_name)
@@ -237,6 +239,8 @@ mapped_insurances AS (
       provider_detail.zip AS postal_code,
       provider_detail.latitude,
       provider_detail.longitude,
+      provider_detail.ACCEPT_NEW_PATIENTS,
+      provider_detail.TARGET_CASELOAD,
       provider_detail.provider_product_status,
       provider_detail.provider_availability_status AS hubspot_provider_availability_status,
       case when provider_availability.bubble_provider_id is not null then true else false end as bubble_provider_availability_status,

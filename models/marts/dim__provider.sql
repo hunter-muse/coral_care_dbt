@@ -42,6 +42,8 @@ select
       hear_about_us_source_provider,
       provider_last_contacted,
       provider_last_engagement_date,
+      accept_new_patients,
+      target_caseload,
       --provider_lifecycle_status AS provider_lifecycle_status_raw,
       CASE WHEN provider_lifecycle_status = 'Lead' THEN provider_lead_status ELSE provider_lifecycle_status END as provider_lifecycle_status,
       --provider_lead_status 

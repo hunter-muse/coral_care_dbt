@@ -49,7 +49,9 @@ renamed as (
         {{ adapter.quote("LAST_XANO_SYNC_DATE") }},
         {{ adapter.quote("TIMEZONE") }},
         {{ adapter.quote("TIMEZONE_OFFSET") }},
-        {{ adapter.quote("TRAVEL_RADIUS") }}
+        {{ adapter.quote("TRAVEL_RADIUS") }},
+        {{ adapter.quote("ACCEPT_NEW_PATIENTS") }},
+        {{ adapter.quote("TARGET_CASELOAD") }}
     from source
     
 )

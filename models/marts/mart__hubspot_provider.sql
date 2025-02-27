@@ -29,7 +29,9 @@ CAST(session_provider.farthest_out_session_date as date) as farthest_out_session
 session_provider.total_completed_session_count,
 provider.bubble_provider_availability_status,
 provider_product_status,
-provider_lifecycle_status
+provider_lifecycle_status,
+provider.accept_new_patients,
+provider.target_caseload
 FROM {{ref('dim__provider')}} AS provider
 LEFT JOIN {{ref('int__session_provider')}} AS session_provider
 ON provider.coral_provider_id = session_provider.coral_provider_id 

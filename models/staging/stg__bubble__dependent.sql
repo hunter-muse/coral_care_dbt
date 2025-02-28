@@ -7,7 +7,7 @@ renamed as (
         {{ adapter.quote("MODIFIED_DATE") }},
         {{ adapter.quote("CREATED_DATE") }},
         {{ adapter.quote("CREATED_BY") }},
-        {{ adapter.quote("DOB") }},
+        CAST({{ adapter.quote("DOB") }} as date) as dob,
         {{ adapter.quote("GENDER") }},
         {{ adapter.quote("DEPENDENT_NAME") }},
         {{ adapter.quote("SHARE_DETAILS") }},

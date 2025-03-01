@@ -7,20 +7,36 @@ WITH provider_availability AS (
     end_time,
     TO_CHAR(start_time, 'HH12:MI AM')||'-'||TO_CHAR(end_time, 'HH12:MI AM') AS time_slot,
     DATEDIFF('hour', start_time, end_time) AS total_hours,
+    -- Morning hours (8:00 AM to 11:59 AM)
     CASE 
-      WHEN HOUR(start_time) >= 8 AND HOUR(start_time) < 12 THEN
-        LEAST(DATEDIFF('hour', start_time, end_time), 12 - HOUR(start_time))
-      ELSE 0 
+      WHEN HOUR(end_time) <= 8 THEN 0
+      WHEN HOUR(start_time) >= 12 THEN 0
+      ELSE 
+        DATEDIFF('hour', 
+          GREATEST(start_time, DATEADD('hour', 8, DATE_TRUNC('day', start_time))),
+          LEAST(end_time, DATEADD('hour', 12, DATE_TRUNC('day', start_time)))
+        )
     END AS morning_hours,
+    
+    -- Afternoon hours (12:00 PM to 4:59 PM)
     CASE 
-      WHEN HOUR(start_time) < 17 AND HOUR(end_time) > 12 THEN
-        LEAST(DATEDIFF('hour', start_time, end_time), 17 - GREATEST(HOUR(start_time), 12))
-      ELSE 0 
+      WHEN HOUR(end_time) <= 12 THEN 0
+      WHEN HOUR(start_time) >= 17 THEN 0
+      ELSE 
+        DATEDIFF('hour', 
+          GREATEST(start_time, DATEADD('hour', 12, DATE_TRUNC('day', start_time))),
+          LEAST(end_time, DATEADD('hour', 17, DATE_TRUNC('day', start_time)))
+        )
     END AS afternoon_hours,
+    
+    -- Evening hours (5:00 PM and later)
     CASE 
-      WHEN HOUR(end_time) > 17 THEN
-        HOUR(end_time) - GREATEST(HOUR(start_time), 17)
-      ELSE 0 
+      WHEN HOUR(end_time) <= 17 THEN 0
+      ELSE 
+        DATEDIFF('hour', 
+          GREATEST(start_time, DATEADD('hour', 17, DATE_TRUNC('day', start_time))),
+          end_time
+        )
     END AS evening_hours
   FROM {{ref('stg__bubble__availability')}} availability
   left join {{ref('int__provider')}} provider on provider_detail = provider.bubble_provider_id

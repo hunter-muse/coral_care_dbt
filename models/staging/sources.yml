@@ -29,6 +29,7 @@ sources:
       - name: session_type 
       - name: temp_busy_slot 
       - name: user 
+      - name: busy_slot
   
   - name: claims
     database: source_claims

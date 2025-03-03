@@ -101,3 +101,4 @@ AND email not ILIKE '%pronoco%'
 AND email not ILIKE '%+test%'
 AND last_name not ILIKE '%parent%'
 AND last_name NOT ILIKE '%test%'
+and user_id != '1726529461200x698266999552610300' --bad data 

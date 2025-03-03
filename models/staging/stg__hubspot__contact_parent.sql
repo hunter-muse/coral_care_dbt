@@ -47,6 +47,7 @@ WITH RankedContacts AS (
     PROPERTY_DEPENDENT_GENDER as dependent_1_gender,
     PROPERTY_AGE_NUMBER as dependent_1_age_number,
     PROPERTY_AGE_UNIT as dependent_1_age_unit,
+    PROPERTY_PLEASE_TELL_US_MORE_ABOUT_YOUR_CHILD_S_NEEDS as dependent_1_needs,
     
     -- Dependent 2 Information
     PROPERTY_DEPENDENT_2_FIRST_NAME as dependent_2_first_name,
@@ -55,6 +56,8 @@ WITH RankedContacts AS (
     PROPERTY_DEPENDENT_2_GENDER as dependent_2_gender,
     PROPERTY_AGE_NUMBER_DEPENDENT_2 as dependent_2_age_number,
     PROPERTY_AGE_UNIT_DEPENDENT_2 as dependent_2_age_unit,
+    PROPERTY_PLEASE_TELL_US_MORE_ABOUT_YOUR_CHILD_S_NEEDS as dependent_2_needs,
+
     
     -- Dependent 3 Information
     PROPERTY_DEPENDENT_3_FIRST_NAME as dependent_3_first_name,
@@ -63,6 +66,7 @@ WITH RankedContacts AS (
     PROPERTY_DEPENDENT_3_GENDER_CLONED_ as dependent_3_gender,
     PROPERTY_AGE_NUMBER_DEPENDENT_3 as dependent_3_age_number,
     PROPERTY_AGE_UNIT_DEPENDENT_3 as dependent_3_age_unit,
+    PROPERTY_CHILD_3_PLEASE_TELL_US_MORE_ABOUT_YOUR_CHILD_S_NEEDS as dependent_3_needs,
     
     -- Payment & Insurance Information
     PROPERTY_TYPE_OF_PAYMENT_PROD as type_of_payment,

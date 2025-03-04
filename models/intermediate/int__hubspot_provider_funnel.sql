@@ -2,6 +2,13 @@ with source as (
     select 
         deal.deal_id,
         deal.deaL_created_date,
+        deal.deal_sequence,
+        -- Determine pipeline based on deal sequence
+        CASE 
+            WHEN deal.deal_sequence = 1 THEN 'Provider Recruiting'
+            WHEN deal.deal_sequence = 2 THEN 'Provider Onboarding'
+            ELSE 'Unknown Pipeline'
+        END as pipeline_name,
         provider.provider_hubspot_created_date,
         provider_enriched.coral_provider_id,
         provider_enriched.hubspot_provider_id,
@@ -49,14 +56,64 @@ with source as (
         ON provider.hubspot_provider_id = provider_enriched.hubspot_provider_id
 ),
 
+-- Group deals by provider to combine recruitment and onboarding data
+provider_deals as (
+    select
+        hubspot_provider_id,
+        coral_provider_id,
+        provider_hubspot_created_date,
+        -- Recruitment pipeline fields - take from recruitment pipeline deals
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_referrals_provider_recruiting END) as date_entered_referrals_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_exited_referrals_provider_recruiting END) as date_exited_referrals_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_new_provider_lead_provider_recruiting END) as date_entered_new_provider_lead_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_exited_new_provider_lead_provider_recruiting END) as date_exited_new_provider_lead_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_interview_booked_provider_recruiting END) as date_entered_interview_booked_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_exited_interview_booked_provider_recruiting END) as date_exited_interview_booked_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_post_interview_provider_recruiting END) as date_entered_post_interview_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_exited_post_interview_provider_recruiting END) as date_exited_post_interview_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_clinical_interview_provider_recruiting END) as date_entered_clinical_interview_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_exited_clinical_interview_provider_recruiting END) as date_exited_clinical_interview_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_offer_letter_provider_recruiting END) as date_entered_offer_letter_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_exited_offer_letter_provider_recruiting END) as date_exited_offer_letter_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_recruitment_complete_provider_recruiting END) as date_entered_recruitment_complete_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_exited_recruitment_complete_provider_recruiting END) as date_exited_recruitment_complete_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_cold_provider_recruiting END) as date_entered_cold_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_exited_cold_provider_recruiting END) as date_exited_cold_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_closed_lost_provider_recruiting END) as date_entered_closed_lost_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_exited_closed_lost_provider_recruiting END) as date_exited_closed_lost_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_disqualified_provider_recruiting END) as date_entered_disqualified_provider_recruiting,
+        
+        -- Onboarding pipeline fields - take from onboarding pipeline deals
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_entered_ready_to_onboard_provider_onboarding END) as date_entered_ready_to_onboard_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_exited_ready_to_onboard_provider_onboarding END) as date_exited_ready_to_onboard_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_entered_pending_onboarding_tasks_provider_onboarding END) as date_entered_pending_onboarding_tasks_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_exited_pending_onboarding_tasks_provider_onboarding END) as date_exited_pending_onboarding_tasks_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_entered_schedule_onboarding_call_provider_onboarding END) as date_entered_schedule_onboarding_call_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_exited_schedule_onboarding_call_provider_onboarding END) as date_exited_schedule_onboarding_call_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_entered_onboarding_complete_provider_onboarding END) as date_entered_onboarding_complete_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_exited_onboarding_complete_provider_onboarding END) as date_exited_onboarding_complete_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_entered_checkr_fail_provider_onboarding END) as date_entered_checkr_fail_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_exited_checkr_fail_provider_onboarding END) as date_exited_checkr_fail_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_entered_cold_provider_onboarding END) as date_entered_cold_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_exited_cold_provider_onboarding END) as date_exited_cold_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_entered_closed_lost_provider_onboarding END) as date_entered_closed_lost_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_exited_closed_lost_provider_onboarding END) as date_exited_closed_lost_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN date_entered_disqualified_provider_onboarding END) as date_entered_disqualified_provider_onboarding,
+        MAX(CASE WHEN pipeline_name = 'Provider Onboarding' THEN closed_lost_provider_reason END) as closed_lost_provider_reason,
+        
+        -- Use MIN of deal_created_date to get the earliest deal
+        MIN(deaL_created_date) as first_deal_created_date
+    from source
+    group by hubspot_provider_id, coral_provider_id, provider_hubspot_created_date
+),
+
 enriched as (
     select 
-        deal_id, 
-        deaL_created_date,
-        provider_hubspot_created_date, 
+        hubspot_provider_id, 
         coral_provider_id,
-        hubspot_provider_id,
-        -- Add all date fields
+        first_deal_created_date as deaL_created_date,
+        provider_hubspot_created_date,
+        -- All date fields remain the same
         date_entered_referrals_provider_recruiting,
         date_exited_referrals_provider_recruiting,
         date_entered_new_provider_lead_provider_recruiting,
@@ -452,15 +509,21 @@ enriched as (
             2
         ) as days_in_checkr_fail_provider_onboarding,
 
-    from source
+    from provider_deals
 ),
 
 current_stage_summary as (
     select 
-        deal_id,
+        hubspot_provider_id,
         coral_provider_id,
         case
-            -- Provider Recruiting Stages
+            -- Prioritize Onboarding stages over Recruiting stages
+            -- Provider Onboarding Stages
+            when ready_to_onboard_provider_onboarding_status = 'current' then 'Ready to Onboard (Provider Onboarding)'
+            when pending_onboarding_tasks_provider_onboarding_status = 'current' then 'Pending Onboarding Tasks (Provider Onboarding)'
+            when schedule_onboarding_call_provider_onboarding_status = 'current' then 'Schedule Onboarding Call (Provider Onboarding)'
+            when checkr_fail_provider_onboarding_status = 'current' then 'Checkr Fail (Provider Onboarding)'
+            -- Provider Recruiting Stages (only if no onboarding stages are current)
             when referrals_provider_recruiting_status = 'current' then 'Referrals (Provider Recruiting)'
             when new_provider_lead_provider_recruiting_status = 'current' then 'New Provider Lead (Provider Recruiting)'
             when interview_booked_provider_recruiting_status = 'current' then 'Interview Booked (Provider Recruiting)'
@@ -470,11 +533,11 @@ current_stage_summary as (
             when recruitment_complete_provider_recruiting_status = 'current' then 'Recruitment Complete (Provider Recruiting)'
             when cold_provider_recruiting_status = 'current' then 'Cold (Provider Recruiting)'
             when closed_lost_provider_recruiting_status = 'current' then 'Closed Lost (Provider Recruiting)'
-            -- Provider Onboarding Stages
-            when ready_to_onboard_provider_onboarding_status = 'current' then 'Ready to Onboard (Provider Onboarding)'
-            when pending_onboarding_tasks_provider_onboarding_status = 'current' then 'Pending Onboarding Tasks (Provider Onboarding)'
-            when schedule_onboarding_call_provider_onboarding_status = 'current' then 'Schedule Onboarding Call (Provider Onboarding)'
-            when checkr_fail_provider_onboarding_status = 'current' then 'Checkr Fail (Provider Onboarding)'
+            -- If no current stages, check if any onboarding stages have been entered
+            when date_entered_ready_to_onboard_provider_onboarding is not null then 'Ready to Onboard (Provider Onboarding)'
+            when date_entered_pending_onboarding_tasks_provider_onboarding is not null then 'Pending Onboarding Tasks (Provider Onboarding)'
+            when date_entered_schedule_onboarding_call_provider_onboarding is not null then 'Schedule Onboarding Call (Provider Onboarding)'
+            when date_entered_checkr_fail_provider_onboarding is not null then 'Checkr Fail (Provider Onboarding)'
         end as current_stage,
         case
             -- Provider Recruiting Stages
@@ -496,7 +559,6 @@ current_stage_summary as (
 
 stage_timing_summary as (
     select
-        deal_id,
         hubspot_provider_id,
         -- Total time in funnel
         ROUND(
@@ -536,7 +598,6 @@ stage_timing_summary as (
 
 stage_statuses as (
     select 
-        deal_id,
         hubspot_provider_id,
         coral_provider_id,
         'referrals_provider_recruiting_status' as stage_name,
@@ -548,7 +609,6 @@ stage_statuses as (
     union all
     
     select 
-        deal_id,
         hubspot_provider_id,
         coral_provider_id,
         'new_provider_lead_provider_recruiting_status' as stage_name,
@@ -560,7 +620,6 @@ stage_statuses as (
     union all
     
     select 
-        deal_id,
         hubspot_provider_id, 
         coral_provider_id,
         'interview_booked_provider_recruiting_status' as stage_name,
@@ -572,7 +631,6 @@ stage_statuses as (
     union all
     
     select 
-        deal_id,
         hubspot_provider_id,
         coral_provider_id,
         'post_interview_provider_recruiting_status' as stage_name,
@@ -584,7 +642,6 @@ stage_statuses as (
     union all
     
     select 
-        deal_id,
         hubspot_provider_id,
         coral_provider_id,
         'clinical_interview_provider_recruiting_status' as stage_name,
@@ -596,7 +653,6 @@ stage_statuses as (
     union all
     
     select 
-        deal_id,
         hubspot_provider_id,
         coral_provider_id,
         'offer_letter_provider_recruiting_status' as stage_name,
@@ -608,7 +664,6 @@ stage_statuses as (
     union all
     
     select 
-        deal_id,
         hubspot_provider_id,
         coral_provider_id,
         'recruitment_complete_provider_recruiting_status' as stage_name,
@@ -620,7 +675,6 @@ stage_statuses as (
     union all
     
     select 
-        deal_id,
         hubspot_provider_id,
         coral_provider_id,
         'ready_to_onboard_provider_onboarding_status' as stage_name,
@@ -632,7 +686,6 @@ stage_statuses as (
     union all
     
     select 
-        deal_id,
         hubspot_provider_id,
         coral_provider_id,
         'pending_onboarding_tasks_provider_onboarding_status' as stage_name,
@@ -644,7 +697,6 @@ stage_statuses as (
     union all
     
     select 
-        deal_id,
         hubspot_provider_id,
         coral_provider_id,
         'schedule_onboarding_call_provider_onboarding_status' as stage_name,
@@ -656,7 +708,6 @@ stage_statuses as (
         union all
     
     select 
-        deal_id,
         hubspot_provider_id, 
         coral_provider_id,
         'checkr_fail_provider_onboarding_status' as stage_name,
@@ -668,12 +719,11 @@ stage_statuses as (
 
 funnel_progression as (
     select
-        deal_id,
         hubspot_provider_id, 
         coral_provider_id,
         LISTAGG(stage_name, ' -> ') within group (order by stage_order) as progression_path
     from stage_statuses
-    group by deal_id, hubspot_provider_id, coral_provider_id
+    group by hubspot_provider_id, coral_provider_id
 )
 
 -- Final output with all the enriched data plus summaries
@@ -691,7 +741,7 @@ select distinct
     sts.longest_stage_duration,
     fp.progression_path
 from enriched e
-left join current_stage_summary cs on e.deal_id = cs.deal_id
-left join stage_timing_summary sts on e.deal_id = sts.deal_id
-left join funnel_progression fp on e.deal_id = fp.deal_id
+left join current_stage_summary cs on e.hubspot_provider_id = cs.hubspot_provider_id
+left join stage_timing_summary sts on e.hubspot_provider_id = sts.hubspot_provider_id
+left join funnel_progression fp on e.hubspot_provider_id = fp.hubspot_provider_id
 order by 2,1

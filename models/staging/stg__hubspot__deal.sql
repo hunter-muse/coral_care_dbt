@@ -3,6 +3,7 @@ select
     deal_contact.contact_id,
     deal.property_dealname as deal_name,
     deal.PROPERTY_CREATEDATE AS deaL_created_date,
+    row_number() over (partition by deal_contact.contact_id order by deal.PROPERTY_CREATEDATE) as deal_sequence,
     deal.property_hs_v_2_date_exited_174666285 as date_exited_opportunities_unengaged,
     deal.property_hs_v_2_date_entered_174666285 as date_entered_opportunities_unengaged,
     deal.property_hs_v_2_cumulative_time_in_174666285 as cumulative_time_in_opportunities_unengaged,
@@ -53,7 +54,7 @@ select
     deal.property_hs_v_2_date_entered_181529890 as date_entered_closed_lost_provider_recruiting,
     deal.property_hs_v_2_date_exited_181529890 as date_exited_closed_lost_provider_recruiting,
     deal.property_hs_v_2_date_entered_181529891 as date_entered_disqualified_provider_recruiting,
-    deal.property_hs_v_2_date_exited_181529891 as date_exited_disqualified_provider_recruiting,
+    --deal.property_hs_v_2_date_exited_181529891 as date_exited_disqualified_provider_recruiting,
     deal.property_hs_v_2_date_entered_200291858 as date_entered_ready_to_onboard_provider_onboarding,
     deal.property_hs_v_2_date_exited_200291858 as date_exited_ready_to_onboard_provider_onboarding,
     deal.property_hs_v_2_date_entered_200291859 as date_entered_pending_onboarding_tasks_provider_onboarding,
@@ -83,13 +84,11 @@ select
     deal.property_hs_v_2_date_entered_221367334 as date_entered_screening_complete_won,
     deal.property_hs_v_2_date_entered_221367335 as date_entered_cold_school_pipeline,
     deal.property_hs_v_2_date_exited_221367335 as date_exited_cold_school_pipeline,
-    deal.property_hs_v_2_date_entered_221360262 as date_entered_closed_lost_school_pipeline,
-    row_number() over (partition by deal_contact.contact_id order by deal.PROPERTY_CREATEDATE) as rn
+    deal.property_hs_v_2_date_entered_221360262 as date_entered_closed_lost_school_pipeline
     -- deal.property_hs_v_2_date_exited_202963371 as date_exited_disqualified_provider_onboarding --exited doesn't seem to exist
     --deal.*
 from {{ source('hubspot', 'deal') }} deal 
 left join {{ source('hubspot', 'deal_contact') }} deal_contact 
     on deal.deal_id = deal_contact.deal_id
 where 
-deal.is_deleted = FALSE 
-qualify rn = 1
+deal.is_deleted = FALSE

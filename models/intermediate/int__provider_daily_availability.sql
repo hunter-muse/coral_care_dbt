@@ -133,12 +133,41 @@ provider_days AS (
     CROSS JOIN date_spine d
 ),
 
-busy_slots AS (
-    -- Process busy slots for each provider
+busy_slot_segments AS (
+    -- Process busy slots and categorize them into morning/afternoon/evening
     SELECT 
         provider_detail,
         DATE(start_date) AS busy_date,
-        SUM(DATEDIFF('hour', start_date, end_date)) AS busy_hours
+        -- Categorize each busy slot into time segments
+        SUM(CASE 
+            WHEN HOUR(start_date) >= 5 AND HOUR(start_date) < 12 THEN 
+                DATEDIFF('hour', 
+                    GREATEST(start_date, TO_TIMESTAMP(TO_CHAR(DATE(start_date)) || ' 05:00:00')), 
+                    LEAST(end_date, TO_TIMESTAMP(TO_CHAR(DATE(start_date)) || ' 12:00:00'))
+                )
+            ELSE 0 
+        END) AS morning_busy_hours,
+        
+        SUM(CASE 
+            WHEN HOUR(start_date) >= 12 AND HOUR(start_date) < 17 THEN 
+                DATEDIFF('hour', 
+                    GREATEST(start_date, TO_TIMESTAMP(TO_CHAR(DATE(start_date)) || ' 12:00:00')), 
+                    LEAST(end_date, TO_TIMESTAMP(TO_CHAR(DATE(start_date)) || ' 17:00:00'))
+                )
+            ELSE 0 
+        END) AS afternoon_busy_hours,
+        
+        SUM(CASE 
+            WHEN HOUR(start_date) >= 17 AND HOUR(start_date) < 22 THEN 
+                DATEDIFF('hour', 
+                    GREATEST(start_date, TO_TIMESTAMP(TO_CHAR(DATE(start_date)) || ' 17:00:00')), 
+                    LEAST(end_date, TO_TIMESTAMP(TO_CHAR(DATE(start_date)) || ' 22:00:00'))
+                )
+            ELSE 0 
+        END) AS evening_busy_hours,
+        
+        -- Total busy hours (may include hours outside the defined segments)
+        SUM(DATEDIFF('hour', start_date, end_date)) AS total_busy_hours
     FROM {{ref('stg__bubble__busyslot')}}
     WHERE 
         delete_flag = 'false'
@@ -159,13 +188,25 @@ SELECT
     pd.time_period,
     pd.time_slot,
     pd.total_available_hours,
-    COALESCE(bs.busy_hours, 0) AS total_busy_hours,
-    GREATEST(pd.total_available_hours - COALESCE(bs.busy_hours, 0), 0) AS net_available_hours,
+    COALESCE(bs.total_busy_hours, 0) AS total_busy_hours,
+    GREATEST(pd.total_available_hours - COALESCE(bs.total_busy_hours, 0), 0) AS net_available_hours,
+    
+    -- Original segment hours (from template)
     pd.morning_hours,
     pd.afternoon_hours,
-    pd.evening_hours
+    pd.evening_hours,
+    
+    -- Busy hours by segment
+    COALESCE(bs.morning_busy_hours, 0) AS morning_busy_hours,
+    COALESCE(bs.afternoon_busy_hours, 0) AS afternoon_busy_hours,
+    COALESCE(bs.evening_busy_hours, 0) AS evening_busy_hours,
+    
+    -- Net available hours by segment
+    GREATEST(pd.morning_hours - COALESCE(bs.morning_busy_hours, 0), 0) AS net_morning_hours,
+    GREATEST(pd.afternoon_hours - COALESCE(bs.afternoon_busy_hours, 0), 0) AS net_afternoon_hours,
+    GREATEST(pd.evening_hours - COALESCE(bs.evening_busy_hours, 0), 0) AS net_evening_hours
 FROM provider_days pd
-LEFT JOIN busy_slots bs ON 
+LEFT JOIN busy_slot_segments bs ON 
     pd.provider_detail = bs.provider_detail 
     AND pd.calendar_date = bs.busy_date
 ORDER BY 

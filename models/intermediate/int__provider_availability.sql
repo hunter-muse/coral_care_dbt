@@ -6,37 +6,39 @@ WITH provider_availability AS (
     start_time,
     end_time,
     TO_CHAR(start_time, 'HH12:MI AM')||'-'||TO_CHAR(end_time, 'HH12:MI AM') AS time_slot,
-    DATEDIFF('hour', start_time, end_time) AS total_hours,
-    -- Morning hours (8:00 AM to 11:59 AM)
+    -- Use minutes and divide by 60.0 to get decimal hours, then round to 2 decimal places
+    ROUND(DATEDIFF('minute', start_time, end_time) / 60.0, 2) AS total_hours,
+    
+    -- Morning hours (8:00 AM to 11:59 AM) with decimal precision
     CASE 
       WHEN HOUR(end_time) <= 8 THEN 0
       WHEN HOUR(start_time) >= 12 THEN 0
       ELSE 
-        DATEDIFF('hour', 
+        ROUND(DATEDIFF('minute', 
           GREATEST(start_time, DATEADD('hour', 8, DATE_TRUNC('day', start_time))),
           LEAST(end_time, DATEADD('hour', 12, DATE_TRUNC('day', start_time)))
-        )
+        ) / 60.0, 2)
     END AS morning_hours,
     
-    -- Afternoon hours (12:00 PM to 4:59 PM)
+    -- Afternoon hours (12:00 PM to 4:59 PM) with decimal precision
     CASE 
       WHEN HOUR(end_time) <= 12 THEN 0
       WHEN HOUR(start_time) >= 17 THEN 0
       ELSE 
-        DATEDIFF('hour', 
+        ROUND(DATEDIFF('minute', 
           GREATEST(start_time, DATEADD('hour', 12, DATE_TRUNC('day', start_time))),
           LEAST(end_time, DATEADD('hour', 17, DATE_TRUNC('day', start_time)))
-        )
+        ) / 60.0, 2)
     END AS afternoon_hours,
     
-    -- Evening hours (5:00 PM and later)
+    -- Evening hours (5:00 PM and later) with decimal precision
     CASE 
       WHEN HOUR(end_time) <= 17 THEN 0
       ELSE 
-        DATEDIFF('hour', 
+        ROUND(DATEDIFF('minute', 
           GREATEST(start_time, DATEADD('hour', 17, DATE_TRUNC('day', start_time))),
           end_time
-        )
+        ) / 60.0, 2)
     END AS evening_hours
   FROM {{ref('stg__bubble__availability')}} availability
   left join {{ref('int__provider')}} provider on provider_detail = provider.bubble_provider_id

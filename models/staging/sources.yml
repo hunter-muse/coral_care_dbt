@@ -38,3 +38,10 @@ sources:
     tables: 
       - name: monthly_claims_upload 
     
+  - name: google_sheets
+    database: pc_fivetran_db
+    schema: google_sheets
+
+    tables: 
+    - name: evaluation_outcome
+    - name: session_outcome 

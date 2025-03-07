@@ -64,4 +64,6 @@ where
     AND (provider_last_name != 'alyssa Broadley' OR provider_last_name IS NULL)  -- Modified to handle NULL cases
     and provider_id != '1726529868906x282251167612796930' --bad data 
     and provider_id != '1737674727112x449477585706418200' --bad data 
+    and provider_id != '1698075226428x215446817231601660' --bad data 
+    and provider_id != '1711995130167x340843143005208600' --bad data 
     

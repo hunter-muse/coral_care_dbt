@@ -133,6 +133,44 @@ left join {{ref('lat_long_zip')}} AS lat_long_zip
     on CAST(contact.PROPERTY_ZIP as string) = CAST(lat_long_zip.ZIP as string)
 where 
 is_deleted = FALSE 
+and id not in ( --see below for list of duplicate records names
+'102707373324',
+'89700610309',
+'100926803544',
+'77017798461',
+'74586986304',
+'76765581124',
+'73051586619',
+'25434945455',
+'95610061893',
+'46812940662',
+'5451',
+'98673739612',
+'54712899488',
+'48980972679',
+'9983881860',
+'101016853424' --Emma Roy - likely NOT a duplicate, but we'll remove her to be safe
+)
 and rn = 1
 
 
+/*
+Removing the below duplicate contact records: 
+Lauren	Bailey
+Carline	Creary
+Adriana	Cuddy
+Dasha	Curran
+Christine	Fahey
+Alissa	Karabelas
+Javaria	Mahmood
+Katie	Manley
+Wendy	McKean
+Liz	O'Connell
+Anna	Pawelczyk
+Leandra	Pfleger
+Lynnet	Ruiz
+Necole	Stephen
+Ruby	Tapia
+Necole Stephen 
+Emma Roy - likely NOT a duplicate, but we'll remove her to be safe
+*/

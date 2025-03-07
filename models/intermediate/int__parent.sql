@@ -7,7 +7,7 @@ with bubble_parents as (
     
 parent_join as (
     SELECT 
-    MD5(COALESCE(hubspot.record_id::VARCHAR, '') || COALESCE(bubble.user_id::VARCHAR, '')) as coral_parent_id,
+    MD5(COALESCE(hubspot.record_id::VARCHAR, '') || COALESCE(bubble.user_id::VARCHAR, '' || COALESCE(bubble.parent_id::VARCHAR, ''))) as coral_parent_id,
     COALESCE(bubble.first_name, hubspot.parent_first_name) as parent_first_name,
     COALESCE(bubble.last_name, hubspot.parent_last_name) as parent_last_name,
     hubspot.record_id as hubspot_parent_id,

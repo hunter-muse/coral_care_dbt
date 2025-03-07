@@ -63,3 +63,5 @@ where
     AND provider_last_name NOT ILIKE '%DNU%'
     AND (provider_last_name != 'alyssa Broadley' OR provider_last_name IS NULL)  -- Modified to handle NULL cases
     and provider_id != '1726529868906x282251167612796930' --bad data 
+    and provider_id != '1737674727112x449477585706418200' --bad data 
+    

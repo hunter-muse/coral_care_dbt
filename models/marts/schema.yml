@@ -1,0 +1,68 @@
+version: 2
+
+models:
+  - name: dim__provider
+    description: "Dimension table for provider information"
+    
+    tests:
+      - unique:
+          column_name: coral_provider_id
+          name: unique_provider_id
+          severity: warn
+      
+    columns:
+      - name: coral_provider_id
+        description: "Primary key for the provider dimension table"
+        tests:
+          - not_null:
+              severity: warn
+
+  - name: dim__parent
+    description: "Dimension table for parent information derived from int__parent"
+    
+    tests:
+      - unique:
+          column_name: coral_parent_id
+          name: unique_parent_id
+          severity: warn
+      
+    columns:
+      - name: coral_parent_id
+        description: "Primary key for the parent dimension table"
+        tests:
+          - not_null:
+              severity: warn
+
+  - name: fact__session
+    description: "Fact table for session information derived from int__session"
+    
+    tests:
+      - unique:
+          column_name: session_id
+          name: no_duplicate_session_ids
+          severity: warn
+      
+    columns:
+      - name: session_id
+        description: "Unique identifier for each session"
+        tests:
+          - not_null:
+              severity: warn
+          
+      - name: coral_provider_id
+        description: "Foreign key to dim__provider table"
+        tests:
+          - not_null:
+              severity: warn
+          - relationships:
+              to: ref('dim__provider')
+              field: coral_provider_id
+              severity: warn
+              
+      - name: coral_parent_id
+        description: "Foreign key to dim__parent table"
+        tests:
+          - relationships:
+              to: ref('dim__parent')
+              field: coral_parent_id
+              severity: warn

@@ -62,8 +62,8 @@ provider_base_availability AS (
     FROM {{ref('int__provider_availability')}}
 ),
 
-provider_days AS (
-    -- Join provider availability with date spine
+provider_time_slots AS (
+    -- Join provider availability with date spine and prepare for slot expansion
     SELECT 
         p.provider_detail,
         p.coral_provider_id,
@@ -72,201 +72,7 @@ provider_days AS (
         d.time_period,
         d.week_number,
         
-        -- Calculate total available hours directly from time_slot with rounding to 2 decimal places
-        CASE 
-            WHEN d.day_of_week = 'Mon' AND p.monday_availability IS NOT NULL THEN
-                ROUND(DATEDIFF('minute',
-                    TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.monday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
-                    TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.monday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM')
-                ) / 60.0, 2)
-            WHEN d.day_of_week = 'Tue' AND p.tuesday_availability IS NOT NULL THEN
-                ROUND(DATEDIFF('minute',
-                    TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.tuesday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
-                    TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.tuesday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM')
-                ) / 60.0, 2)
-            WHEN d.day_of_week = 'Wed' AND p.wednesday_availability IS NOT NULL THEN
-                ROUND(DATEDIFF('minute',
-                    TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.wednesday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
-                    TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.wednesday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM')
-                ) / 60.0, 2)
-            WHEN d.day_of_week = 'Thu' AND p.thursday_availability IS NOT NULL THEN
-                ROUND(DATEDIFF('minute',
-                    TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.thursday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
-                    TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.thursday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM')
-                ) / 60.0, 2)
-            WHEN d.day_of_week = 'Fri' AND p.friday_availability IS NOT NULL THEN
-                ROUND(DATEDIFF('minute',
-                    TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.friday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
-                    TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.friday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM')
-                ) / 60.0, 2)
-            WHEN d.day_of_week = 'Sat' AND p.saturday_availability IS NOT NULL THEN
-                ROUND(DATEDIFF('minute',
-                    TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.saturday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
-                    TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.saturday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM')
-                ) / 60.0, 2)
-            WHEN d.day_of_week = 'Sun' AND p.sunday_availability IS NOT NULL THEN
-                ROUND(DATEDIFF('minute',
-                    TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.sunday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
-                    TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.sunday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM')
-                ) / 60.0, 2)
-            ELSE 
-                CASE 
-                    WHEN d.day_of_week = 'Mon' THEN p.monday_total_hours
-                    WHEN d.day_of_week = 'Tue' THEN p.tuesday_total_hours
-                    WHEN d.day_of_week = 'Wed' THEN p.wednesday_total_hours
-                    WHEN d.day_of_week = 'Thu' THEN p.thursday_total_hours
-                    WHEN d.day_of_week = 'Fri' THEN p.friday_total_hours
-                    WHEN d.day_of_week = 'Sat' THEN p.saturday_total_hours
-                    WHEN d.day_of_week = 'Sun' THEN p.sunday_total_hours
-                    ELSE 0
-                END
-        END AS total_available_hours,
-        
-        -- Morning hours by day with rounding to 2 decimal places
-        CASE 
-            WHEN d.day_of_week = 'Mon' THEN 
-                CASE 
-                    WHEN p.monday_availability IS NOT NULL THEN
-                        CASE WHEN 
-                            GREATEST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 05:00:00'), 
-                                     TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.monday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM')) <
-                            LEAST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 12:00:00'), 
-                                  TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.monday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM'))
-                        THEN
-                            ROUND(DATEDIFF('minute', 
-                                GREATEST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 05:00:00'), 
-                                         TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.monday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM')),
-                                LEAST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 12:00:00'), 
-                                      TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.monday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM'))
-                            ) / 60.0, 2)
-                        ELSE 0
-                        END
-                    ELSE p.monday_morning_hours
-                END
-            WHEN d.day_of_week = 'Tue' THEN 
-                CASE 
-                    WHEN p.tuesday_availability IS NOT NULL THEN
-                        CASE WHEN 
-                            GREATEST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 05:00:00'), 
-                                     TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.tuesday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM')) <
-                            LEAST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 12:00:00'), 
-                                  TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.tuesday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM'))
-                        THEN
-                            ROUND(DATEDIFF('minute', 
-                                GREATEST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 05:00:00'), 
-                                         TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.tuesday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM')),
-                                LEAST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 12:00:00'), 
-                                      TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.tuesday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM'))
-                            ) / 60.0, 2)
-                        ELSE 0
-                        END
-                    ELSE p.tuesday_morning_hours
-                END
-            WHEN d.day_of_week = 'Wed' THEN p.wednesday_morning_hours
-            WHEN d.day_of_week = 'Thu' THEN p.thursday_morning_hours
-            WHEN d.day_of_week = 'Fri' THEN p.friday_morning_hours
-            WHEN d.day_of_week = 'Sat' THEN p.saturday_morning_hours
-            WHEN d.day_of_week = 'Sun' THEN p.sunday_morning_hours
-            ELSE 0
-        END AS morning_hours,
-        
-        -- Afternoon hours by day with rounding to 2 decimal places
-        CASE 
-            WHEN d.day_of_week = 'Mon' THEN 
-                CASE 
-                    WHEN p.monday_availability IS NOT NULL THEN
-                        CASE WHEN 
-                            GREATEST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 12:00:00'), 
-                                     TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.monday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM')) <
-                            LEAST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 17:00:00'), 
-                                  TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.monday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM'))
-                        THEN
-                            ROUND(DATEDIFF('minute', 
-                                GREATEST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 12:00:00'), 
-                                         TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.monday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM')),
-                                LEAST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 17:00:00'), 
-                                      TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.monday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM'))
-                            ) / 60.0, 2)
-                        ELSE 0
-                        END
-                    ELSE p.monday_afternoon_hours
-                END
-            WHEN d.day_of_week = 'Tue' THEN 
-                CASE 
-                    WHEN p.tuesday_availability IS NOT NULL THEN
-                        CASE WHEN 
-                            GREATEST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 12:00:00'), 
-                                     TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.tuesday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM')) <
-                            LEAST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 17:00:00'), 
-                                  TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.tuesday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM'))
-                        THEN
-                            ROUND(DATEDIFF('minute', 
-                                GREATEST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 12:00:00'), 
-                                         TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.tuesday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM')),
-                                LEAST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 17:00:00'), 
-                                      TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.tuesday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM'))
-                            ) / 60.0, 2)
-                        ELSE 0
-                        END
-                    ELSE p.tuesday_afternoon_hours
-                END
-            WHEN d.day_of_week = 'Wed' THEN p.wednesday_afternoon_hours
-            WHEN d.day_of_week = 'Thu' THEN p.thursday_afternoon_hours
-            WHEN d.day_of_week = 'Fri' THEN p.friday_afternoon_hours
-            WHEN d.day_of_week = 'Sat' THEN p.saturday_afternoon_hours
-            WHEN d.day_of_week = 'Sun' THEN p.sunday_afternoon_hours
-            ELSE 0
-        END AS afternoon_hours,
-        
-        -- Evening hours by day with rounding to 2 decimal places
-        CASE 
-            WHEN d.day_of_week = 'Mon' THEN 
-                CASE 
-                    WHEN p.monday_availability IS NOT NULL THEN
-                        CASE WHEN 
-                            GREATEST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 17:00:00'), 
-                                     TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.monday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM')) <
-                            LEAST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 22:00:00'), 
-                                  TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.monday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM'))
-                        THEN
-                            ROUND(DATEDIFF('minute', 
-                                GREATEST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 17:00:00'), 
-                                         TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.monday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM')),
-                                LEAST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 22:00:00'), 
-                                      TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.monday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM'))
-                            ) / 60.0, 2)
-                        ELSE 0
-                        END
-                    ELSE p.monday_evening_hours
-                END
-            WHEN d.day_of_week = 'Tue' THEN 
-                CASE 
-                    WHEN p.tuesday_availability IS NOT NULL THEN
-                        CASE WHEN 
-                            GREATEST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 17:00:00'), 
-                                     TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.tuesday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM')) <
-                            LEAST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 22:00:00'), 
-                                  TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.tuesday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM'))
-                        THEN
-                            ROUND(DATEDIFF('minute', 
-                                GREATEST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 17:00:00'), 
-                                         TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.tuesday_availability, '-', 1)), 'YYYY-MM-DD HH:MI AM')),
-                                LEAST(TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' 22:00:00'), 
-                                      TRY_TO_TIMESTAMP(TO_CHAR(CURRENT_DATE()) || ' ' || TRIM(SPLIT_PART(p.tuesday_availability, '-', 2)), 'YYYY-MM-DD HH:MI AM'))
-                            ) / 60.0, 2)
-                        ELSE 0
-                        END
-                    ELSE p.tuesday_evening_hours
-                END
-            WHEN d.day_of_week = 'Wed' THEN p.wednesday_evening_hours
-            WHEN d.day_of_week = 'Thu' THEN p.thursday_evening_hours
-            WHEN d.day_of_week = 'Fri' THEN p.friday_evening_hours
-            WHEN d.day_of_week = 'Sat' THEN p.saturday_evening_hours
-            WHEN d.day_of_week = 'Sun' THEN p.sunday_evening_hours
-            ELSE 0
-        END AS evening_hours,
-        
-        -- Time slots by day
+        -- Get the appropriate day's availability
         CASE 
             WHEN d.day_of_week = 'Mon' THEN p.monday_availability
             WHEN d.day_of_week = 'Tue' THEN p.tuesday_availability
@@ -276,9 +82,173 @@ provider_days AS (
             WHEN d.day_of_week = 'Sat' THEN p.saturday_availability
             WHEN d.day_of_week = 'Sun' THEN p.sunday_availability
             ELSE NULL
-        END AS time_slot
+        END AS day_availability,
+        
+        -- Store the original hours for reference
+        CASE 
+            WHEN d.day_of_week = 'Mon' THEN p.monday_total_hours
+            WHEN d.day_of_week = 'Tue' THEN p.tuesday_total_hours
+            WHEN d.day_of_week = 'Wed' THEN p.wednesday_total_hours
+            WHEN d.day_of_week = 'Thu' THEN p.thursday_total_hours
+            WHEN d.day_of_week = 'Fri' THEN p.friday_total_hours
+            WHEN d.day_of_week = 'Sat' THEN p.saturday_total_hours
+            WHEN d.day_of_week = 'Sun' THEN p.sunday_total_hours
+            ELSE 0
+        END AS original_total_hours,
+        
+        -- Store the original segment hours with unique names for each day
+        CASE WHEN d.day_of_week = 'Mon' THEN p.monday_morning_hours ELSE 0 END AS mon_morning_hours,
+        CASE WHEN d.day_of_week = 'Mon' THEN p.monday_afternoon_hours ELSE 0 END AS mon_afternoon_hours,
+        CASE WHEN d.day_of_week = 'Mon' THEN p.monday_evening_hours ELSE 0 END AS mon_evening_hours,
+        CASE WHEN d.day_of_week = 'Tue' THEN p.tuesday_morning_hours ELSE 0 END AS tue_morning_hours,
+        CASE WHEN d.day_of_week = 'Tue' THEN p.tuesday_afternoon_hours ELSE 0 END AS tue_afternoon_hours,
+        CASE WHEN d.day_of_week = 'Tue' THEN p.tuesday_evening_hours ELSE 0 END AS tue_evening_hours,
+        CASE WHEN d.day_of_week = 'Wed' THEN p.wednesday_morning_hours ELSE 0 END AS wed_morning_hours,
+        CASE WHEN d.day_of_week = 'Wed' THEN p.wednesday_afternoon_hours ELSE 0 END AS wed_afternoon_hours,
+        CASE WHEN d.day_of_week = 'Wed' THEN p.wednesday_evening_hours ELSE 0 END AS wed_evening_hours,
+        CASE WHEN d.day_of_week = 'Thu' THEN p.thursday_morning_hours ELSE 0 END AS thu_morning_hours,
+        CASE WHEN d.day_of_week = 'Thu' THEN p.thursday_afternoon_hours ELSE 0 END AS thu_afternoon_hours,
+        CASE WHEN d.day_of_week = 'Thu' THEN p.thursday_evening_hours ELSE 0 END AS thu_evening_hours,
+        CASE WHEN d.day_of_week = 'Fri' THEN p.friday_morning_hours ELSE 0 END AS fri_morning_hours,
+        CASE WHEN d.day_of_week = 'Fri' THEN p.friday_afternoon_hours ELSE 0 END AS fri_afternoon_hours,
+        CASE WHEN d.day_of_week = 'Fri' THEN p.friday_evening_hours ELSE 0 END AS fri_evening_hours,
+        CASE WHEN d.day_of_week = 'Sat' THEN p.saturday_morning_hours ELSE 0 END AS sat_morning_hours,
+        CASE WHEN d.day_of_week = 'Sat' THEN p.saturday_afternoon_hours ELSE 0 END AS sat_afternoon_hours,
+        CASE WHEN d.day_of_week = 'Sat' THEN p.saturday_evening_hours ELSE 0 END AS sat_evening_hours,
+        CASE WHEN d.day_of_week = 'Sun' THEN p.sunday_morning_hours ELSE 0 END AS sun_morning_hours,
+        CASE WHEN d.day_of_week = 'Sun' THEN p.sunday_afternoon_hours ELSE 0 END AS sun_afternoon_hours,
+        CASE WHEN d.day_of_week = 'Sun' THEN p.sunday_evening_hours ELSE 0 END AS sun_evening_hours
     FROM provider_base_availability p
     CROSS JOIN date_spine d
+),
+
+expanded_time_slots AS (
+    -- Split multiple time slots into separate rows
+    SELECT
+        provider_detail,
+        coral_provider_id,
+        calendar_date,
+        day_of_week,
+        time_period,
+        week_number,
+        mon_morning_hours,
+        mon_afternoon_hours,
+        mon_evening_hours,
+        tue_morning_hours,
+        tue_afternoon_hours,
+        tue_evening_hours,
+        wed_morning_hours,
+        wed_afternoon_hours,
+        wed_evening_hours,
+        thu_morning_hours,
+        thu_afternoon_hours,
+        thu_evening_hours,
+        fri_morning_hours,
+        fri_afternoon_hours,
+        fri_evening_hours,
+        sat_morning_hours,
+        sat_afternoon_hours,
+        sat_evening_hours,
+        sun_morning_hours,
+        sun_afternoon_hours,
+        sun_evening_hours,
+        TRIM(value) AS time_slot,
+        TRIM(SPLIT_PART(TRIM(value), '-', 1)) AS start_time,
+        TRIM(SPLIT_PART(TRIM(value), '-', 2)) AS end_time
+    FROM provider_time_slots,
+    LATERAL FLATTEN(input => SPLIT(day_availability, ','))
+    WHERE day_availability IS NOT NULL
+),
+
+calculated_slot_hours AS (
+    -- Calculate hours for each individual time slot
+    SELECT
+        provider_detail,
+        coral_provider_id,
+        calendar_date,
+        day_of_week,
+        time_period,
+        week_number,
+        time_slot,
+        
+        -- Calculate total hours for this slot
+        ROUND(DATEDIFF('minute',
+            TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || start_time, 'YYYY-MM-DD HH:MI AM'),
+            TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || end_time, 'YYYY-MM-DD HH:MI AM')
+        ) / 60.0, 2) AS total_available_hours,
+        
+        -- Calculate morning hours (5am-12pm)
+        CASE WHEN 
+            GREATEST(
+                TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || start_time, 'YYYY-MM-DD HH:MI AM'),
+                TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 05:00:00')
+            ) < 
+            LEAST(
+                TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || end_time, 'YYYY-MM-DD HH:MI AM'),
+                TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 12:00:00')
+            )
+        THEN
+            ROUND(DATEDIFF('minute',
+                GREATEST(
+                    TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || start_time, 'YYYY-MM-DD HH:MI AM'),
+                    TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 05:00:00')
+                ),
+                LEAST(
+                    TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || end_time, 'YYYY-MM-DD HH:MI AM'),
+                    TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 12:00:00')
+                )
+            ) / 60.0, 2)
+        ELSE 0
+        END AS morning_hours,
+        
+        -- Calculate afternoon hours (12pm-5pm)
+        CASE WHEN 
+            GREATEST(
+                TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || start_time, 'YYYY-MM-DD HH:MI AM'),
+                TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 12:00:00')
+            ) < 
+            LEAST(
+                TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || end_time, 'YYYY-MM-DD HH:MI AM'),
+                TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 17:00:00')
+            )
+        THEN
+            ROUND(DATEDIFF('minute',
+                GREATEST(
+                    TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || start_time, 'YYYY-MM-DD HH:MI AM'),
+                    TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 12:00:00')
+                ),
+                LEAST(
+                    TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || end_time, 'YYYY-MM-DD HH:MI AM'),
+                    TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 17:00:00')
+                )
+            ) / 60.0, 2)
+        ELSE 0
+        END AS afternoon_hours,
+        
+        -- Calculate evening hours (5pm-10pm)
+        CASE WHEN 
+            GREATEST(
+                TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || start_time, 'YYYY-MM-DD HH:MI AM'),
+                TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 17:00:00')
+            ) < 
+            LEAST(
+                TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || end_time, 'YYYY-MM-DD HH:MI AM'),
+                TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 22:00:00')
+            )
+        THEN
+            ROUND(DATEDIFF('minute',
+                GREATEST(
+                    TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || start_time, 'YYYY-MM-DD HH:MI AM'),
+                    TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 17:00:00')
+                ),
+                LEAST(
+                    TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || end_time, 'YYYY-MM-DD HH:MI AM'),
+                    TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 22:00:00')
+                )
+            ) / 60.0, 2)
+        ELSE 0
+        END AS evening_hours
+    FROM expanded_time_slots
 ),
 
 busy_hours_by_day AS (
@@ -325,36 +295,36 @@ busy_hours_by_day AS (
 ),
 
 overlapping_busy_hours AS (
-    -- Calculate busy hours that overlap with provider's templated availability
+    -- Calculate busy hours that overlap with each time slot
     SELECT
-        pd.provider_detail,
-        pd.calendar_date,
+        ets.provider_detail,
+        ets.calendar_date,
+        ets.time_slot,
         
         -- Morning segment overlap with rounding to 2 decimal places
         ROUND(SUM(
             CASE WHEN 
-                pd.time_slot IS NOT NULL AND
                 GREATEST(
-                    TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
+                    TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.start_time, 'YYYY-MM-DD HH:MI AM'),
                     bs.start_date,
-                    TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' 05:00:00')
+                    TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' 05:00:00')
                 ) < 
                 LEAST(
-                    TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 2)), 'YYYY-MM-DD HH:MI AM'),
+                    TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.end_time, 'YYYY-MM-DD HH:MI AM'),
                     bs.end_date,
-                    TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' 12:00:00')
+                    TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' 12:00:00')
                 )
             THEN
                 ROUND(DATEDIFF('minute',
                     GREATEST(
-                        TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
+                        TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.start_time, 'YYYY-MM-DD HH:MI AM'),
                         bs.start_date,
-                        TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' 05:00:00')
+                        TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' 05:00:00')
                     ),
                     LEAST(
-                        TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 2)), 'YYYY-MM-DD HH:MI AM'),
+                        TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.end_time, 'YYYY-MM-DD HH:MI AM'),
                         bs.end_date,
-                        TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' 12:00:00')
+                        TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' 12:00:00')
                     )
                 ) / 60.0, 2)
             ELSE 0
@@ -364,28 +334,27 @@ overlapping_busy_hours AS (
         -- Afternoon segment overlap with rounding to 2 decimal places
         ROUND(SUM(
             CASE WHEN 
-                pd.time_slot IS NOT NULL AND
                 GREATEST(
-                    TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
+                    TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.start_time, 'YYYY-MM-DD HH:MI AM'),
                     bs.start_date,
-                    TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' 12:00:00')
+                    TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' 12:00:00')
                 ) < 
                 LEAST(
-                    TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 2)), 'YYYY-MM-DD HH:MI AM'),
+                    TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.end_time, 'YYYY-MM-DD HH:MI AM'),
                     bs.end_date,
-                    TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' 17:00:00')
+                    TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' 17:00:00')
                 )
             THEN
                 ROUND(DATEDIFF('minute',
                     GREATEST(
-                        TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
+                        TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.start_time, 'YYYY-MM-DD HH:MI AM'),
                         bs.start_date,
-                        TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' 12:00:00')
+                        TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' 12:00:00')
                     ),
                     LEAST(
-                        TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 2)), 'YYYY-MM-DD HH:MI AM'),
+                        TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.end_time, 'YYYY-MM-DD HH:MI AM'),
                         bs.end_date,
-                        TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' 17:00:00')
+                        TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' 17:00:00')
                     )
                 ) / 60.0, 2)
             ELSE 0
@@ -395,28 +364,27 @@ overlapping_busy_hours AS (
         -- Evening segment overlap with rounding to 2 decimal places
         ROUND(SUM(
             CASE WHEN 
-                pd.time_slot IS NOT NULL AND
                 GREATEST(
-                    TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
+                    TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.start_time, 'YYYY-MM-DD HH:MI AM'),
                     bs.start_date,
-                    TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' 17:00:00')
+                    TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' 17:00:00')
                 ) < 
                 LEAST(
-                    TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 2)), 'YYYY-MM-DD HH:MI AM'),
+                    TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.end_time, 'YYYY-MM-DD HH:MI AM'),
                     bs.end_date,
-                    TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' 22:00:00')
+                    TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' 22:00:00')
                 )
             THEN
                 ROUND(DATEDIFF('minute',
                     GREATEST(
-                        TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
+                        TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.start_time, 'YYYY-MM-DD HH:MI AM'),
                         bs.start_date,
-                        TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' 17:00:00')
+                        TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' 17:00:00')
                     ),
                     LEAST(
-                        TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 2)), 'YYYY-MM-DD HH:MI AM'),
+                        TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.end_time, 'YYYY-MM-DD HH:MI AM'),
                         bs.end_date,
-                        TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' 22:00:00')
+                        TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' 22:00:00')
                     )
                 ) / 60.0, 2)
             ELSE 0
@@ -426,59 +394,59 @@ overlapping_busy_hours AS (
         -- Total overlapping busy hours with rounding to 2 decimal places
         ROUND(SUM(
             CASE WHEN 
-                pd.time_slot IS NOT NULL AND
                 GREATEST(
-                    TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
+                    TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.start_time, 'YYYY-MM-DD HH:MI AM'),
                     bs.start_date
                 ) < 
                 LEAST(
-                    TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 2)), 'YYYY-MM-DD HH:MI AM'),
+                    TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.end_time, 'YYYY-MM-DD HH:MI AM'),
                     bs.end_date
                 )
             THEN
                 ROUND(DATEDIFF('minute',
                     GREATEST(
-                        TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 1)), 'YYYY-MM-DD HH:MI AM'),
+                        TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.start_time, 'YYYY-MM-DD HH:MI AM'),
                         bs.start_date
                     ),
                     LEAST(
-                        TRY_TO_TIMESTAMP(TO_CHAR(pd.calendar_date) || ' ' || TRIM(SPLIT_PART(pd.time_slot, '-', 2)), 'YYYY-MM-DD HH:MI AM'),
+                        TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.end_time, 'YYYY-MM-DD HH:MI AM'),
                         bs.end_date
                     )
                 ) / 60.0, 2)
             ELSE 0
             END
         ), 2) AS total_overlapping_busy_hours
-    FROM provider_days pd
+    FROM expanded_time_slots ets
     JOIN {{ref('stg__bubble__busyslot')}} bs ON 
-        pd.provider_detail = bs.provider_detail 
-        AND pd.calendar_date = DATE(bs.start_date)
+        ets.provider_detail = bs.provider_detail 
+        AND ets.calendar_date = DATE(bs.start_date)
     WHERE 
         bs.delete_flag = 'false'
     GROUP BY 
-        pd.provider_detail,
-        pd.calendar_date
+        ets.provider_detail,
+        ets.calendar_date,
+        ets.time_slot
 )
 
 -- Final output
 SELECT 
-    pd.provider_detail,
-    pd.coral_provider_id,
-    pd.calendar_date,
-    pd.day_of_week,
-    pd.week_number,
-    pd.time_period,
-    pd.time_slot,
+    csh.provider_detail,
+    csh.coral_provider_id,
+    csh.calendar_date,
+    csh.day_of_week,
+    csh.week_number,
+    csh.time_period,
+    csh.time_slot,
     COALESCE(bh.total_busy_hours, 0) AS total_busy_hours,
-    pd.total_available_hours,
+    csh.total_available_hours,
     
     -- Net available hours (available minus overlapping busy hours)
-    GREATEST(pd.total_available_hours - COALESCE(obh.total_overlapping_busy_hours, 0), 0) AS net_available_hours,
+    GREATEST(csh.total_available_hours - COALESCE(obh.total_overlapping_busy_hours, 0), 0) AS net_available_hours,
     
-    -- Original segment hours (from template)
-    pd.morning_hours,
-    pd.afternoon_hours,
-    pd.evening_hours,
+    -- Original segment hours (from calculated slot)
+    csh.morning_hours,
+    csh.afternoon_hours,
+    csh.evening_hours,
     
     -- Total busy hours by segment (regardless of template)
     COALESCE(bh.morning_busy_hours, 0) AS morning_busy_hours,
@@ -491,19 +459,24 @@ SELECT
     COALESCE(obh.evening_overlapping_busy_hours, 0) AS evening_overlapping_busy_hours,
     
     -- Net available hours by segment (available minus overlapping busy hours)
-    GREATEST(pd.morning_hours - COALESCE(obh.morning_overlapping_busy_hours, 0), 0) AS net_morning_hours,
-    GREATEST(pd.afternoon_hours - COALESCE(obh.afternoon_overlapping_busy_hours, 0), 0) AS net_afternoon_hours,
-    GREATEST(pd.evening_hours - COALESCE(obh.evening_overlapping_busy_hours, 0), 0) AS net_evening_hours
-FROM provider_days pd
+    GREATEST(csh.morning_hours - COALESCE(obh.morning_overlapping_busy_hours, 0), 0) AS net_morning_hours,
+    GREATEST(csh.afternoon_hours - COALESCE(obh.afternoon_overlapping_busy_hours, 0), 0) AS net_afternoon_hours,
+    GREATEST(csh.evening_hours - COALESCE(obh.evening_overlapping_busy_hours, 0), 0) AS net_evening_hours,
+    
+    -- Add a slot_id to help with aggregation in downstream models
+    ROW_NUMBER() OVER (PARTITION BY csh.provider_detail, csh.calendar_date ORDER BY csh.time_slot) AS slot_id
+FROM calculated_slot_hours csh
 LEFT JOIN busy_hours_by_day bh ON 
-    pd.provider_detail = bh.provider_detail 
-    AND pd.calendar_date = bh.busy_date
+    csh.provider_detail = bh.provider_detail 
+    AND csh.calendar_date = bh.busy_date
 LEFT JOIN overlapping_busy_hours obh ON
-    pd.provider_detail = obh.provider_detail
-    AND pd.calendar_date = obh.calendar_date
+    csh.provider_detail = obh.provider_detail
+    AND csh.calendar_date = obh.calendar_date
+    AND csh.time_slot = obh.time_slot
 ORDER BY 
-    pd.provider_detail, 
-    pd.calendar_date
+    csh.provider_detail, 
+    csh.calendar_date,
+    slot_id
 
 
 

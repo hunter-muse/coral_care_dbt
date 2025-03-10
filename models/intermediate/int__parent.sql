@@ -64,7 +64,9 @@ parent_join as (
     hubspot.parent_wednesday_availability,
     hubspot.parent_thursday_availability,
     hubspot.parent_friday_availability,
-    hubspot.parent_saturday_availability
+    hubspot.parent_saturday_availability,
+    hubspot.discharge_reason,
+    hubspot.discharge_flag
     FROM bubble_parents bubble
     FULL OUTER JOIN {{ref('stg__hubspot__contact_parent')}} as hubspot
         on TRIM(lower(bubble.first_name)) = TRIM(lower(hubspot.parent_first_name))

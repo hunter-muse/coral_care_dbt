@@ -39,6 +39,8 @@ WITH RankedContacts AS (
     PROPERTY_APPOINTMENT_FREQUENCY as appointment_frequency,
     PROPERTY_APPOINTMENT_TYPE as appointment_type,
     PROPERTY_SESSION_COUNT as session_count,
+    PROPERTY_inactive_reason as discharge_reason, 
+    property_discharged_ AS discharge_flag, 
     
     -- Dependent 1 Information
     PROPERTY_DEPENDENT_FIRST_NAME as dependent_1_first_name,

@@ -199,6 +199,7 @@ SELECT
 FROM weekly_availability
 WHERE week_start_date >= DATE_TRUNC('week', CURRENT_DATE())
   AND week_start_date <= DATEADD('week', 4, DATE_TRUNC('week', CURRENT_DATE()))
+  AND coral_provider_id IS NOT NULL 
 ORDER BY 
     provider_detail,
     week_start_date

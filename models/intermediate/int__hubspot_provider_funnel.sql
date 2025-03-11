@@ -15,6 +15,8 @@ with source as (
         -- Provider Recruiting Stages
         deal.date_entered_referrals_provider_recruiting,
         deal.date_exited_referrals_provider_recruiting,
+        deal.date_entered_lead_magnet_provider_recruiting,
+        deal.date_exited_lead_magnet_provider_recruiting,
         deal.date_entered_new_provider_lead_provider_recruiting,
         deal.date_exited_new_provider_lead_provider_recruiting,
         deal.date_entered_interview_booked_provider_recruiting,
@@ -65,6 +67,8 @@ provider_deals as (
         -- Recruitment pipeline fields - take from recruitment pipeline deals
         MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_referrals_provider_recruiting END) as date_entered_referrals_provider_recruiting,
         MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_exited_referrals_provider_recruiting END) as date_exited_referrals_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_lead_magnet_provider_recruiting END) as date_entered_lead_magnet_provider_recruiting,
+        MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_exited_lead_magnet_provider_recruiting END) as date_exited_lead_magnet_provider_recruiting,
         MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_new_provider_lead_provider_recruiting END) as date_entered_new_provider_lead_provider_recruiting,
         MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_exited_new_provider_lead_provider_recruiting END) as date_exited_new_provider_lead_provider_recruiting,
         MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_interview_booked_provider_recruiting END) as date_entered_interview_booked_provider_recruiting,
@@ -116,6 +120,8 @@ enriched as (
         -- All date fields remain the same
         date_entered_referrals_provider_recruiting,
         date_exited_referrals_provider_recruiting,
+        date_entered_lead_magnet_provider_recruiting,
+        date_exited_lead_magnet_provider_recruiting,
         date_entered_new_provider_lead_provider_recruiting,
         date_exited_new_provider_lead_provider_recruiting,
         date_entered_interview_booked_provider_recruiting,
@@ -157,6 +163,14 @@ enriched as (
             when date_entered_referrals_provider_recruiting = date_exited_referrals_provider_recruiting then 'skipped'
             else 'completed'
         end as referrals_provider_recruiting_status,
+
+        -- Lead Magnet Stage
+        case 
+            when date_entered_lead_magnet_provider_recruiting is null and date_exited_lead_magnet_provider_recruiting is null then 'never_entered'
+            when date_entered_lead_magnet_provider_recruiting is not null and date_exited_lead_magnet_provider_recruiting is null then 'current'
+            when date_entered_lead_magnet_provider_recruiting = date_exited_lead_magnet_provider_recruiting then 'skipped'
+            else 'completed'
+        end as lead_magnet_provider_recruiting_status,
 
         -- New Provider Lead Stage
         case 
@@ -278,6 +292,29 @@ enriched as (
             ) * (1/86400),
             2
         ) as days_in_referrals_provider_recruiting,
+
+        -- Lead Magnet
+        ROUND(
+            CAST(
+                DATEDIFF(
+                    'second',
+                    date_entered_lead_magnet_provider_recruiting,
+                    COALESCE(date_exited_lead_magnet_provider_recruiting, CURRENT_TIMESTAMP())
+                ) AS FLOAT
+            ) * (1/3600),
+            2
+        ) as hours_in_lead_magnet_provider_recruiting,
+
+        ROUND(
+            CAST(
+                DATEDIFF(
+                    'second',
+                    date_entered_lead_magnet_provider_recruiting,
+                    COALESCE(date_exited_lead_magnet_provider_recruiting, CURRENT_TIMESTAMP())
+                ) AS FLOAT
+            ) * (1/86400),
+            2
+        ) as days_in_lead_magnet_provider_recruiting,
 
         -- New Provider Lead
         ROUND(
@@ -525,6 +562,7 @@ current_stage_summary as (
             when checkr_fail_provider_onboarding_status = 'current' then 'Checkr Fail (Provider Onboarding)'
             -- Provider Recruiting Stages (only if no onboarding stages are current)
             when referrals_provider_recruiting_status = 'current' then 'Referrals (Provider Recruiting)'
+            when lead_magnet_provider_recruiting_status = 'current' then 'Lead Magnet (Provider Recruiting)'
             when new_provider_lead_provider_recruiting_status = 'current' then 'New Provider Lead (Provider Recruiting)'
             when interview_booked_provider_recruiting_status = 'current' then 'Interview Booked (Provider Recruiting)'
             when post_interview_provider_recruiting_status = 'current' then 'Post Interview (Provider Recruiting)'
@@ -542,6 +580,7 @@ current_stage_summary as (
         case
             -- Provider Recruiting Stages
             when referrals_provider_recruiting_status = 'current' then hours_in_referrals_provider_recruiting
+            when lead_magnet_provider_recruiting_status = 'current' then hours_in_lead_magnet_provider_recruiting
             when new_provider_lead_provider_recruiting_status = 'current' then hours_in_new_provider_lead_provider_recruiting
             when interview_booked_provider_recruiting_status = 'current' then hours_in_interview_booked_provider_recruiting
             when post_interview_provider_recruiting_status = 'current' then hours_in_post_interview_provider_recruiting
@@ -564,6 +603,7 @@ stage_timing_summary as (
         ROUND(
             -- Provider Recruiting Stages
             COALESCE(days_in_referrals_provider_recruiting, 0) +
+            COALESCE(days_in_lead_magnet_provider_recruiting, 0) +
             COALESCE(days_in_new_provider_lead_provider_recruiting, 0) +
             COALESCE(days_in_interview_booked_provider_recruiting, 0) +
             COALESCE(days_in_post_interview_provider_recruiting, 0) +
@@ -581,6 +621,7 @@ stage_timing_summary as (
         GREATEST(
             -- Provider Recruiting Stages
             COALESCE(days_in_referrals_provider_recruiting, 0),
+            COALESCE(days_in_lead_magnet_provider_recruiting, 0),
             COALESCE(days_in_new_provider_lead_provider_recruiting, 0),
             COALESCE(days_in_interview_booked_provider_recruiting, 0),
             COALESCE(days_in_post_interview_provider_recruiting, 0),
@@ -611,9 +652,20 @@ stage_statuses as (
     select 
         hubspot_provider_id,
         coral_provider_id,
+        'lead_magnet_provider_recruiting_status' as stage_name,
+        lead_magnet_provider_recruiting_status as status,
+        2 as stage_order
+    from enriched
+    where lead_magnet_provider_recruiting_status = 'completed'
+    
+    union all
+    
+    select 
+        hubspot_provider_id,
+        coral_provider_id,
         'new_provider_lead_provider_recruiting_status' as stage_name,
         new_provider_lead_provider_recruiting_status as status,
-        2 as stage_order
+        3 as stage_order
     from enriched
     where new_provider_lead_provider_recruiting_status = 'completed'
     
@@ -624,7 +676,7 @@ stage_statuses as (
         coral_provider_id,
         'interview_booked_provider_recruiting_status' as stage_name,
         interview_booked_provider_recruiting_status as status,
-        3 as stage_order
+        4 as stage_order
     from enriched
     where interview_booked_provider_recruiting_status = 'completed'
     
@@ -635,7 +687,7 @@ stage_statuses as (
         coral_provider_id,
         'post_interview_provider_recruiting_status' as stage_name,
         post_interview_provider_recruiting_status as status,
-        4 as stage_order
+        5 as stage_order
     from enriched
     where post_interview_provider_recruiting_status = 'completed'
     
@@ -646,7 +698,7 @@ stage_statuses as (
         coral_provider_id,
         'clinical_interview_provider_recruiting_status' as stage_name,
         clinical_interview_provider_recruiting_status as status,
-        5 as stage_order
+        6 as stage_order
     from enriched
     where clinical_interview_provider_recruiting_status = 'completed'
     
@@ -657,7 +709,7 @@ stage_statuses as (
         coral_provider_id,
         'offer_letter_provider_recruiting_status' as stage_name,
         offer_letter_provider_recruiting_status as status,
-        6 as stage_order
+        7 as stage_order
     from enriched
     where offer_letter_provider_recruiting_status = 'completed'
     
@@ -668,7 +720,7 @@ stage_statuses as (
         coral_provider_id,
         'recruitment_complete_provider_recruiting_status' as stage_name,
         recruitment_complete_provider_recruiting_status as status,
-        7 as stage_order
+        8 as stage_order
     from enriched
     where recruitment_complete_provider_recruiting_status = 'completed'
     
@@ -679,7 +731,7 @@ stage_statuses as (
         coral_provider_id,
         'ready_to_onboard_provider_onboarding_status' as stage_name,
         ready_to_onboard_provider_onboarding_status as status,
-        8 as stage_order
+        9 as stage_order
     from enriched
     where ready_to_onboard_provider_onboarding_status = 'completed'
     
@@ -690,18 +742,18 @@ stage_statuses as (
         coral_provider_id,
         'pending_onboarding_tasks_provider_onboarding_status' as stage_name,
         pending_onboarding_tasks_provider_onboarding_status as status,
-        9 as stage_order
+        10 as stage_order
     from enriched
     where pending_onboarding_tasks_provider_onboarding_status = 'completed'
-    
-    union all
+
+        union all
     
     select 
         hubspot_provider_id,
         coral_provider_id,
         'schedule_onboarding_call_provider_onboarding_status' as stage_name,
         schedule_onboarding_call_provider_onboarding_status as status,
-        10 as stage_order
+        11 as stage_order
     from enriched
     where schedule_onboarding_call_provider_onboarding_status = 'completed'
 
@@ -712,7 +764,7 @@ stage_statuses as (
         coral_provider_id,
         'checkr_fail_provider_onboarding_status' as stage_name,
         checkr_fail_provider_onboarding_status as status,
-        11 as stage_order
+        12 as stage_order
     from enriched
     where checkr_fail_provider_onboarding_status = 'completed'
 ),

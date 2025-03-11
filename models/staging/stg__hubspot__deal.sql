@@ -34,6 +34,8 @@ select
     deal.property_hs_v_2_latest_time_in_174666291 as latest_time_in_closed_lost,
     deal.property_closed_loss_families as closed_lost_families_reason, 
     deal.property_closed_lost_reason as closed_lost_families_reason_deprecated,
+    deal.PROPERTY_HS_DATE_EXITED_1022614567 as date_exited_lead_magnet_provider_recruiting,
+    deal.PROPERTY_HS_DATE_ENTERED_1022614567 AS date_entered_lead_magnet_provider_recruiting, 
     -- New fields from CSV
     deal.property_hs_v_2_date_entered_245897332 as date_entered_referrals_provider_recruiting,
     deal.property_hs_v_2_date_exited_245897332 as date_exited_referrals_provider_recruiting,

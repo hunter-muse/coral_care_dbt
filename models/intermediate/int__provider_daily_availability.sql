@@ -256,7 +256,7 @@ busy_hours_by_day AS (
         provider_detail,
         DATE(start_date) AS busy_date,
         -- Total busy hours with rounding to 2 decimal places
-        ROUND(SUM(DATEDIFF('hour', start_date, end_date)), 2) AS total_busy_hours,
+        ROUND(SUM(DATEDIFF('minute', start_date, end_date) / 60.0), 2) AS total_busy_hours,
         
         -- Morning segment with rounding to 2 decimal places
         ROUND(SUM(CASE 
@@ -426,6 +426,196 @@ overlapping_busy_hours AS (
         ets.provider_detail,
         ets.calendar_date,
         ets.time_slot
+),
+
+busy_slots AS (
+    -- Extract individual busy slots for each provider and date
+    SELECT
+        provider_detail,
+        DATE(start_date) AS busy_date,
+        start_date AS busy_start,
+        end_date AS busy_end
+    FROM {{ref('stg__bubble__busyslot')}}
+    WHERE 
+        delete_flag = 'false'
+        AND DATE(start_date) >= DATE_TRUNC('week', CURRENT_DATE())
+        AND DATE(start_date) <= DATEADD('day', 28, CURRENT_DATE())
+),
+
+availability_with_busy_slots AS (
+    -- Join expanded time slots with busy slots to prepare for calculating actual availability
+    SELECT
+        ets.provider_detail,
+        ets.coral_provider_id,
+        ets.calendar_date,
+        ets.time_slot,
+        TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.start_time, 'YYYY-MM-DD HH:MI AM') AS slot_start,
+        TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.end_time, 'YYYY-MM-DD HH:MI AM') AS slot_end,
+        bs.busy_start,
+        bs.busy_end
+    FROM expanded_time_slots ets
+    LEFT JOIN busy_slots bs ON 
+        ets.provider_detail = bs.provider_detail 
+        AND ets.calendar_date = bs.busy_date
+        AND bs.busy_start < TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.end_time, 'YYYY-MM-DD HH:MI AM')
+        AND bs.busy_end > TRY_TO_TIMESTAMP(TO_CHAR(ets.calendar_date) || ' ' || ets.start_time, 'YYYY-MM-DD HH:MI AM')
+),
+
+actual_availability_segments AS (
+    -- Calculate actual availability segments by finding gaps between busy slots
+    SELECT
+        provider_detail,
+        coral_provider_id,
+        calendar_date,
+        time_slot,
+        slot_start,
+        slot_end,
+        -- Use LISTAGG to collect all actual available time segments with 12-hour format
+        LISTAGG(
+            TO_CHAR(segment_start, 'HH12:MI') || 
+            CASE WHEN HOUR(segment_start) < 12 OR HOUR(segment_start) = 24 THEN 'AM' ELSE 'PM' END || 
+            ' - ' || 
+            TO_CHAR(segment_end, 'HH12:MI') || 
+            CASE WHEN HOUR(segment_end) < 12 OR HOUR(segment_end) = 24 THEN 'AM' ELSE 'PM' END,
+            ', '
+        ) WITHIN GROUP (ORDER BY segment_start) AS actual_availability
+    FROM (
+        SELECT
+            provider_detail,
+            coral_provider_id,
+            calendar_date,
+            time_slot,
+            slot_start,
+            slot_end,
+            segment_start,
+            segment_end
+        FROM (
+            -- Generate all potential segment boundaries (slot start, slot end, and all busy start/end times)
+            WITH all_boundaries AS (
+                SELECT
+                    provider_detail,
+                    coral_provider_id,
+                    calendar_date,
+                    time_slot,
+                    slot_start,
+                    slot_end,
+                    slot_start AS boundary_time,
+                    'SLOT_START' AS boundary_type
+                FROM availability_with_busy_slots
+                WHERE slot_start IS NOT NULL
+                
+                UNION ALL
+                
+                SELECT
+                    provider_detail,
+                    coral_provider_id,
+                    calendar_date,
+                    time_slot,
+                    slot_start,
+                    slot_end,
+                    slot_end AS boundary_time,
+                    'SLOT_END' AS boundary_type
+                FROM availability_with_busy_slots
+                WHERE slot_end IS NOT NULL
+                
+                UNION ALL
+                
+                SELECT
+                    provider_detail,
+                    coral_provider_id,
+                    calendar_date,
+                    time_slot,
+                    slot_start,
+                    slot_end,
+                    busy_start AS boundary_time,
+                    'BUSY_START' AS boundary_type
+                FROM availability_with_busy_slots
+                WHERE busy_start IS NOT NULL
+                
+                UNION ALL
+                
+                SELECT
+                    provider_detail,
+                    coral_provider_id,
+                    calendar_date,
+                    time_slot,
+                    slot_start,
+                    slot_end,
+                    busy_end AS boundary_time,
+                    'BUSY_END' AS boundary_type
+                FROM availability_with_busy_slots
+                WHERE busy_end IS NOT NULL
+            ),
+            
+            -- Order boundaries and determine if each point is inside a busy period
+            ordered_boundaries AS (
+                SELECT
+                    provider_detail,
+                    coral_provider_id,
+                    calendar_date,
+                    time_slot,
+                    slot_start,
+                    slot_end,
+                    boundary_time,
+                    boundary_type,
+                    -- Check if this time point is within any busy slot
+                    EXISTS (
+                        SELECT 1
+                        FROM availability_with_busy_slots bs
+                        WHERE 
+                            ab.provider_detail = bs.provider_detail
+                            AND ab.calendar_date = bs.calendar_date
+                            AND ab.time_slot = bs.time_slot
+                            AND bs.busy_start <= ab.boundary_time
+                            AND bs.busy_end > ab.boundary_time
+                    ) AS is_busy
+                FROM all_boundaries ab
+            ),
+            
+            -- Create segments by pairing adjacent boundaries
+            segments AS (
+                SELECT
+                    provider_detail,
+                    coral_provider_id,
+                    calendar_date,
+                    time_slot,
+                    slot_start,
+                    slot_end,
+                    boundary_time AS segment_start,
+                    LEAD(boundary_time) OVER (
+                        PARTITION BY provider_detail, calendar_date, time_slot
+                        ORDER BY boundary_time
+                    ) AS segment_end,
+                    is_busy
+                FROM ordered_boundaries
+            )
+            
+            -- Keep only available segments within the original slot
+            SELECT
+                provider_detail,
+                coral_provider_id,
+                calendar_date,
+                time_slot,
+                slot_start,
+                slot_end,
+                GREATEST(segment_start, slot_start) AS segment_start,
+                LEAST(segment_end, slot_end) AS segment_end
+            FROM segments
+            WHERE 
+                is_busy = FALSE
+                AND segment_end IS NOT NULL
+                AND segment_start < segment_end
+                AND segment_end > slot_start
+                AND segment_start < slot_end
+        )
+    )
+    GROUP BY
+        provider_detail,
+        coral_provider_id,
+        calendar_date,
+        time_slot,
+        slot_start,
+        slot_end
 )
 
 -- Final output
@@ -437,6 +627,7 @@ SELECT
     csh.week_number,
     csh.time_period,
     csh.time_slot,
+    COALESCE(aas.actual_availability, csh.time_slot) AS actual_availability,
     COALESCE(bh.total_busy_hours, 0) AS total_busy_hours,
     csh.total_available_hours,
     
@@ -473,6 +664,10 @@ LEFT JOIN overlapping_busy_hours obh ON
     csh.provider_detail = obh.provider_detail
     AND csh.calendar_date = obh.calendar_date
     AND csh.time_slot = obh.time_slot
+LEFT JOIN actual_availability_segments aas ON
+    csh.provider_detail = aas.provider_detail
+    AND csh.calendar_date = aas.calendar_date
+    AND csh.time_slot = aas.time_slot
 ORDER BY 
     csh.provider_detail, 
     csh.calendar_date,

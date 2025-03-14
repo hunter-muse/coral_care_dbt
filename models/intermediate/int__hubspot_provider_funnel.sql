@@ -11,6 +11,7 @@ with source as (
         END as pipeline_name,
         provider.provider_hubspot_created_date,
         provider_enriched.coral_provider_id,
+        provider_enriched.state as provider_state, 
         provider_enriched.hubspot_provider_id,
         -- Provider Recruiting Stages
         deal.date_entered_referrals_provider_recruiting,
@@ -63,6 +64,7 @@ provider_deals as (
     select
         hubspot_provider_id,
         coral_provider_id,
+        provider_state,
         provider_hubspot_created_date,
         -- Recruitment pipeline fields - take from recruitment pipeline deals
         MAX(CASE WHEN pipeline_name = 'Provider Recruiting' THEN date_entered_referrals_provider_recruiting END) as date_entered_referrals_provider_recruiting,

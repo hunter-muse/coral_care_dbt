@@ -47,6 +47,7 @@ renamed as (
         {{ adapter.quote("CC_LAST_4") }},
         {{ adapter.quote("SESSION_FREQUENCY") }},
         {{ adapter.quote("CANCELLATION_REASON")}},
+        {{ adapter.quote("SESSION_PARENT_INSURANCE")}} AS session_parent_insurance_id, 
         CAST({{ adapter.quote("CANCELLATION_TIMESTAMP_DATE")}} AS TIMESTAMP) AS cancellation_timestamp_date,
         CAST({{ adapter.quote("Y_NOTES_COMPLETED_TIMESTAMP")}} AS TIMESTAMP) AS y_notes_completed_timestamp
     from source

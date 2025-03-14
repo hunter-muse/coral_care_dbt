@@ -17,4 +17,10 @@ renamed as (
     from source
 )
 select * from renamed
+where dependent_name NOT ILIKE 'test%'
+and dependent_name NOT ILIKE '%test'
+and dependent_name NOT ILIKE 'kiddo%'
+and dependent_name NOT ILIKE 'fakechild%'
+and dependent_name NOT ILIKE '%deprecated%'
+and dependent_name NOT ILIKE '%snowperson%'
   

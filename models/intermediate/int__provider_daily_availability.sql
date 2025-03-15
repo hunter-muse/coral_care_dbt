@@ -170,83 +170,91 @@ calculated_slot_hours AS (
         time_period,
         week_number,
         time_slot,
+        start_time,
+        end_time,
         
-        -- Calculate total hours for this slot
-        ROUND(DATEDIFF('minute',
-            TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || start_time, 'YYYY-MM-DD HH:MI AM'),
-            TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || end_time, 'YYYY-MM-DD HH:MI AM')
-        ) / 60.0, 2) AS total_available_hours,
+        -- Calculate total hours for this slot with better format handling
+        CASE 
+            WHEN start_time IS NULL OR end_time IS NULL OR start_time = '' OR end_time = '' THEN 0
+            ELSE ROUND(DATEDIFF('minute',
+                TRY_TO_TIME(start_time),
+                TRY_TO_TIME(end_time)
+            ) / 60.0, 2)
+        END AS total_available_hours,
         
-        -- Calculate morning hours (5am-12pm)
-        CASE WHEN 
-            GREATEST(
-                TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || start_time, 'YYYY-MM-DD HH:MI AM'),
-                TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 05:00:00')
+        -- Calculate morning hours (5am-12pm) with better format handling
+        CASE 
+            WHEN start_time IS NULL OR end_time IS NULL OR start_time = '' OR end_time = '' THEN 0
+            WHEN GREATEST(
+                TRY_TO_TIME(start_time),
+                TRY_TO_TIME('05:00 AM')
             ) < 
             LEAST(
-                TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || end_time, 'YYYY-MM-DD HH:MI AM'),
-                TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 12:00:00')
+                TRY_TO_TIME(end_time),
+                TRY_TO_TIME('12:00 PM')
             )
-        THEN
-            ROUND(DATEDIFF('minute',
-                GREATEST(
-                    TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || start_time, 'YYYY-MM-DD HH:MI AM'),
-                    TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 05:00:00')
-                ),
-                LEAST(
-                    TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || end_time, 'YYYY-MM-DD HH:MI AM'),
-                    TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 12:00:00')
-                )
-            ) / 60.0, 2)
-        ELSE 0
+            THEN
+                ROUND(DATEDIFF('minute',
+                    GREATEST(
+                        TRY_TO_TIME(start_time),
+                        TRY_TO_TIME('05:00 AM')
+                    ),
+                    LEAST(
+                        TRY_TO_TIME(end_time),
+                        TRY_TO_TIME('12:00 PM')
+                    )
+                ) / 60.0, 2)
+            ELSE 0
         END AS morning_hours,
         
-        -- Calculate afternoon hours (12pm-5pm)
-        CASE WHEN 
-            GREATEST(
-                TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || start_time, 'YYYY-MM-DD HH:MI AM'),
-                TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 12:00:00')
+        -- Calculate afternoon hours (12pm-5pm) with better format handling
+        CASE 
+            WHEN start_time IS NULL OR end_time IS NULL OR start_time = '' OR end_time = '' THEN 0
+            WHEN GREATEST(
+                TRY_TO_TIME(start_time),
+                TRY_TO_TIME('12:00 PM')
             ) < 
             LEAST(
-                TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || end_time, 'YYYY-MM-DD HH:MI AM'),
-                TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 17:00:00')
+                TRY_TO_TIME(end_time),
+                TRY_TO_TIME('05:00 PM')
             )
-        THEN
-            ROUND(DATEDIFF('minute',
-                GREATEST(
-                    TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || start_time, 'YYYY-MM-DD HH:MI AM'),
-                    TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 12:00:00')
-                ),
-                LEAST(
-                    TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || end_time, 'YYYY-MM-DD HH:MI AM'),
-                    TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 17:00:00')
-                )
-            ) / 60.0, 2)
-        ELSE 0
+            THEN
+                ROUND(DATEDIFF('minute',
+                    GREATEST(
+                        TRY_TO_TIME(start_time),
+                        TRY_TO_TIME('12:00 PM')
+                    ),
+                    LEAST(
+                        TRY_TO_TIME(end_time),
+                        TRY_TO_TIME('05:00 PM')
+                    )
+                ) / 60.0, 2)
+            ELSE 0
         END AS afternoon_hours,
         
-        -- Calculate evening hours (5pm-10pm)
-        CASE WHEN 
-            GREATEST(
-                TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || start_time, 'YYYY-MM-DD HH:MI AM'),
-                TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 17:00:00')
+        -- Calculate evening hours (5pm-10pm) with better format handling
+        CASE 
+            WHEN start_time IS NULL OR end_time IS NULL OR start_time = '' OR end_time = '' THEN 0
+            WHEN GREATEST(
+                TRY_TO_TIME(start_time),
+                TRY_TO_TIME('05:00 PM')
             ) < 
             LEAST(
-                TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || end_time, 'YYYY-MM-DD HH:MI AM'),
-                TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 22:00:00')
+                TRY_TO_TIME(end_time),
+                TRY_TO_TIME('10:00 PM')
             )
-        THEN
-            ROUND(DATEDIFF('minute',
-                GREATEST(
-                    TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || start_time, 'YYYY-MM-DD HH:MI AM'),
-                    TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 17:00:00')
-                ),
-                LEAST(
-                    TRY_TO_TIMESTAMP(TO_CHAR(calendar_date) || ' ' || end_time, 'YYYY-MM-DD HH:MI AM'),
-                    TO_TIMESTAMP(TO_CHAR(calendar_date) || ' 22:00:00')
-                )
-            ) / 60.0, 2)
-        ELSE 0
+            THEN
+                ROUND(DATEDIFF('minute',
+                    GREATEST(
+                        TRY_TO_TIME(start_time),
+                        TRY_TO_TIME('05:00 PM')
+                    ),
+                    LEAST(
+                        TRY_TO_TIME(end_time),
+                        TRY_TO_TIME('10:00 PM')
+                    )
+                ) / 60.0, 2)
+            ELSE 0
         END AS evening_hours
     FROM expanded_time_slots
 ),
@@ -668,10 +676,8 @@ LEFT JOIN actual_availability_segments aas ON
     csh.provider_detail = aas.provider_detail
     AND csh.calendar_date = aas.calendar_date
     AND csh.time_slot = aas.time_slot
+WHERE csh.coral_provider_id IS NOT NULL 
 ORDER BY 
     csh.provider_detail, 
     csh.calendar_date,
     slot_id
-
-
-

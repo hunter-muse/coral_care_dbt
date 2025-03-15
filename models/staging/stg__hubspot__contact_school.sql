@@ -1,6 +1,35 @@
+with zip_matches as (
+    -- First try to join on zip code
+    select 
+        c.ID,
+        lat_long_zip.LATITUDE,
+        lat_long_zip.LONGITUDE
+    from {{source('hubspot', 'contact')}} as c
+    left join {{ref('lat_long_zip')}} as lat_long_zip
+        on CASE 
+            WHEN LENGTH(TRIM(c.PROPERTY_ZIP)) = 4 THEN '0' || c.PROPERTY_ZIP
+            ELSE c.PROPERTY_ZIP
+        END = CAST(lat_long_zip.ZIP as string)
+    where c.PROPERTY_ZIP is not null
+)
+
+, city_state_matches as (
+    -- For records without a zip match, try to match on city and state
+    select 
+        c.ID,
+        lat_long_zip.LATITUDE,
+        lat_long_zip.LONGITUDE
+    from {{source('hubspot', 'contact')}} as c
+    left join {{ref('lat_long_zip')}} as lat_long_zip
+        on c.PROPERTY_CITY = lat_long_zip.CITY_NAME
+        and c.PROPERTY_HS_STATE_CODE = lat_long_zip.STATE_ABBV
+   -- where c.ID not in (select ID from zip_matches where LATITUDE is not null)
+    qualify row_number() over (partition by c.ID order by lat_long_zip.ZIP) = 1
+)
+
 select
     -- Basic Information
-    ID as contact_id,
+    contact.ID as contact_id,
     PROPERTY_FIRSTNAME as school_contact_first_name,
     PROPERTY_LASTNAME as school_contact_last_name,
     PROPERTY_EMAIL as school_contact_email,
@@ -23,8 +52,16 @@ select
     PROPERTY_ACTIVE_PARTNER as active_partner_status,
     
     -- Location Information
-    CAST(COALESCE(contact.PROPERTY_LATITUDE, lat_long_zip.LATITUDE) as string) as latitude,
-    CAST(COALESCE(contact.PROPERTY_LONGITUDE, lat_long_zip.LONGITUDE) as string) as longitude,
+    CAST(COALESCE(
+        contact.PROPERTY_LATITUDE, 
+        zip_matches.LATITUDE,
+        city_state_matches.LATITUDE
+    ) as string) as latitude,
+    CAST(COALESCE(
+        contact.PROPERTY_LONGITUDE, 
+        zip_matches.LONGITUDE,
+        city_state_matches.LONGITUDE
+    ) as string) as longitude,
     contact.PROPERTY_ADDRESS as street_address,
     contact.PROPERTY_CITY as city,
     contact.PROPERTY_STATE as state,
@@ -70,8 +107,10 @@ select
     CASE WHEN PROPERTY_hs_email_optout IS NULL THEN FALSE ELSE PROPERTY_hs_email_optout END AS unsubscribed_from_emails
 
 from {{source('hubspot', 'contact')}} as contact
-left join {{ref('lat_long_zip')}} as lat_long_zip
-    on CAST(contact.PROPERTY_ZIP as string) = CAST(lat_long_zip.ZIP as string)
+left join zip_matches 
+    on contact.ID = zip_matches.ID
+left join city_state_matches
+    on contact.ID = city_state_matches.ID
 where 
 PROPERTY_SEGMENT_MULTI = 'School'
 AND 

@@ -110,7 +110,7 @@ provider_deals as (
         -- Use MIN of deal_created_date to get the earliest deal
         MIN(deaL_created_date) as first_deal_created_date
     from source
-    group by hubspot_provider_id, coral_provider_id, provider_hubspot_created_date
+    group by hubspot_provider_id, coral_provider_id, provider_hubspot_created_date, provider_state
 ),
 
 enriched as (

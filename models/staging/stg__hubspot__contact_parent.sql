@@ -41,7 +41,9 @@ WITH RankedContacts AS (
     PROPERTY_SESSION_COUNT as session_count,
     PROPERTY_inactive_reason as discharge_reason, 
     property_discharged_ AS discharge_flag, 
-    
+    property_re_matching_pipeline AS re_matching_pipeline,
+    property_re_match_complete AS re_match_complete,
+
     -- Dependent 1 Information
     PROPERTY_DEPENDENT_FIRST_NAME as dependent_1_first_name,
     PROPERTY_DEPENDENT_LAST_NAME as dependent_1_last_name,

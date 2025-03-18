@@ -58,6 +58,8 @@ parent_join as (
     CAST(hubspot.last_contacted as date) as parent_last_contacted,
     CAST(hubspot.last_engagement_date as date) as parent_last_engagement_date,
     CAST(bubble.created_date as date) as parent_first_login_date,
+    hubspot.re_matching_pipeline,
+    hubspot.re_match_complete,
     hubspot.parent_sunday_availability,
     hubspot.parent_monday_availability,
     hubspot.parent_tuesday_availability,

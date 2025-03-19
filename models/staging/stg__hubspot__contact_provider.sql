@@ -87,4 +87,9 @@ where
 PROPERTY_SEGMENT_MULTI = 'Provider'
 AND 
 is_deleted = FALSE 
+and ID NOT IN (
+    105585350665,
+    105501017110,
+    102955601592
+)
 qualify row_number() over (partition by PROPERTY_FIRSTNAME, PROPERTY_LASTNAME order by PROPERTY_CREATEDATE) = 1 --remove duplicates

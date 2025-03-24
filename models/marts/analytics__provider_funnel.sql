@@ -17,6 +17,41 @@ select
     c.provider_state,
     c.provider_hubspot_created_date,
     
+    -- Funnel type indicator
+    CASE
+        -- Check for onboarding stages first
+        WHEN c.recruiting_current_stage IN (
+            'Pre-Launch (Provider Onboarding)',
+            'Ready to Onboard (Provider Onboarding)',
+            'Pending Onboarding Tasks (Provider Onboarding)',
+            'Schedule Onboarding Call (Provider Onboarding)',
+            'Onboarding Complete (Provider Onboarding)',
+            'Hold (Provider Onboarding)',
+            'Checkr Fail (Provider Onboarding)',
+            'Closed Lost (Provider Onboarding)',
+            'Disqualified (Provider Onboarding)'
+        ) THEN 'Onboarding'
+        
+        -- Then check for recruiting stages
+        WHEN c.recruiting_current_stage IS NOT NULL AND 
+             c.recruiting_current_stage NOT IN (
+                'Closed Lost (Provider Recruiting)',
+                'Disqualified (Provider Recruiting)'
+             ) THEN 'Recruiting'
+        
+        -- Then check for sales stages
+        WHEN c.sales_current_stage IS NOT NULL AND
+             c.sales_current_stage != 'Closed Lost (Provider Sales)' THEN 'Sales'
+        
+        -- Handle terminal states
+        WHEN c.recruiting_current_stage IN (
+            'Closed Lost (Provider Recruiting)',
+            'Disqualified (Provider Recruiting)'
+        ) OR c.sales_current_stage = 'Closed Lost (Provider Sales)' THEN 'Closed'
+        
+        ELSE 'Unknown'
+    END as funnel_type,
+    
     -- Combined funnel information
     c.active_funnel,
     c.overall_status,

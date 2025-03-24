@@ -97,7 +97,21 @@ select
     deal.property_hs_v_2_date_entered_221367334 as date_entered_screening_complete_won,
     deal.property_hs_v_2_date_entered_221367335 as date_entered_cold_school_pipeline,
     deal.property_hs_v_2_date_exited_221367335 as date_exited_cold_school_pipeline,
-    deal.property_hs_v_2_date_entered_221360262 as date_entered_closed_lost_school_pipeline
+    deal.property_hs_v_2_date_entered_221360262 as date_entered_closed_lost_school_pipeline,
+    deal.PROPERTY_HS_V_2_DATE_ENTERED_1024449842 as date_entered_discovery_call_provider_sales, 
+    deal.PROPERTY_HS_V_2_DATE_EXITED_1024449842 as date_exited_discovery_call_provider_sales,
+    deal.PROPERTY_HS_V_2_DATE_ENTERED_1024449843 AS date_entered_clinical_interview_provider_sales, 
+    deal.PROPERTY_HS_V_2_DATE_EXITED_1024449843 AS date_exited_clinical_interview_provider_sales,
+    deal.property_hs_v_2_date_entered_1024449844 as date_entered_pending_tasks_provider_sales, 
+    --THE BELOW FIELDS NEED TO BE ADDED ONCE THE PIPELINE IS FILLED 
+   -- deal.property_hs_v_2_date_exited_1024449844 as date_exited_pending_tasks_provider_sales, 
+   --deal.property_hs_v_2_date_entered_1024449845 as date_entered_offer_letter_provider_sales, 
+   --deal.property_hs_v_2_date_exited_1024449845 as date_exited_offer_letter_provider_sales,
+   --deal.property_hs_v_2_date_entered_1024449846 as date_entered_closed_won_provider_sales,
+   --deal.property_hs_v_2_date_exited_1024449846 as date_exited_closed_won_provider_sales
+    deal.PROPERTY_HS_V_2_DATE_ENTERED_1024449847 as date_entered_closed_lost_provider_sales
+    ---deal.property_hs_v_2_date_exited_1024449847 as date_exited_closed_lost_provider_sales
+
     -- deal.property_hs_v_2_date_exited_202963371 as date_exited_disqualified_provider_onboarding --exited doesn't seem to exist
     --deal.*
 from {{ source('hubspot', 'deal') }} deal 

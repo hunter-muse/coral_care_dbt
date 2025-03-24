@@ -1,15 +1,40 @@
-WITH RankedContacts AS (
+WITH deals AS (
+  SELECT
+    contact_id,
+    deal_id,
+    deal_name,
+    deal_created_date,
+    -- Example: assign a simple score to help prioritize
+    CASE 
+      WHEN deal_name IS NOT NULL AND DATE_ENTERED_OPPORTUNITIES_UNENGAGED IS NOT NULL THEN 2
+      WHEN deal_name IS NOT NULL THEN 1
+      ELSE 0
+    END AS deal_quality_score
+  FROM {{ ref('stg__hubspot__deal') }}
+),
+
+contacts AS (
+  SELECT *
+  FROM {{ source('hubspot', 'contact') }}
+),
+
+rankedcontacts AS (
   SELECT 
-    *, 
-    ROW_NUMBER() OVER (PARTITION BY PROPERTY_FIRSTNAME, PROPERTY_LASTNAME, PROPERTY_PHONE ORDER BY PROPERTY_CREATEDATE ASC) as rn
-  FROM {{source('hubspot', 'contact')}} AS contact
-  LEFT JOIN {{ref('lat_long_zip')}} AS lat_long_zip
-    ON CAST(contact.PROPERTY_ZIP as string) = CAST(lat_long_zip.ZIP as string)
-  WHERE 1=1  
-    AND PROPERTY_SEGMENT_MULTI = 'Parent'
-    AND is_deleted = FALSE
-    
+    contact.*,
+    deal.deal_id,
+    deal.deal_created_date,
+    deal.deal_quality_score,
+    ROW_NUMBER() OVER (
+      PARTITION BY contact.property_firstname, contact.property_lastname, contact.property_phone
+      ORDER BY 
+        deal.deal_quality_score DESC,
+        deal.deal_created_date DESC
+    ) AS rn
+  FROM contacts AS contact
+  LEFT JOIN deals AS deal
+    ON contact.id = deal.contact_id
 )
+
     select
     -- Basic Information
     ID as record_id,

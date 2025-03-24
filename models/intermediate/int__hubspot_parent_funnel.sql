@@ -32,7 +32,6 @@ with source as (
         ON deal.contact_id = parent.record_id 
     LEFT JOIN {{ ref('int__parent')}} parent_enriched
         ON parent.record_id = parent_enriched.hubspot_parent_id
-    where deal.deal_id = '34789435410'
 ),
 
 enriched as (

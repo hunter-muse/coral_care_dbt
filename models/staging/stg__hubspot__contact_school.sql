@@ -64,7 +64,7 @@ select
     ) as string) as longitude,
     contact.PROPERTY_ADDRESS as street_address,
     contact.PROPERTY_CITY as city,
-    contact.PROPERTY_STATE as state,
+    coalesce(contact.PROPERTY_STATE, contact.PROPERTY_HS_STATE_CODE) as state,
     contact.PROPERTY_HS_STATE_CODE as state_region_code,
     CASE 
         WHEN LENGTH(TRIM(contact.PROPERTY_ZIP)) = 4 THEN '0' || contact.PROPERTY_ZIP

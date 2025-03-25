@@ -8,7 +8,8 @@ select
     PROPERTY_WHAT_TYPE_OF_PROVIDER_ARE_YOU_ as specialty,
     PROPERTY_PHONE as phone_number,
     PROPERTY_ADDRESS as address,
-    PROPERTY_STATE as state,
+    coalesce(PROPERTY_HS_STATE_CODE,PROPERTY_STATE) as state,
+    PROPERTY_CITY AS city, 
     PROPERTY_SEGMENT as segment,
     CASE 
         WHEN LENGTH(TRIM(PROPERTY_ZIP)) = 4 THEN '0' || PROPERTY_ZIP

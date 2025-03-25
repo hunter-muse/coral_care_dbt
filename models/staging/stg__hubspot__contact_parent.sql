@@ -16,6 +16,7 @@ WITH deals AS (
 contacts AS (
   SELECT *
   FROM {{ source('hubspot', 'contact') }}
+  where PROPERTY_SEGMENT_MULTI = 'Parent'
 ),
 
 rankedcontacts AS (

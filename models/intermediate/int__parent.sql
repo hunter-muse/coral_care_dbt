@@ -18,7 +18,7 @@ parent_join as (
     bubble.location_address as parent_location_address,
     COALESCE(bubble.address, hubspot.street_address) as parent_address,
     COALESCE(bubble.city, hubspot.city) as parent_city,
-    COALESCE(hubspot.state_region_code,bubble.state) as parent_state,
+    COALESCE(hubspot.state,bubble.state) as parent_state,
     COALESCE(hubspot.zip_code, bubble.postal_code ) as parent_postal_code,
     COALESCE(hubspot.latitude, bubble.location_lat) as parent_location_lat,
     COALESCE(hubspot.longitude, bubble.location_lng) as parent_location_lng,

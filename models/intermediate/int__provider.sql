@@ -28,6 +28,7 @@ with provider_user_prep as (
         hubspot.hear_about_us_source_provider, 
         CAST(hubspot.last_contacted as date) as provider_last_contacted,
         CAST(hubspot.last_engagement_date as date) as provider_last_engagement_date,
+        hubspot.provider_engagement_notes,
         hubspot.created_date as provider_created_date
     from {{ref('stg__hubspot__contact_provider')}} hubspot
     FULL OUTER JOIN {{ref('stg__bubble__user')}} bubble
@@ -167,6 +168,7 @@ user.provider_unsubscribed_from_emails,
 user.provider_last_contacted,
 user.hear_about_us_source_provider,
 user.provider_last_engagement_date,
+user.provider_engagement_notes,
 provider.ACCEPT_NEW_PATIENTS,
 provider.TARGET_CASELOAD
 from provider_user as user
@@ -269,7 +271,8 @@ mapped_insurances AS (
       provider_detail.provider_unsubscribed_from_emails,
       provider_detail.hear_about_us_source_provider,
       provider_detail.provider_last_contacted,
-      provider_detail.provider_last_engagement_date
+      provider_detail.provider_last_engagement_date,
+      provider_detail.provider_engagement_notes
     FROM
       provider_detail
     LEFT JOIN

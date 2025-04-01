@@ -43,6 +43,7 @@ select
     PROPERTY_PROVIDER_TYPE_PROD as provider_type,
     PROPERTY_TRAVEL_RADIUS as radius,
     PROPERTY_WHAT_INSURANCE_COMPANIES_ARE_YOU_CREDENTIALED_WITH_ as insurance_accepted,
+    PROPERTY_PROVIDER_ENGAGEMENT_NOTES as provider_engagement_notes,
     
     -- Marketing Information
     PROPERTY_UTM_CAMPAIGN as utm_campaign,

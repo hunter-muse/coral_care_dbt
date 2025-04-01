@@ -42,6 +42,7 @@ select
       hear_about_us_source_provider,
       provider_last_contacted,
       provider_last_engagement_date,
+      provider_engagement_notes,
       accept_new_patients,
       target_caseload,
       --provider_lifecycle_status AS provider_lifecycle_status_raw,

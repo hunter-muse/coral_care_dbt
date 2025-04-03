@@ -62,6 +62,10 @@ select
     deal.property_hs_v_2_date_exited_181529890 as date_exited_closed_lost_provider_recruiting,
     deal.property_hs_v_2_date_entered_181529891 as date_entered_disqualified_provider_recruiting,
     deal.property_hs_v_2_date_exited_181529891 as date_exited_disqualified_provider_recruiting,
+    deal.PROPERTY_HS_V_2_DATE_ENTERED_1036779924 as date_entered_pending_tasks_provider_recruiting, 
+    --deal.PROPERTY_HS_V_2_DATE_EXITED_1036779924 as date_exited_pending_tasks_provider_recruiting, --need to add once available
+    --deal.property_hs_v_2_date_entered_1036779925 as date_entered_onboarding_call_provider_recruiting, --need to add once available
+    --deal.property_hs_v_2_date_exited_1036779925 as date_exited_onboarding_call_provider_recruiting, --need to add once available
     deal.property_hs_v_2_date_entered_990505850 as date_entered_pre_launch_provider_onboarding,
     deal.property_hs_v_2_date_exited_990505850 as date_exited_pre_launch_provider_onboarding,
     deal.property_hs_v_2_date_entered_200291858 as date_entered_ready_to_onboard_provider_onboarding,

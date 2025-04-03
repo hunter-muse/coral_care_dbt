@@ -1,4 +1,4 @@
-config-version: 2
+
 version: 2
 sources:
   - name: hubspot
@@ -45,3 +45,9 @@ sources:
     tables: 
     - name: evaluation_outcome
     - name: session_outcome 
+
+  - name: google_analytics_raw
+    database: pc_fivetran_db
+    schema: google_analytics_4_export
+    tables:
+      - name: event

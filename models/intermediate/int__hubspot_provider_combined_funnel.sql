@@ -97,6 +97,13 @@ combined as (
             -- If provider is in both, compare stages to determine which is further along
             WHEN r.current_stage IS NOT NULL AND s.current_stage IS NOT NULL THEN
                 CASE
+                    -- New stages after offer letter in recruiting, those are further than any sales stage
+                    WHEN r.current_stage IN (
+                        'Pre-Launch (Provider Recruiting)',
+                        'Onboarding Call (Provider Recruiting)',
+                        'Pending Tasks (Provider Recruiting)'
+                    ) THEN 'Recruiting'
+                    
                     -- If in offer letter in recruiting, that's further than any sales stage
                     WHEN r.current_stage = 'Offer Letter (Provider Recruiting)' THEN 'Recruiting'
                     

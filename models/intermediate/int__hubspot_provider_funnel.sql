@@ -28,6 +28,12 @@ with source as (
         deal.date_exited_clinical_interview_provider_recruiting,
         deal.date_entered_offer_letter_provider_recruiting,
         deal.date_exited_offer_letter_provider_recruiting,
+        deal.date_entered_pending_tasks_provider_recruiting, 
+        deal.date_exited_pending_tasks_provider_recruiting, 
+        deal.date_entered_onboarding_call_provider_recruiting, 
+        deal.date_exited_onboarding_call_provider_recruiting, 
+        deal.date_entered_pre_launch_provider_recruiting, 
+        deal.date_exited_pre_launch_provider_recruiting,
         deal.date_entered_recruitment_complete_provider_recruiting,
         deal.date_exited_recruitment_complete_provider_recruiting,
         deal.date_entered_cold_provider_recruiting,
@@ -54,15 +60,7 @@ with source as (
         deal.date_entered_closed_lost_provider_onboarding,
         deal.closed_lost_provider_reason,
         deal.date_entered_pre_launch_provider_onboarding,
-        deal.date_exited_pre_launch_provider_onboarding,
-        -- Add new stages between offer letter and recruitment complete
-        deal.date_entered_pending_tasks_provider_recruiting,
-        deal.date_exited_pending_tasks_provider_recruiting,
-        deal.date_entered_onboarding_call_provider_recruiting,
-        deal.date_exited_onboarding_call_provider_recruiting,
-        deal.date_entered_pre_launch_provider_recruiting,
-        deal.date_exited_pre_launch_provider_recruiting,
-        deal.date_entered_recruitment_complete_provider_recruiting
+        deal.date_exited_pre_launch_provider_onboarding
     from {{ ref('stg__hubspot__deal') }} deal
     INNER JOIN {{ ref('stg__hubspot__contact_provider')}} provider
         ON deal.contact_id = provider.hubspot_provider_id  
@@ -92,6 +90,13 @@ provider_deals as (
         MAX(date_exited_clinical_interview_provider_recruiting) as date_exited_clinical_interview_provider_recruiting,
         MAX(date_entered_offer_letter_provider_recruiting) as date_entered_offer_letter_provider_recruiting,
         MAX(date_exited_offer_letter_provider_recruiting) as date_exited_offer_letter_provider_recruiting,
+        -- New stages added after offer letter
+        MAX(date_entered_pending_tasks_provider_recruiting) as date_entered_pending_tasks_provider_recruiting,
+        MAX(date_exited_pending_tasks_provider_recruiting) as date_exited_pending_tasks_provider_recruiting,
+        MAX(date_entered_onboarding_call_provider_recruiting) as date_entered_onboarding_call_provider_recruiting,
+        MAX(date_exited_onboarding_call_provider_recruiting) as date_exited_onboarding_call_provider_recruiting,
+        MAX(date_entered_pre_launch_provider_recruiting) as date_entered_pre_launch_provider_recruiting,
+        MAX(date_exited_pre_launch_provider_recruiting) as date_exited_pre_launch_provider_recruiting,
         MAX(date_entered_recruitment_complete_provider_recruiting) as date_entered_recruitment_complete_provider_recruiting,
         MAX(date_exited_recruitment_complete_provider_recruiting) as date_exited_recruitment_complete_provider_recruiting,
         MAX(date_entered_cold_provider_recruiting) as date_entered_cold_provider_recruiting,
@@ -124,15 +129,7 @@ provider_deals as (
         
         -- Onboarding pipeline fields
         MAX(date_entered_pre_launch_provider_onboarding) as date_entered_pre_launch_provider_onboarding,
-        MAX(date_exited_pre_launch_provider_onboarding) as date_exited_pre_launch_provider_onboarding,
-        -- Add new stages between offer letter and recruitment complete
-        MAX(date_entered_pending_tasks_provider_recruiting) as date_entered_pending_tasks_provider_recruiting,
-        MAX(date_exited_pending_tasks_provider_recruiting) as date_exited_pending_tasks_provider_recruiting,
-        MAX(date_entered_onboarding_call_provider_recruiting) as date_entered_onboarding_call_provider_recruiting,
-        MAX(date_exited_onboarding_call_provider_recruiting) as date_exited_onboarding_call_provider_recruiting,
-        MAX(date_entered_pre_launch_provider_recruiting) as date_entered_pre_launch_provider_recruiting,
-        MAX(date_exited_pre_launch_provider_recruiting) as date_exited_pre_launch_provider_recruiting,
-        MAX(date_entered_recruitment_complete_provider_recruiting) as date_entered_recruitment_complete_provider_recruiting
+        MAX(date_exited_pre_launch_provider_onboarding) as date_exited_pre_launch_provider_onboarding
     from source
     group by hubspot_provider_id, coral_provider_id, provider_hubspot_created_date, provider_state
 ),
@@ -178,14 +175,19 @@ enriched as (
         date_exited_clinical_interview_provider_recruiting,
         date_entered_offer_letter_provider_recruiting,
         date_exited_offer_letter_provider_recruiting,
-        -- Add new stages between offer letter and recruitment complete
-        date_entered_pending_tasks_provider_recruiting,
-        date_exited_pending_tasks_provider_recruiting,
-        date_entered_onboarding_call_provider_recruiting,
-        date_exited_onboarding_call_provider_recruiting,
-        date_entered_pre_launch_provider_recruiting,
+        date_entered_pending_tasks_provider_recruiting, 
+        date_exited_pending_tasks_provider_recruiting, 
+        date_entered_onboarding_call_provider_recruiting, 
+        date_exited_onboarding_call_provider_recruiting, 
+        date_entered_pre_launch_provider_recruiting, 
         date_exited_pre_launch_provider_recruiting,
+
         date_entered_recruitment_complete_provider_recruiting,
+        date_exited_recruitment_complete_provider_recruiting,
+        date_entered_cold_provider_recruiting,
+        date_exited_cold_provider_recruiting,
+        date_entered_closed_lost_provider_recruiting,
+        date_entered_disqualified_provider_recruiting,
         
         -- Provider Onboarding Stages
         -- Add Pre-Launch Provider Onboarding Stage
@@ -194,7 +196,7 @@ enriched as (
             when date_entered_pre_launch_provider_onboarding is not null and date_exited_pre_launch_provider_onboarding is null then 'current'
             when date_entered_pre_launch_provider_onboarding = date_exited_pre_launch_provider_onboarding then 'skipped'
             else 'completed'
-        end as LEGACY_pre_launch_provider_onboarding_status,
+        end as pre_launch_provider_onboarding_status,
         
         -- Ready to Onboard Provider Onboarding Stage
         case 
@@ -202,7 +204,7 @@ enriched as (
             when date_entered_ready_to_onboard_provider_onboarding is not null and date_exited_ready_to_onboard_provider_onboarding is null then 'current'
             when date_entered_ready_to_onboard_provider_onboarding = date_exited_ready_to_onboard_provider_onboarding then 'skipped'
             else 'completed'
-        end as LEGACY_ready_to_onboard_provider_onboarding_status,
+        end as ready_to_onboard_provider_onboarding_status,
         
         -- Pending Onboarding Tasks Provider Onboarding Stage
         case 
@@ -210,7 +212,7 @@ enriched as (
             when date_entered_pending_onboarding_tasks_provider_onboarding is not null and date_exited_pending_onboarding_tasks_provider_onboarding is null then 'current'
             when date_entered_pending_onboarding_tasks_provider_onboarding = date_exited_pending_onboarding_tasks_provider_onboarding then 'skipped'
             else 'completed'
-        end as LEGACY_pending_onboarding_tasks_provider_onboarding_status,
+        end as pending_onboarding_tasks_provider_onboarding_status,
         
         -- Schedule Onboarding Call Provider Onboarding Stage
         case 
@@ -218,7 +220,7 @@ enriched as (
             when date_entered_schedule_onboarding_call_provider_onboarding is not null and date_exited_schedule_onboarding_call_provider_onboarding is null then 'current'
             when date_entered_schedule_onboarding_call_provider_onboarding = date_exited_schedule_onboarding_call_provider_onboarding then 'skipped'
             else 'completed'
-        end as LEGACY_schedule_onboarding_call_provider_onboarding_status,
+        end as schedule_onboarding_call_provider_onboarding_status,
         
         -- Provider Recruiting Stages
         -- Referrals Provider Recruiting Stage
@@ -276,7 +278,7 @@ enriched as (
             when date_entered_offer_letter_provider_recruiting = date_exited_offer_letter_provider_recruiting then 'skipped'
             else 'completed'
         end as offer_letter_provider_recruiting_status,
-        
+
         -- Pending Tasks Provider Recruiting Stage
         case 
             when date_entered_pending_tasks_provider_recruiting is null and date_exited_pending_tasks_provider_recruiting is null then 'never_entered'
@@ -284,7 +286,7 @@ enriched as (
             when date_entered_pending_tasks_provider_recruiting = date_exited_pending_tasks_provider_recruiting then 'skipped'
             else 'completed'
         end as pending_tasks_provider_recruiting_status,
-        
+
         -- Onboarding Call Provider Recruiting Stage
         case 
             when date_entered_onboarding_call_provider_recruiting is null and date_exited_onboarding_call_provider_recruiting is null then 'never_entered'
@@ -292,15 +294,15 @@ enriched as (
             when date_entered_onboarding_call_provider_recruiting = date_exited_onboarding_call_provider_recruiting then 'skipped'
             else 'completed'
         end as onboarding_call_provider_recruiting_status,
-        
-        -- Pre Launch Provider Recruiting Stage
+
+        --Pre-launch Provider Recruiting Stage
         case 
             when date_entered_pre_launch_provider_recruiting is null and date_exited_pre_launch_provider_recruiting is null then 'never_entered'
             when date_entered_pre_launch_provider_recruiting is not null and date_exited_pre_launch_provider_recruiting is null then 'current'
             when date_entered_pre_launch_provider_recruiting = date_exited_pre_launch_provider_recruiting then 'skipped'
             else 'completed'
         end as pre_launch_provider_recruiting_status,
-        
+
         -- Recruitment Complete Provider Recruiting Stage
         case 
             when date_entered_recruitment_complete_provider_recruiting is null and date_exited_recruitment_complete_provider_recruiting is null then 'never_entered'
@@ -308,6 +310,7 @@ enriched as (
             when date_entered_recruitment_complete_provider_recruiting = date_exited_recruitment_complete_provider_recruiting then 'skipped'
             else 'completed'
         end as recruitment_complete_provider_recruiting_status,
+
         
         -- Cold Provider Recruiting Stage
         case 
@@ -468,39 +471,6 @@ enriched as (
             END, 2
         ) as hours_in_offer_letter_provider_recruiting,
         
-        -- Pending Tasks Provider Recruiting Stage
-        ROUND(
-            CASE
-                WHEN date_entered_pending_tasks_provider_recruiting IS NULL THEN 0
-                WHEN date_exited_pending_tasks_provider_recruiting IS NULL THEN 
-                    CAST(DATEDIFF('second', date_entered_pending_tasks_provider_recruiting, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
-                ELSE 
-                    CAST(DATEDIFF('second', date_entered_pending_tasks_provider_recruiting, date_exited_pending_tasks_provider_recruiting) AS FLOAT) * (1/3600)
-            END, 2
-        ) as hours_in_pending_tasks_provider_recruiting,
-        
-        -- Onboarding Call Provider Recruiting Stage
-        ROUND(
-            CASE
-                WHEN date_entered_onboarding_call_provider_recruiting IS NULL THEN 0
-                WHEN date_exited_onboarding_call_provider_recruiting IS NULL THEN 
-                    CAST(DATEDIFF('second', date_entered_onboarding_call_provider_recruiting, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
-                ELSE 
-                    CAST(DATEDIFF('second', date_entered_onboarding_call_provider_recruiting, date_exited_onboarding_call_provider_recruiting) AS FLOAT) * (1/3600)
-            END, 2
-        ) as hours_in_onboarding_call_provider_recruiting,
-        
-        -- Pre Launch Provider Recruiting Stage
-        ROUND(
-            CASE
-                WHEN date_entered_pre_launch_provider_recruiting IS NULL THEN 0
-                WHEN date_exited_pre_launch_provider_recruiting IS NULL THEN 
-                    CAST(DATEDIFF('second', date_entered_pre_launch_provider_recruiting, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
-                ELSE 
-                    CAST(DATEDIFF('second', date_entered_pre_launch_provider_recruiting, date_exited_pre_launch_provider_recruiting) AS FLOAT) * (1/3600)
-            END, 2
-        ) as hours_in_pre_launch_provider_recruiting,
-        
         -- Recruitment Complete Provider Recruiting Stage
         ROUND(
             CASE
@@ -527,10 +497,15 @@ enriched as (
         ROUND(hours_in_post_interview_provider_recruiting / 24, 2) as days_in_post_interview_provider_recruiting,
         ROUND(hours_in_clinical_interview_provider_recruiting / 24, 2) as days_in_clinical_interview_provider_recruiting,
         ROUND(hours_in_offer_letter_provider_recruiting / 24, 2) as days_in_offer_letter_provider_recruiting,
-        ROUND(hours_in_pending_tasks_provider_recruiting / 24, 2) as days_in_pending_tasks_provider_recruiting,
-        ROUND(hours_in_onboarding_call_provider_recruiting / 24, 2) as days_in_onboarding_call_provider_recruiting,
-        ROUND(hours_in_pre_launch_provider_recruiting / 24, 2) as days_in_pre_launch_provider_recruiting,
-        ROUND(hours_in_recruitment_complete_provider_recruiting / 24, 2) as days_in_recruitment_complete_provider_recruiting
+        ROUND(hours_in_recruitment_complete_provider_recruiting / 24, 2) as days_in_recruitment_complete_provider_recruiting,
+        
+        -- Add Checkr Fail Provider Onboarding Stage status
+        case 
+            when date_entered_checkr_fail_provider_onboarding is null and date_exited_checkr_fail_provider_onboarding is null then 'never_entered'
+            when date_entered_checkr_fail_provider_onboarding is not null and date_exited_checkr_fail_provider_onboarding is null then 'current'
+            when date_entered_checkr_fail_provider_onboarding = date_exited_checkr_fail_provider_onboarding then 'skipped'
+            else 'completed'
+        end as checkr_fail_provider_onboarding_status
     from provider_deals
 ),
 
@@ -543,47 +518,51 @@ current_stage_summary as (
             when date_entered_onboarding_complete_provider_onboarding is not null and 
                 (date_exited_onboarding_complete_provider_onboarding is null or 
                  date_exited_onboarding_complete_provider_onboarding < date_entered_onboarding_complete_provider_onboarding) 
-                then 'LEGACY_Onboarding Complete (Provider Onboarding)'
+                then 'Onboarding Complete (Provider Onboarding)'
             when date_entered_checkr_fail_provider_onboarding is not null and 
                 (date_exited_checkr_fail_provider_onboarding is null or 
                  date_exited_checkr_fail_provider_onboarding < date_entered_checkr_fail_provider_onboarding) 
-                then 'LEGACY_Checkr Fail (Provider Onboarding)'
+                then 'Checkr Fail (Provider Onboarding)'
             when date_entered_hold_provider_onboarding is not null and 
                 (date_exited_hold_provider_onboarding is null or 
                  date_exited_hold_provider_onboarding < date_entered_hold_provider_onboarding) 
-                then 'LEGACY_Hold (Provider Onboarding)'
-            when date_entered_closed_lost_provider_onboarding is not null then 'LEGACY_Closed Lost (Provider Onboarding)'
-            when date_entered_disqualified_provider_onboarding is not null then 'LEGACY_Disqualified (Provider Onboarding)'
+                then 'Hold (Provider Onboarding)'
+            when date_entered_closed_lost_provider_onboarding is not null then 'Closed Lost (Provider Onboarding)'
+            when date_entered_disqualified_provider_onboarding is not null then 'Disqualified (Provider Onboarding)'
             
             -- Then check if any onboarding stages are current (in reverse order - most advanced first)
-            when LEGACY_schedule_onboarding_call_provider_onboarding_status = 'current' or
+            when schedule_onboarding_call_provider_onboarding_status = 'current' or
                  (date_entered_schedule_onboarding_call_provider_onboarding is not null and 
                   date_exited_schedule_onboarding_call_provider_onboarding < date_entered_schedule_onboarding_call_provider_onboarding)
-                then 'LEGACY_Schedule Onboarding Call (Provider Onboarding)'
-            when LEGACY_pending_onboarding_tasks_provider_onboarding_status = 'current' or
+                then 'Schedule Onboarding Call (Provider Onboarding)'
+            when pending_onboarding_tasks_provider_onboarding_status = 'current' or
                  (date_entered_pending_onboarding_tasks_provider_onboarding is not null and 
                   date_exited_pending_onboarding_tasks_provider_onboarding < date_entered_pending_onboarding_tasks_provider_onboarding)
-                then 'LEGACY_Pending Onboarding Tasks (Provider Onboarding)'
-            when LEGACY_ready_to_onboard_provider_onboarding_status = 'current' or
+                then 'Pending Onboarding Tasks (Provider Onboarding)'
+            when ready_to_onboard_provider_onboarding_status = 'current' or
                  (date_entered_ready_to_onboard_provider_onboarding is not null and 
                   date_exited_ready_to_onboard_provider_onboarding < date_entered_ready_to_onboard_provider_onboarding)
-                then 'LEGACY_Ready to Onboard (Provider Onboarding)'
+                then 'Ready to Onboard (Provider Onboarding)'
             when date_entered_pre_launch_provider_onboarding is not null and 
                  (date_exited_pre_launch_provider_onboarding is null or 
                   date_exited_pre_launch_provider_onboarding < date_entered_pre_launch_provider_onboarding)
-                then 'LEGACY_Pre-Launch (Provider Onboarding)'
+                then 'Pre-Launch (Provider Onboarding)'
             when date_entered_cold_provider_onboarding is not null and 
                  (date_exited_cold_provider_onboarding is null or 
                   date_exited_cold_provider_onboarding < date_entered_cold_provider_onboarding)
-                then 'LEGACY_Cold (Provider Onboarding)'
+                then 'Cold (Provider Onboarding)'
             
             -- Then check recruiting stages only if no onboarding stages are current (also in reverse order)
             -- Treat recruitment_complete as terminal within the recruiting funnel
-            when date_entered_recruitment_complete_provider_recruiting is not null then 'Recruitment Complete (Provider Recruiting)'
-            when pre_launch_provider_recruiting_status = 'current' or
-                 (date_entered_pre_launch_provider_recruiting is not null and 
+            when date_entered_recruitment_complete_provider_recruiting is not null and 
+                 (date_exited_recruitment_complete_provider_recruiting is null or 
+                  date_exited_recruitment_complete_provider_recruiting < date_entered_recruitment_complete_provider_recruiting)
+                then 'Recruitment Complete (Provider Recruiting)'
+            -- New stages added after offer letter (in reverse order)
+            when pre_launch_provider_recruiting_status = 'current' or 
+                 (date_entered_pre_launch_provider_recruiting is not null and
                   date_exited_pre_launch_provider_recruiting < date_entered_pre_launch_provider_recruiting)
-                then 'Pre Launch (Provider Recruiting)'
+                then 'Pre-Launch (Provider Recruiting)'
             when onboarding_call_provider_recruiting_status = 'current' or
                  (date_entered_onboarding_call_provider_recruiting is not null and 
                   date_exited_onboarding_call_provider_recruiting < date_entered_onboarding_call_provider_recruiting)
@@ -620,29 +599,26 @@ current_stage_summary as (
                  (date_entered_referrals_provider_recruiting is not null and 
                   date_exited_referrals_provider_recruiting < date_entered_referrals_provider_recruiting)
                 then 'Referrals (Provider Recruiting)'
-            when cold_provider_recruiting_status = 'current' or
-                 (date_entered_cold_provider_recruiting is not null and 
+            when date_entered_cold_provider_recruiting is not null and 
+                 (date_exited_cold_provider_recruiting is null or 
                   date_exited_cold_provider_recruiting < date_entered_cold_provider_recruiting)
                 then 'Cold (Provider Recruiting)'
-            when closed_lost_provider_recruiting_status = 'current' then 'Closed Lost (Provider Recruiting)'
+            when date_entered_closed_lost_provider_recruiting is not null then 'Closed Lost (Provider Recruiting)'
             when date_entered_disqualified_provider_recruiting is not null then 'Disqualified (Provider Recruiting)'
             
             -- If no current stages, check if any onboarding stages have been completed (in reverse order)
-            when date_entered_onboarding_complete_provider_onboarding is not null then 'LEGACY_Onboarding Complete (Provider Onboarding)'
-            when date_entered_schedule_onboarding_call_provider_onboarding is not null then 'LEGACY_Schedule Onboarding Call (Provider Onboarding)'
-            when date_entered_pending_onboarding_tasks_provider_onboarding is not null then 'LEGACY_Pending Onboarding Tasks (Provider Onboarding)'
-            when date_entered_ready_to_onboard_provider_onboarding is not null then 'LEGACY_Ready to Onboard (Provider Onboarding)'
-            when date_entered_hold_provider_onboarding is not null then 'LEGACY_Hold (Provider Onboarding)'
-            when date_entered_checkr_fail_provider_onboarding is not null then 'LEGACY_Checkr Fail (Provider Onboarding)'
-            when date_entered_closed_lost_provider_onboarding is not null then 'LEGACY_Closed Lost (Provider Onboarding)'
-            when date_entered_disqualified_provider_onboarding is not null then 'LEGACY_Disqualified (Provider Onboarding)'
-            when date_entered_pre_launch_provider_onboarding is not null then 'LEGACY_Pre-Launch (Provider Onboarding)'
+            when date_entered_onboarding_complete_provider_onboarding is not null then 'Onboarding Complete (Provider Onboarding)'
+            when date_entered_schedule_onboarding_call_provider_onboarding is not null then 'Schedule Onboarding Call (Provider Onboarding)'
+            when date_entered_pending_onboarding_tasks_provider_onboarding is not null then 'Pending Onboarding Tasks (Provider Onboarding)'
+            when date_entered_ready_to_onboard_provider_onboarding is not null then 'Ready to Onboard (Provider Onboarding)'
+            when date_entered_hold_provider_onboarding is not null then 'Hold (Provider Onboarding)'
+            when date_entered_checkr_fail_provider_onboarding is not null then 'Checkr Fail (Provider Onboarding)'
+            when date_entered_closed_lost_provider_onboarding is not null then 'Closed Lost (Provider Onboarding)'
+            when date_entered_disqualified_provider_onboarding is not null then 'Disqualified (Provider Onboarding)'
+            when date_entered_pre_launch_provider_onboarding is not null then 'Pre-Launch (Provider Onboarding)'
             
             -- If no onboarding stages, check if any recruiting stages have been completed (in reverse order)
             when date_entered_recruitment_complete_provider_recruiting is not null then 'Recruitment Complete (Provider Recruiting)'
-            when date_entered_pre_launch_provider_recruiting is not null then 'Pre Launch (Provider Recruiting)'
-            when date_entered_onboarding_call_provider_recruiting is not null then 'Onboarding Call (Provider Recruiting)'
-            when date_entered_pending_tasks_provider_recruiting is not null then 'Pending Tasks (Provider Recruiting)'
             when date_entered_offer_letter_provider_recruiting is not null then 'Offer Letter (Provider Recruiting)'
             when date_entered_clinical_interview_provider_recruiting is not null then 'Clinical Interview (Provider Recruiting)'
             when date_entered_post_interview_provider_recruiting is not null then 'Post Interview (Provider Recruiting)'
@@ -675,15 +651,15 @@ current_stage_summary as (
                 ROUND(CAST(DATEDIFF('second', date_entered_disqualified_provider_onboarding, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600), 2)
             
             -- Provider Onboarding Stages (in reverse order)
-            when LEGACY_schedule_onboarding_call_provider_onboarding_status = 'current' or
+            when schedule_onboarding_call_provider_onboarding_status = 'current' or
                  (date_entered_schedule_onboarding_call_provider_onboarding is not null and 
                   date_exited_schedule_onboarding_call_provider_onboarding < date_entered_schedule_onboarding_call_provider_onboarding) then 
                 hours_in_schedule_onboarding_call_provider_onboarding
-            when LEGACY_pending_onboarding_tasks_provider_onboarding_status = 'current' or
+            when pending_onboarding_tasks_provider_onboarding_status = 'current' or
                  (date_entered_pending_onboarding_tasks_provider_onboarding is not null and 
                   date_exited_pending_onboarding_tasks_provider_onboarding < date_entered_pending_onboarding_tasks_provider_onboarding) then 
                 hours_in_pending_onboarding_tasks_provider_onboarding
-            when LEGACY_ready_to_onboard_provider_onboarding_status = 'current' or
+            when ready_to_onboard_provider_onboarding_status = 'current' or
                  (date_entered_ready_to_onboard_provider_onboarding is not null and 
                   date_exited_ready_to_onboard_provider_onboarding < date_entered_ready_to_onboard_provider_onboarding) then 
                 hours_in_ready_to_onboard_provider_onboarding
@@ -700,18 +676,6 @@ current_stage_summary as (
             -- Treat recruitment_complete as terminal within the recruiting funnel
             when date_entered_recruitment_complete_provider_recruiting is not null then 
                 hours_in_recruitment_complete_provider_recruiting
-            when pre_launch_provider_recruiting_status = 'current' or
-                 (date_entered_pre_launch_provider_recruiting is not null and 
-                  date_exited_pre_launch_provider_recruiting < date_entered_pre_launch_provider_recruiting) then 
-                hours_in_pre_launch_provider_recruiting
-            when onboarding_call_provider_recruiting_status = 'current' or
-                 (date_entered_onboarding_call_provider_recruiting is not null and 
-                  date_exited_onboarding_call_provider_recruiting < date_entered_onboarding_call_provider_recruiting) then 
-                hours_in_onboarding_call_provider_recruiting
-            when pending_tasks_provider_recruiting_status = 'current' or
-                 (date_entered_pending_tasks_provider_recruiting is not null and 
-                  date_exited_pending_tasks_provider_recruiting < date_entered_pending_tasks_provider_recruiting) then 
-                hours_in_pending_tasks_provider_recruiting
             when offer_letter_provider_recruiting_status = 'current' or
                  (date_entered_offer_letter_provider_recruiting is not null and 
                   date_exited_offer_letter_provider_recruiting < date_entered_offer_letter_provider_recruiting) then 
@@ -765,9 +729,6 @@ stage_timing_summary as (
             COALESCE(days_in_post_interview_provider_recruiting, 0) +
             COALESCE(days_in_clinical_interview_provider_recruiting, 0) +
             COALESCE(days_in_offer_letter_provider_recruiting, 0) +
-            COALESCE(days_in_pending_tasks_provider_recruiting, 0) +
-            COALESCE(days_in_onboarding_call_provider_recruiting, 0) +
-            COALESCE(days_in_pre_launch_provider_recruiting, 0) +
             COALESCE(days_in_recruitment_complete_provider_recruiting, 0) +
             
             -- Provider Onboarding Stages
@@ -789,9 +750,6 @@ stage_timing_summary as (
             COALESCE(days_in_post_interview_provider_recruiting, 0),
             COALESCE(days_in_clinical_interview_provider_recruiting, 0),
             COALESCE(days_in_offer_letter_provider_recruiting, 0),
-            COALESCE(days_in_pending_tasks_provider_recruiting, 0),
-            COALESCE(days_in_onboarding_call_provider_recruiting, 0),
-            COALESCE(days_in_pre_launch_provider_recruiting, 0),
             COALESCE(days_in_recruitment_complete_provider_recruiting, 0),
             
             -- Provider Onboarding Stages
@@ -883,6 +841,7 @@ stage_statuses as (
     
     union all
     
+    -- New stages added after offer letter
     select 
         hubspot_provider_id,
         coral_provider_id,
@@ -893,7 +852,7 @@ stage_statuses as (
     where pending_tasks_provider_recruiting_status = 'completed'
 
     union all
-    
+
     select 
         hubspot_provider_id,
         coral_provider_id,
@@ -924,46 +883,46 @@ stage_statuses as (
         11 as stage_order
     from enriched
     where recruitment_complete_provider_recruiting_status = 'completed'
-
+    
     union all
-
+    
     select 
         hubspot_provider_id,
         coral_provider_id,
-        'LEGACY_ready_to_onboard_provider_onboarding_status' as stage_name,
-        LEGACY_ready_to_onboard_provider_onboarding_status as status,
+        'ready_to_onboard_provider_onboarding_status' as stage_name,
+        ready_to_onboard_provider_onboarding_status as status,
         12 as stage_order
     from enriched
-    where LEGACY_ready_to_onboard_provider_onboarding_status = 'completed'
-
+    where ready_to_onboard_provider_onboarding_status = 'completed'
+    
     union all
-
+    
     select 
         hubspot_provider_id,
         coral_provider_id,
-        'LEGACY_pending_onboarding_tasks_provider_onboarding_status' as stage_name,
-        LEGACY_pending_onboarding_tasks_provider_onboarding_status as status,
+        'pending_onboarding_tasks_provider_onboarding_status' as stage_name,
+        pending_onboarding_tasks_provider_onboarding_status as status,
         13 as stage_order
     from enriched
-    where LEGACY_pending_onboarding_tasks_provider_onboarding_status = 'completed'
+    where pending_onboarding_tasks_provider_onboarding_status = 'completed'
 
     union all
-
+    
     select 
         hubspot_provider_id,
         coral_provider_id,
-        'LEGACY_schedule_onboarding_call_provider_onboarding_status' as stage_name,
-        LEGACY_schedule_onboarding_call_provider_onboarding_status as status,
+        'schedule_onboarding_call_provider_onboarding_status' as stage_name,
+        schedule_onboarding_call_provider_onboarding_status as status,
         14 as stage_order
     from enriched
-    where LEGACY_schedule_onboarding_call_provider_onboarding_status = 'completed'
+    where schedule_onboarding_call_provider_onboarding_status = 'completed'
 
     union all
 
     select 
         hubspot_provider_id,
         coral_provider_id,
-        'LEGACY_checkr_fail_provider_onboarding' as stage_name,
+        'checkr_fail_provider_onboarding' as stage_name,
         case
             when date_entered_checkr_fail_provider_onboarding is null then 'never_entered'
             when date_entered_checkr_fail_provider_onboarding is not null and date_exited_checkr_fail_provider_onboarding is null then 'current'
@@ -978,7 +937,7 @@ stage_statuses as (
     select 
         hubspot_provider_id,
         coral_provider_id,
-        'LEGACY_hold_provider_onboarding' as stage_name,
+        'hold_provider_onboarding' as stage_name,
         case
             when date_entered_hold_provider_onboarding is null then 'never_entered'
             when date_entered_hold_provider_onboarding is not null and date_exited_hold_provider_onboarding is null then 'current'
@@ -993,7 +952,7 @@ stage_statuses as (
     select 
         hubspot_provider_id,
         coral_provider_id,
-        'LEGACY_pre_launch_provider_onboarding' as stage_name,
+        'pre_launch_provider_onboarding' as stage_name,
         case
             when date_entered_pre_launch_provider_onboarding is null then 'never_entered'
             when date_entered_pre_launch_provider_onboarding is not null and date_exited_pre_launch_provider_onboarding is null then 'current'
@@ -1001,6 +960,21 @@ stage_statuses as (
             else 'completed'
         end as status,
         17 as stage_order
+    from enriched
+
+    union all
+
+    select 
+        hubspot_provider_id,
+        coral_provider_id,
+        'cold_provider_recruiting' as stage_name,
+        case
+            when date_entered_cold_provider_recruiting is null then 'never_entered'
+            when date_entered_cold_provider_recruiting is not null and date_exited_cold_provider_recruiting is null then 'current'
+            when date_entered_cold_provider_recruiting = date_exited_cold_provider_recruiting then 'skipped'
+            else 'completed'
+        end as status,
+        18 as stage_order
     from enriched
 ),
 
@@ -1020,7 +994,7 @@ select distinct
     CASE 
         WHEN cs.current_stage IS NULL THEN 'Inactive_Lead'
         WHEN cs.current_stage IN ('Closed Lost (Provider Recruiting)', 'Recruitment Complete (Provider Recruiting)') THEN 'Inactive_Lead'
-        WHEN cs.current_stage IN ('LEGACY_Pending Onboarding Tasks (Provider Onboarding)', 'LEGACY_Schedule Onboarding Call (Provider Onboarding)') THEN 'Onboarding'
+        WHEN cs.current_stage IN ('Pending Onboarding Tasks (Provider Onboarding)', 'Schedule Onboarding Call (Provider Onboarding)') THEN 'Onboarding'
         ELSE 'Active_Lead' 
     END AS provider_lead_status,
     cs.hours_in_current_stage,

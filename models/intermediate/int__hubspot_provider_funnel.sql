@@ -470,6 +470,36 @@ enriched as (
                     CAST(DATEDIFF('second', date_entered_offer_letter_provider_recruiting, date_exited_offer_letter_provider_recruiting) AS FLOAT) * (1/3600)
             END, 2
         ) as hours_in_offer_letter_provider_recruiting,
+
+        ROUND(
+            CASE 
+                WHEN date_entered_pending_tasks_provider_recruiting IS NULL THEN 0
+                WHEN date_exited_pending_tasks_provider_recruiting IS NULL THEN 
+                    CAST(DATEDIFF('second', date_entered_pending_tasks_provider_recruiting, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
+                ELSE 
+                    CAST(DATEDIFF('second', date_entered_pending_tasks_provider_recruiting, date_exited_pending_tasks_provider_recruiting) AS FLOAT) * (1/3600)
+            END, 2
+        ) as hours_in_pending_tasks_provider_recruiting,
+
+        ROUND(
+            CASE 
+                WHEN date_entered_onboarding_call_provider_recruiting IS NULL THEN 0
+                WHEN date_exited_onboarding_call_provider_recruiting IS NULL THEN 
+                    CAST(DATEDIFF('second', date_entered_onboarding_call_provider_recruiting, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
+                ELSE 
+                    CAST(DATEDIFF('second', date_entered_onboarding_call_provider_recruiting, date_exited_onboarding_call_provider_recruiting) AS FLOAT) * (1/3600)
+            END, 2
+        ) as hours_in_onboarding_call_provider_recruiting,
+
+        ROUND(
+            CASE 
+                WHEN date_entered_pre_launch_provider_recruiting IS NULL THEN 0
+                WHEN date_exited_pre_launch_provider_recruiting IS NULL THEN 
+                    CAST(DATEDIFF('second', date_entered_pre_launch_provider_recruiting, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
+                ELSE 
+                    CAST(DATEDIFF('second', date_entered_pre_launch_provider_recruiting, date_exited_pre_launch_provider_recruiting) AS FLOAT) * (1/3600)
+            END, 2
+        ) as hours_in_pre_launch_provider_recruiting,
         
         -- Recruitment Complete Provider Recruiting Stage
         ROUND(
@@ -497,6 +527,9 @@ enriched as (
         ROUND(hours_in_post_interview_provider_recruiting / 24, 2) as days_in_post_interview_provider_recruiting,
         ROUND(hours_in_clinical_interview_provider_recruiting / 24, 2) as days_in_clinical_interview_provider_recruiting,
         ROUND(hours_in_offer_letter_provider_recruiting / 24, 2) as days_in_offer_letter_provider_recruiting,
+        ROUND(hours_in_pending_tasks_provider_recruiting / 24, 2) as days_in_pending_tasks_provider_recruiting,
+        ROUND(hours_in_onboarding_call_provider_recruiting / 24, 2) as days_in_onboarding_call_provider_recruiting,
+        ROUND(hours_in_pre_launch_provider_recruiting / 24, 2) as days_in_pre_launch_provider_recruiting,
         ROUND(hours_in_recruitment_complete_provider_recruiting / 24, 2) as days_in_recruitment_complete_provider_recruiting,
         
         -- Add Checkr Fail Provider Onboarding Stage status

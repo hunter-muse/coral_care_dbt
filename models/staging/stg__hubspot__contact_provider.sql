@@ -86,7 +86,7 @@ from {{source('hubspot', 'contact')}} AS contact
 left join {{ref('lat_long_zip')}} AS lat_long_zip
     on CAST(contact.PROPERTY_ZIP as string) = CAST(lat_long_zip.ZIP as string)
 where 
-PROPERTY_SEGMENT_MULTI = 'Provider'
+PROPERTY_SEGMENT_MULTI IN('Provider Reference','Provider;Provider Reference', 'Provider') 
 AND 
 is_deleted = FALSE 
 and ID NOT IN (

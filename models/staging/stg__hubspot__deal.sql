@@ -22,8 +22,9 @@ select
     deal.property_hs_v_2_latest_time_in_174666287 as latest_time_in_match_shared,
     deal.property_hs_v_2_date_entered_1030520626 as date_entered_eval_booked,
     deal.property_hs_v_2_date_exited_1030520626 as date_exited_eval_booked,
-    deal.property_hs_date_entered_1030520627 as date_entered_eval_complete, 
-    deal.property_hs_date_exited_1030520627 as date_exited_eval_complete,
+    deal.PROPERTY_HS_V_2_DATE_ENTERED_1030520627 as date_entered_eval_complete, 
+    NULL AS date_exited_eval_complete, --must get updated ASAP 
+    --deal.PROPERTY_HS_V_2_DATE_EXITED_1030520627 as date_exited_eval_complete,
     deal.property_hs_v_2_date_entered_219182604 as date_entered_match_pending,
     deal.property_hs_v_2_date_exited_219182604 as date_exited_match_pending,
     deal.property_hs_v_2_latest_time_in_219182604 as latest_time_in_match_pending,

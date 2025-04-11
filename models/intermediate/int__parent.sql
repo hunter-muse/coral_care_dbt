@@ -22,6 +22,9 @@ parent_join as (
     COALESCE(hubspot.zip_code, bubble.postal_code ) as parent_postal_code,
     COALESCE(hubspot.latitude, bubble.location_lat) as parent_location_lat,
     COALESCE(hubspot.longitude, bubble.location_lng) as parent_location_lng,
+    hubspot.original_traffic_source,
+    hubspot.utm_campaign, 
+    hubspot.parent_google_click_id,
     CASE 
         WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('self-pay', 'out-of-network') 
             THEN 'Self-Pay (includes out-of-network)'
@@ -74,6 +77,14 @@ parent_join as (
         on TRIM(lower(bubble.first_name)) = TRIM(lower(hubspot.parent_first_name))
         and TRIM(lower(bubble.last_name)) = TRIM(lower(hubspot.parent_last_name))
 )
-    
-select parent_join.*
-from parent_join
+
+, parent_join_with_ads as (
+select pj.*, ch.name as campaign_name from parent_join pj 
+left join {{ref('stg__google_ads__click_stats')}} as ads
+    on pj.parent_google_click_id = ads.gclid
+left join {{ref('stg__googls_ads__campaign_history')}} as ch
+    on ads.campaign_id = ch.base_campaign_id 
+) 
+
+select pjwa.*
+from parent_join_with_ads pjwa

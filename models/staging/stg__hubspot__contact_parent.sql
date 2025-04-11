@@ -59,6 +59,14 @@ rankedcontacts AS (
         WHEN LENGTH(TRIM(contact.PROPERTY_ZIP)) = 4 THEN '0' || contact.PROPERTY_ZIP
         ELSE contact.PROPERTY_ZIP
     END AS zip_code,
+    property_hs_analytics_source as parent_original_traffic_source,
+    property_hs_google_click_id as parent_google_click_id,
+    property_utm_campaign as parent_utm_campaign,
+    property_utm_source as parent_utm_source,
+    property_utm_medium as parent_utm_medium,
+    property_utm_term as parent_utm_term,
+    property_utm_content as parent_utm_content,
+    property_hs_analytics_last_referrer as parent_page_referrer,
     
     -- Provider & Appointment Information
     PROPERTY_PROVIDER_TYPE_PROD as provider_type,

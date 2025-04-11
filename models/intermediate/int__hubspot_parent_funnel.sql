@@ -7,6 +7,7 @@ with source as (
         parent.parent_email AS hubspot_parent_email,
         parent_enriched.parent_email as coral_parent_email,
         parent_enriched.coral_parent_id,
+        deal.provider_type_needed,
         deal.date_entered_opportunities_unengaged,
         deal.date_exited_opportunities_unengaged,
         deal.date_entered_match_in_progress,
@@ -43,6 +44,7 @@ enriched as (
         coral_parent_id,
         hubspot_parent_email,
         coral_parent_email,
+        provider_type_needed,
         -- Add all date fields
         date_entered_opportunities_unengaged,
         date_exited_opportunities_unengaged,
@@ -351,6 +353,7 @@ current_stage_summary as (
     select 
         deal_id,
         contact_id,
+        provider_type_needed,
         case
             -- First check terminal stages
             when date_entered_closed_lost_ongoing_treatment_not_recommended is not null and 
@@ -456,6 +459,7 @@ stage_timing_summary as (
         deal_id,
         contact_id,
         deaL_created_date,
+        provider_type_needed,
         -- Total time in funnel
         ROUND(
             COALESCE(days_in_opportunities_unengaged, 0) +
@@ -488,6 +492,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_type_needed,
         'opportunities_unengaged_status' as stage_name,
         opportunities_unengaged_status as status,
         1 as stage_order
@@ -499,6 +504,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_type_needed,
         'match_in_progress_status' as stage_name,
         match_in_progress_status as status,
         2 as stage_order
@@ -510,6 +516,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_type_needed,
         'match_me_status' as stage_name,
         match_me_status as status,
         3 as stage_order
@@ -521,6 +528,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_type_needed,
         'match_pending_status' as stage_name,
         match_pending_status as status,
         4 as stage_order
@@ -532,6 +540,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_type_needed,
         'eval_booked_status' as stage_name,
         eval_booked_status as status,
         5 as stage_order
@@ -543,6 +552,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_type_needed,
         'eval_complete_status' as stage_name,
         eval_complete_status as status,
         6 as stage_order
@@ -554,6 +564,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_type_needed,
         'ongoing_sessions_scheduled_status' as stage_name,
         ongoing_sessions_scheduled_status as status,
         7 as stage_order
@@ -565,6 +576,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_type_needed,
         'closed_lost_status' as stage_name,
         closed_lost_status as status,
         8 as stage_order
@@ -576,6 +588,7 @@ stage_statuses as (
     select 
         deal_id,
         contact_id,
+        provider_type_needed,
         'closed_lost_ongoing_treatment_not_recommended_status' as stage_name,
         closed_lost_ongoing_treatment_not_recommended_status as status,
         9 as stage_order
@@ -587,9 +600,10 @@ funnel_progression as (
     select
         deal_id,
         contact_id,
+        provider_type_needed,
         LISTAGG(stage_name, ' -> ') within group (order by stage_order) as progression_path
     from stage_statuses
-    group by deal_id, contact_id
+    group by deal_id, contact_id, provider_type_needed
 )
 
 -- Final output with all the enriched data plus summaries
@@ -601,7 +615,7 @@ select
     sts.longest_stage_duration,
     fp.progression_path
 from enriched e
-left join current_stage_summary cs on e.deal_id = cs.deal_id
-left join stage_timing_summary sts on e.deal_id = sts.deal_id
-left join funnel_progression fp on e.deal_id = fp.deal_id
+left join current_stage_summary cs on e.deal_id = cs.deal_id --and e.provider_type_needed = cs.provider_type_needed
+left join stage_timing_summary sts on e.deal_id = sts.deal_id --and e.provider_type_needed = sts.provider_type_needed
+left join funnel_progression fp on e.deal_id = fp.deal_id --and e.provider_type_needed = fp.provider_type_needed
 order by 2,1

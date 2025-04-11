@@ -4,6 +4,7 @@ select
     deal.property_dealname as deal_name,
     deal.PROPERTY_CREATEDATE AS deaL_created_date,
     row_number() over (partition by deal_contact.contact_id order by deal.PROPERTY_CREATEDATE) as deal_sequence,
+    deal.property_provider_type_needed as provider_type_needed,
     deal.property_hs_v_2_date_exited_174666285 as date_exited_opportunities_unengaged,
     deal.property_hs_v_2_date_entered_174666285 as date_entered_opportunities_unengaged,
     deal.property_hs_v_2_cumulative_time_in_174666285 as cumulative_time_in_opportunities_unengaged,

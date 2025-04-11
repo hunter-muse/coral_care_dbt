@@ -51,3 +51,11 @@ sources:
     schema: google_analytics_4_export
     tables:
       - name: event
+      
+  - name: google_ads
+    database: pc_fivetran_db
+    schema: google_ads
+    tables:
+      - name: click_stats
+      - name: campaign_history 
+      

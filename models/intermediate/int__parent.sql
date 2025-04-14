@@ -76,15 +76,26 @@ parent_join as (
     FULL OUTER JOIN {{ref('stg__hubspot__contact_parent')}} as hubspot
         on TRIM(lower(bubble.first_name)) = TRIM(lower(hubspot.parent_first_name))
         and TRIM(lower(bubble.last_name)) = TRIM(lower(hubspot.parent_last_name))
+),
+
+-- First collect all ad clicks with campaign info
+ads_with_campaigns as (
+    select 
+        ads.gclid,
+        ch.name as campaign_name,
+        -- Use row_number to pick one campaign when a click might be associated with multiple
+        row_number() over(partition by ads.gclid order by ads.gclid) as rn
+    from {{ref('stg__google_ads__click_stats')}} as ads
+    left join {{ref('stg__googls_ads__campaign_history')}} as ch
+        on ads.campaign_id = ch.base_campaign_id
+    where ads.gclid is not null
 )
 
-, parent_join_with_ads as (
-select pj.*, ch.name as campaign_name from parent_join pj 
-left join {{ref('stg__google_ads__click_stats')}} as ads
-    on pj.parent_google_click_id = ads.gclid
-left join {{ref('stg__googls_ads__campaign_history')}} as ch
-    on ads.campaign_id = ch.base_campaign_id 
-) 
-
-select pjwa.*
-from parent_join_with_ads pjwa
+-- Now join with parent data, only using one campaign record per click
+select 
+    pj.*,
+    ac.campaign_name
+from parent_join pj 
+left join ads_with_campaigns ac
+    on pj.parent_google_click_id = ac.gclid
+    and ac.rn = 1  -- Only take the first campaign record for each click

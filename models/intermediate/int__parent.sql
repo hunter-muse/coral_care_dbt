@@ -79,7 +79,7 @@ parent_join as (
 )
 
 , parent_join_with_ads as (
-select pj.*, ch.name as campaign_name from parent_join pj 
+select distinct pj.*, ch.name as campaign_name from parent_join pj 
 left join {{ref('stg__google_ads__click_stats')}} as ads
     on pj.parent_google_click_id = ads.gclid
 left join {{ref('stg__googls_ads__campaign_history')}} as ch

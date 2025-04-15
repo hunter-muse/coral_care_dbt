@@ -460,17 +460,55 @@ stage_timing_summary as (
         contact_id,
         deaL_created_date,
         provider_type_needed,
-        -- Total time in funnel
+        -- Total time in funnel - capped at terminal stages
         ROUND(
-            COALESCE(days_in_opportunities_unengaged, 0) +
-            COALESCE(days_in_match_in_progress, 0) +
-            COALESCE(days_in_match_me, 0) +
-            COALESCE(days_in_match_pending, 0) +
-            COALESCE(days_in_eval_booked, 0) +
-            COALESCE(days_in_eval_complete, 0) +
-            COALESCE(days_in_ongoing_sessions_scheduled, 0) +
-            COALESCE(days_in_closed_lost, 0) +
-            COALESCE(days_in_closed_lost_ongoing_treatment_not_recommended, 0),
+            CASE
+                -- If deal is in a terminal stage, cap the calculation at the entry date of that stage
+                WHEN date_entered_ongoing_sessions_scheduled is not null and 
+                     (date_exited_ongoing_sessions_scheduled is null or 
+                      date_exited_ongoing_sessions_scheduled < date_entered_ongoing_sessions_scheduled) THEN
+                    COALESCE(days_in_opportunities_unengaged, 0) +
+                    COALESCE(days_in_match_in_progress, 0) +
+                    COALESCE(days_in_match_me, 0) +
+                    COALESCE(days_in_match_pending, 0) +
+                    COALESCE(days_in_eval_booked, 0) +
+                    COALESCE(days_in_eval_complete, 0) +
+                    ROUND(CAST(DATEDIFF('second', date_entered_ongoing_sessions_scheduled, date_entered_ongoing_sessions_scheduled) AS FLOAT) * (1/86400), 2)
+                
+                WHEN date_entered_closed_lost is not null and 
+                     (date_exited_closed_lost is null or 
+                      date_exited_closed_lost < date_entered_closed_lost) THEN
+                    COALESCE(days_in_opportunities_unengaged, 0) +
+                    COALESCE(days_in_match_in_progress, 0) +
+                    COALESCE(days_in_match_me, 0) +
+                    COALESCE(days_in_match_pending, 0) +
+                    COALESCE(days_in_eval_booked, 0) +
+                    COALESCE(days_in_eval_complete, 0) +
+                    ROUND(CAST(DATEDIFF('second', date_entered_closed_lost, date_entered_closed_lost) AS FLOAT) * (1/86400), 2)
+                
+                WHEN date_entered_closed_lost_ongoing_treatment_not_recommended is not null and 
+                     (date_exited_closed_lost_ongoing_treatment_not_recommended is null or 
+                      date_exited_closed_lost_ongoing_treatment_not_recommended < date_entered_closed_lost_ongoing_treatment_not_recommended) THEN
+                    COALESCE(days_in_opportunities_unengaged, 0) +
+                    COALESCE(days_in_match_in_progress, 0) +
+                    COALESCE(days_in_match_me, 0) +
+                    COALESCE(days_in_match_pending, 0) +
+                    COALESCE(days_in_eval_booked, 0) +
+                    COALESCE(days_in_eval_complete, 0) +
+                    ROUND(CAST(DATEDIFF('second', date_entered_closed_lost_ongoing_treatment_not_recommended, date_entered_closed_lost_ongoing_treatment_not_recommended) AS FLOAT) * (1/86400), 2)
+                
+                -- Otherwise, use the standard calculation
+                ELSE
+                    COALESCE(days_in_opportunities_unengaged, 0) +
+                    COALESCE(days_in_match_in_progress, 0) +
+                    COALESCE(days_in_match_me, 0) +
+                    COALESCE(days_in_match_pending, 0) +
+                    COALESCE(days_in_eval_booked, 0) +
+                    COALESCE(days_in_eval_complete, 0) +
+                    COALESCE(days_in_ongoing_sessions_scheduled, 0) +
+                    COALESCE(days_in_closed_lost, 0) +
+                    COALESCE(days_in_closed_lost_ongoing_treatment_not_recommended, 0)
+            END,
             2
         ) as total_days_in_funnel,
         -- Longest stage
@@ -613,7 +651,19 @@ select
     cs.hours_in_current_stage,
     sts.total_days_in_funnel,
     sts.longest_stage_duration,
-    fp.progression_path
+    fp.progression_path,
+    -- Calculate total days to ongoing session (closed won)
+    CASE 
+        WHEN date_entered_ongoing_sessions_scheduled IS NOT NULL THEN
+            ROUND(CAST(DATEDIFF('second', deaL_created_date, date_entered_ongoing_sessions_scheduled) AS FLOAT) * (1/86400), 2)
+        ELSE NULL
+    END as total_days_to_ongoing_session,
+    -- Calculate total days to closed lost
+    CASE 
+        WHEN date_entered_closed_lost IS NOT NULL THEN
+            ROUND(CAST(DATEDIFF('second', deaL_created_date, date_entered_closed_lost) AS FLOAT) * (1/86400), 2)
+        ELSE NULL
+    END as total_days_to_closed_lost
 from enriched e
 left join current_stage_summary cs on e.deal_id = cs.deal_id --and e.provider_type_needed = cs.provider_type_needed
 left join stage_timing_summary sts on e.deal_id = sts.deal_id --and e.provider_type_needed = sts.provider_type_needed

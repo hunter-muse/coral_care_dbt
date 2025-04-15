@@ -182,6 +182,9 @@ select
     r.days_in_schedule_onboarding_call_provider_onboarding as days_in_LEGACY_schedule_onboarding_call_provider_onboarding,
     r.days_in_checkr_fail_provider_onboarding as days_in_LEGACY_checkr_fail_provider_onboarding,
     r.days_in_hold_provider_onboarding as days_in_LEGACY_hold_provider_onboarding,
+    r.total_days_to_onboarding_complete,
+    r.total_days_to_closed_lost_onboarding,
+    r.total_days_to_closed_lost_recruiting,
     
     -- All detailed sales funnel fields
     s.date_entered_discovery_call_provider_sales,

@@ -467,10 +467,7 @@ stage_timing_summary as (
             COALESCE(days_in_match_me, 0) +
             COALESCE(days_in_match_pending, 0) +
             COALESCE(days_in_eval_booked, 0) +
-            COALESCE(days_in_eval_complete, 0) +
-            COALESCE(days_in_ongoing_sessions_scheduled, 0) +
-            COALESCE(days_in_closed_lost, 0) +
-            COALESCE(days_in_closed_lost_ongoing_treatment_not_recommended, 0),
+            COALESCE(days_in_eval_complete, 0),
             2
         ) as total_days_in_funnel,
         -- Longest stage
@@ -480,10 +477,7 @@ stage_timing_summary as (
             COALESCE(days_in_match_me, 0),
             COALESCE(days_in_match_pending, 0),
             COALESCE(days_in_eval_booked, 0),
-            COALESCE(days_in_eval_complete, 0),
-            COALESCE(days_in_ongoing_sessions_scheduled, 0),
-            COALESCE(days_in_closed_lost, 0),
-            COALESCE(days_in_closed_lost_ongoing_treatment_not_recommended, 0)
+            COALESCE(days_in_eval_complete, 0)
         ) as longest_stage_duration
     from enriched
 ),
@@ -613,7 +607,23 @@ select
     cs.hours_in_current_stage,
     sts.total_days_in_funnel,
     sts.longest_stage_duration,
-    fp.progression_path
+    fp.progression_path,
+    CASE
+        WHEN date_entered_ongoing_sessions_scheduled IS NOT NULL THEN
+            ROUND(CAST(DATEDIFF('second', e.deaL_created_date, date_entered_ongoing_sessions_scheduled) AS FLOAT) * (1/86400), 2)
+        ELSE NULL
+    END as total_days_to_ongoing_session,
+    -- Calculate total days to closed lost
+    CASE
+        WHEN date_entered_closed_lost IS NOT NULL THEN
+            ROUND(CAST(DATEDIFF('second', e.deaL_created_date, date_entered_closed_lost) AS FLOAT) * (1/86400), 2)
+        ELSE NULL
+    END as total_days_to_closed_lost,
+    CASE
+        WHEN date_entered_closed_lost_ongoing_treatment_not_recommended IS NOT NULL THEN
+            ROUND(CAST(DATEDIFF('second', e.deaL_created_date, date_entered_closed_lost_ongoing_treatment_not_recommended) AS FLOAT) * (1/86400), 2)
+        ELSE NULL
+    END as total_days_to_closed_lost_ongoing_treatment_not_recommended
 from enriched e
 left join current_stage_summary cs on e.deal_id = cs.deal_id --and e.provider_type_needed = cs.provider_type_needed
 left join stage_timing_summary sts on e.deal_id = sts.deal_id --and e.provider_type_needed = sts.provider_type_needed

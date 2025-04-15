@@ -188,6 +188,7 @@ enriched as (
         date_exited_cold_provider_recruiting,
         date_entered_closed_lost_provider_recruiting,
         date_entered_disqualified_provider_recruiting,
+        first_deal_created_date, 
         
         -- Provider Onboarding Stages
         -- Add Pre-Launch Provider Onboarding Stage
@@ -310,7 +311,6 @@ enriched as (
             when date_entered_recruitment_complete_provider_recruiting = date_exited_recruitment_complete_provider_recruiting then 'skipped'
             else 'completed'
         end as recruitment_complete_provider_recruiting_status,
-
         
         -- Cold Provider Recruiting Stage
         case 
@@ -618,24 +618,24 @@ current_stage_summary as (
                 then 'Post Interview (Provider Recruiting)'
             when interview_booked_provider_recruiting_status = 'current' or
                  (date_entered_interview_booked_provider_recruiting is not null and 
-                  date_exited_interview_booked_provider_recruiting < date_entered_interview_booked_provider_recruiting)
-                then 'Interview Booked (Provider Recruiting)'
+                  date_exited_interview_booked_provider_recruiting < date_entered_interview_booked_provider_recruiting) then 
+                'Interview Booked (Provider Recruiting)'
             when new_provider_lead_provider_recruiting_status = 'current' or
                  (date_entered_new_provider_lead_provider_recruiting is not null and 
-                  date_exited_new_provider_lead_provider_recruiting < date_entered_new_provider_lead_provider_recruiting)
-                then 'New Provider Lead (Provider Recruiting)'
+                  date_exited_new_provider_lead_provider_recruiting < date_entered_new_provider_lead_provider_recruiting) then 
+                'New Provider Lead (Provider Recruiting)'
             when lead_magnet_provider_recruiting_status = 'current' or
                  (date_entered_lead_magnet_provider_recruiting is not null and 
-                  date_exited_lead_magnet_provider_recruiting < date_entered_lead_magnet_provider_recruiting)
-                then 'Lead Magnet (Provider Recruiting)'
+                  date_exited_lead_magnet_provider_recruiting < date_entered_lead_magnet_provider_recruiting) then 
+                'Lead Magnet (Provider Recruiting)'
             when referrals_provider_recruiting_status = 'current' or
                  (date_entered_referrals_provider_recruiting is not null and 
-                  date_exited_referrals_provider_recruiting < date_entered_referrals_provider_recruiting)
-                then 'Referrals (Provider Recruiting)'
+                  date_exited_referrals_provider_recruiting < date_entered_referrals_provider_recruiting) then 
+                'Referrals (Provider Recruiting)'
             when date_entered_cold_provider_recruiting is not null and 
                  (date_exited_cold_provider_recruiting is null or 
-                  date_exited_cold_provider_recruiting < date_entered_cold_provider_recruiting)
-                then 'Cold (Provider Recruiting)'
+                  date_exited_cold_provider_recruiting < date_entered_cold_provider_recruiting) then 
+                'Cold (Provider Recruiting)'
             when date_entered_closed_lost_provider_recruiting is not null then 'Closed Lost (Provider Recruiting)'
             when date_entered_disqualified_provider_recruiting is not null then 'Disqualified (Provider Recruiting)'
             
@@ -762,6 +762,9 @@ stage_timing_summary as (
             COALESCE(days_in_post_interview_provider_recruiting, 0) +
             COALESCE(days_in_clinical_interview_provider_recruiting, 0) +
             COALESCE(days_in_offer_letter_provider_recruiting, 0) +
+            COALESCE(days_in_pending_tasks_provider_recruiting, 0) + 
+            COALESCE(days_in_onboarding_call_provider_recruiting, 0) + 
+            COALESCE(days_in_pre_launch_provider_recruiting, 0) + 
             COALESCE(days_in_recruitment_complete_provider_recruiting, 0) +
             
             -- Provider Onboarding Stages
@@ -1033,7 +1036,25 @@ select distinct
     cs.hours_in_current_stage,
     sts.total_days_in_funnel,
     sts.longest_stage_duration,
-    fp.progression_path
+    fp.progression_path,
+    -- Calculate total days to onboarding complete (closed won)
+    CASE 
+        WHEN date_entered_onboarding_complete_provider_onboarding IS NOT NULL THEN
+            ROUND(CAST(DATEDIFF('second', first_deal_created_date, date_entered_onboarding_complete_provider_onboarding) AS FLOAT) * (1/86400), 2)
+        ELSE NULL
+    END as total_days_to_onboarding_complete,
+    -- Calculate total days to closed lost in provider onboarding
+    CASE 
+        WHEN date_entered_closed_lost_provider_onboarding IS NOT NULL THEN
+            ROUND(CAST(DATEDIFF('second', first_deal_created_date, date_entered_closed_lost_provider_onboarding) AS FLOAT) * (1/86400), 2)
+        ELSE NULL
+    END as total_days_to_closed_lost_onboarding,
+    -- Calculate total days to closed lost in provider recruiting
+    CASE 
+        WHEN date_entered_closed_lost_provider_recruiting IS NOT NULL THEN
+            ROUND(CAST(DATEDIFF('second', first_deal_created_date, date_entered_closed_lost_provider_recruiting) AS FLOAT) * (1/86400), 2)
+        ELSE NULL
+    END as total_days_to_closed_lost_recruiting
 from enriched e
 left join current_stage_summary cs on e.hubspot_provider_id = cs.hubspot_provider_id
 left join stage_timing_summary sts on e.hubspot_provider_id = sts.hubspot_provider_id

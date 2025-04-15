@@ -188,6 +188,7 @@ enriched as (
         date_exited_cold_provider_recruiting,
         date_entered_closed_lost_provider_recruiting,
         date_entered_disqualified_provider_recruiting,
+        first_deal_created_date, 
         
         -- Provider Onboarding Stages
         -- Add Pre-Launch Provider Onboarding Stage
@@ -761,6 +762,9 @@ stage_timing_summary as (
             COALESCE(days_in_post_interview_provider_recruiting, 0) +
             COALESCE(days_in_clinical_interview_provider_recruiting, 0) +
             COALESCE(days_in_offer_letter_provider_recruiting, 0) +
+            COALESCE(days_in_pending_tasks_provider_recruiting, 0) + 
+            COALESCE(days_in_onboarding_call_provider_recruiting, 0) + 
+            COALESCE(days_in_pre_launch_provider_recruiting, 0) + 
             COALESCE(days_in_recruitment_complete_provider_recruiting, 0) +
             
             -- Provider Onboarding Stages

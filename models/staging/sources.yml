@@ -52,10 +52,80 @@ sources:
     tables:
       - name: event
       
+
+  - name: facebook_ads
+    database: pc_fivetran_db
+    schema: facebook_ads
+    tables:
+      # Basic campaign structure tables
+      - name: basic_campaign
+      - name: basic_ad_set
+      - name: basic_ad
+      - name: basic_all_levels
+      
+      # Performance tables
+      - name: basic_campaign_actions
+      - name: basic_ad_set_actions
+      - name: basic_ad_actions
+      - name: basic_all_levels_actions
+      
+      # Cost per action tables
+      - name: basic_campaign_cost_per_action_type
+      - name: basic_ad_set_cost_per_action_type
+      - name: basic_ad_cost_per_action_type
+      - name: basic_all_levels_cost_per_action_type
+      
+      # Delivery tables
+      - name: delivery_device
+      - name: delivery_device_actions
+      - name: delivery_platform
+      - name: delivery_platform_actions
+      - name: delivery_platform_and_device
+      - name: delivery_purchase_roas
+      
+      # Demographics tables
+      - name: demographics_age_and_gender
+      - name: demographics_country
+      - name: demographics_region
+      - name: demographics_dma_region
+      
+      # Video performance tables
+      - name: action_video_view_type
+      - name: action_video_view_type_video_p_25_watched_actions
+      - name: action_video_view_type_video_p_50_watched_actions
+      - name: action_video_view_type_video_p_75_watched_actions
+      - name: action_video_view_type_video_p_100_watched_actions
+      
   - name: google_ads
     database: pc_fivetran_db
     schema: google_ads
     tables:
+      # Main statistics tables
       - name: click_stats
-      - name: campaign_history 
+      - name: campaign_stats
+      - name: ad_group_stats
+      - name: ad_stats
+      - name: keyword_stats
+      - name: search_term_stats
+      - name: landing_page_stats
       
+      # History tables
+      - name: campaign_history
+      - name: ad_group_history
+      - name: ad_history
+      - name: responsive_search_ad_history
+      
+      # Daily and hourly stats
+      - name: campaign_hourly_stats
+      - name: ad_group_hourly_stats
+      - name: account_hourly_stats
+      
+      # Geo and audience tables
+      - name: geo_target
+      - name: audience_stats
+      - name: user_interest
+      - name: user_list
+      
+      # Search-specific tables
+      - name: search_keyword_stats
+      - name: search_term_keyword_stats

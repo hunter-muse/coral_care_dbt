@@ -86,7 +86,7 @@ ads_with_campaigns as (
         -- Use row_number to pick one campaign when a click might be associated with multiple
         row_number() over(partition by ads.gclid order by ads.gclid) as rn
     from {{ref('stg__google_ads__click_stats')}} as ads
-    left join {{ref('stg__googls_ads__campaign_history')}} as ch
+    left join {{ref('stg__google_ads__campaign_history')}} as ch
         on ads.campaign_id = ch.base_campaign_id
     where ads.gclid is not null
 )

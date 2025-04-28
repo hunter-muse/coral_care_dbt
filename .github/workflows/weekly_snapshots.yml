@@ -1,0 +1,57 @@
+# .github/workflows/weekly_snapshot.yml
+
+name: Weekly Provider Metrics Snapshot
+
+on:
+  schedule:
+    # Run at 1:00 AM UTC every Monday
+    - cron: '0 1 * * 1'
+  workflow_dispatch:  # Allow manual triggers
+
+jobs:
+  run_snapshot:
+    runs-on: ubuntu-latest
+    env:
+      DBT_DATABASE: DBT_PROD 
+      DBT_SCHEMA: DBT_PRODUCTION
+      DBT_WAREHOUSE: ${{ secrets.DBT_WAREHOUSE }}
+      DBT_ACCOUNT: ${{ secrets.DBT_ACCOUNT }}
+      DBT_USER: ${{ secrets.DBT_USER }}
+      DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+      DBT_ROLE: ${{ secrets.DBT_ROLE }}
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: pip install dbt-snowflake
+    
+    - name: Create profiles.yml
+      run: |
+        mkdir -p ~/.dbt
+        cat > ~/.dbt/profiles.yml << EOF
+        coral_care:
+          target: prod
+          outputs:
+            prod:
+              type: snowflake
+              account: ${{ env.DBT_ACCOUNT }}
+              user: ${{ env.DBT_USER }}
+              password: ${{ env.DBT_PASSWORD }}
+              role: ${{ env.DBT_ROLE }}
+              database: ${{ env.DBT_DATABASE }}
+              warehouse: ${{ env.DBT_WAREHOUSE }}
+              schema: ${{ env.DBT_SCHEMA }}
+              threads: 4
+        EOF
+    
+    - name: Run dbt deps
+      run: dbt deps
+    
+    - name: Run provider metrics snapshot
+      run: dbt snapshot --select tag:weekly

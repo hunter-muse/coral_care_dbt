@@ -47,6 +47,11 @@ models:
       +materialized: table
       +schema: "{{ env_var('DBT_SCHEMA_INT') }}"
 
+snapshots:
+  coral_care_dbt:
+    +database: "{{ env_var('DBT_DATABASE') }}"
+    +schema: snapshots
+
 seeds:
   coral_care_dbt:
     +database: "{{ env_var('DBT_DATABASE') }}"  # Added database configuration
@@ -57,3 +62,4 @@ seeds:
         latitude: string
         longitude: string
         zip_code: string
+

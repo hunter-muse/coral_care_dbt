@@ -28,8 +28,12 @@ parent_join as (
     CASE 
         WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('self-pay', 'out-of-network') 
             THEN 'Self-Pay (includes out-of-network)'
-        WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('blue-cross-blue-shield-of-massachusetts', 'blue cross blue shield (bcbs)', 'blue cross blue shield of massachusetts', 'blue cross blue shield of massachussetts', 'bcbs tx', 'anthem') 
+        WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('blue-cross-blue-shield-of-massachusetts', 'blue cross blue shield of massachusetts', 'blue cross blue shield of massachussetts', 'anthem') 
             THEN 'Blue Cross Blue Shield of Massachusetts'
+        WHEN LOWER(TRIM(hubspot.insurance_provider) IN ('blue cross blue shield (bcbs)'))
+            THEN 'Blue Cross Blue Shield (BCBS)'
+        WHEN LOWER(TRIM(hubspot.insurance_provider) IN  ('bcbs tx', 'bcbs texas', 'blue cross blue sheild of texas'))
+            THEN 'Blue Cross Blue Shield of Texas'
         WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('harvard-pilgrim-healthcare', 'harvard pilgrim healthcare') 
             THEN 'Harvard Pilgrim Healthcare'
         WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('mass-general-brigham-health-plan', 'mass general brigham health plan', 'mass general brigham') 

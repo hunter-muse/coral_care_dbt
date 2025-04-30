@@ -8,7 +8,23 @@ select
     PROPERTY_WHAT_TYPE_OF_PROVIDER_ARE_YOU_ as specialty,
     PROPERTY_PHONE as phone_number,
     PROPERTY_ADDRESS as address,
-    coalesce(PROPERTY_HS_STATE_CODE,PROPERTY_STATE, PROPERTY_STATE_DROPDOWN) as state,
+    -- Improved state extraction logic
+    {{ standardize_state(
+        'CASE
+          -- Check if the input contains a valid state code followed by a space and numbers
+          WHEN REGEXP_LIKE(
+            TRIM(coalesce(PROPERTY_HS_STATE_CODE,PROPERTY_STATE, PROPERTY_STATE_DROPDOWN)),
+            \'^[A-Z]{2} [0-9]\'
+          ) THEN SUBSTRING(TRIM(coalesce(PROPERTY_HS_STATE_CODE,PROPERTY_STATE, PROPERTY_STATE_DROPDOWN)), 1, 2)
+          
+          -- If already a valid 2-letter code, use it
+          WHEN LENGTH(TRIM(coalesce(PROPERTY_HS_STATE_CODE,PROPERTY_STATE, PROPERTY_STATE_DROPDOWN))) = 2 THEN 
+            TRIM(coalesce(PROPERTY_HS_STATE_CODE,PROPERTY_STATE, PROPERTY_STATE_DROPDOWN))
+          
+          -- Extract valid state code if embedded in other text
+          ELSE TRIM(REGEXP_SUBSTR(coalesce(PROPERTY_HS_STATE_CODE,PROPERTY_STATE, PROPERTY_STATE_DROPDOWN), \'[A-Z]{2}\'))
+        END'
+    ) }} as state,
     PROPERTY_CITY AS city, 
     PROPERTY_SEGMENT as segment,
     CASE 
@@ -79,7 +95,7 @@ select
     PROPERTY_HS_LAST_SALES_ACTIVITY_TIMESTAMP as last_engagement_date,
     PROPERTY_HEAR_ABOUT_US_PROVIDER_2 as hear_about_us_source_provider, 
     PROPERTY_CREATEDATE AS provider_hubspot_created_date,
-    CASE WHEN PROPERTY_hs_email_optout IS NULL THEN FALSE ELSE PROPERTY_hs_email_optout END AS unsubscribed_from_emails,
+    CASE WHEN PROPERTY_hs_email_optout IS NULL THEN FALSE ELSE PROPERTY_hs_email_optout END AS unsubscribed_from_emails
     -- PROPERTY_SEGMENT
 
 from {{source('hubspot', 'contact')}} AS contact

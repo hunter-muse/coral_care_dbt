@@ -32,8 +32,16 @@ parent_join as (
             THEN 'Blue Cross Blue Shield of Massachusetts'
         -- WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('blue cross blue shield (bcbs)')
         --     THEN 'Blue Cross Blue Shield (BCBS)'
-        WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('bcbs tx', 'bcbs texas', 'blue cross blue sheild of texas', 'blue cross blue shield (bcbs)')
+        WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('bcbs tx', 'bcbs texas', 'blue cross blue sheild of texas')
             THEN 'Blue Cross Blue Shield of Texas'
+        WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('blue cross blue shield (bcbs)')
+            AND COALESCE(hubspot.state,bubble.state) = 'MA' 
+            THEN 'Blue Cross Blue Shield of Massachusetts'
+        WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('blue cross blue shield (bcbs)')
+            AND COALESCE(hubspot.state,bubble.state) = 'TX' 
+            THEN 'Blue Cross Blue Shield of Texas'
+        WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('blue cross blue shield (bcbs)')
+            THEN 'Blue Cross Blue Shield (BCBS)'
         WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('harvard-pilgrim-healthcare', 'harvard pilgrim healthcare') 
             THEN 'Harvard Pilgrim Healthcare'
         WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('mass-general-brigham-health-plan', 'mass general brigham health plan', 'mass general brigham') 

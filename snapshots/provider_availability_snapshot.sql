@@ -1,7 +1,20 @@
+{% snapshot provider_availability_snapshot %}
+
+{{
+    config(
+      target_schema='snapshots',
+      unique_key='provider_availability_id',
+      strategy='timestamp',
+      updated_at='date_time',
+      tags=['snapshot','daily'] 
+    )
+}}
+
 select
-current_date as snapshot_date
-,provider.coral_provider_id
+current_date as date_time 
+, provider.coral_provider_id
 , provider_status
+, concat(provider.coral_provider_id, '-', current_date) as provider_availability_id,
 --, coalesce(provider.bubble_provider_availability_status , hp.bubble_provider_availability_status) as bubble_provider_availability_status
 , coalesce(provider.PROVIDER_LIFECYCLE_STATUS, hp.provider_lifecycle_status) as provider_lifecycle_status
 , provider.accept_new_patients
@@ -28,3 +41,5 @@ left join {{ref('analytics__provider_funnel')}} pf on provider.coral_provider_id
 left join {{ref('dim__provider_weekly_availability')}} net_avail on provider.coral_provider_id = net_avail.coral_provider_id and net_avail.time_period = 'Current Week'
 where hp.provider_lifecycle_status <> 'Rejected'
 and provider.provider_email not like '%@joincoralcare.com'
+
+{% endsnapshot %}

@@ -1,0 +1,61 @@
+# .github/workflows/daily_snapshot.yml
+
+name: Daily Provider Availability Snapshot
+
+on:
+  schedule:
+    # Run at 2:00 AM UTC every day
+    - cron: '0 2 * * *'     # Every day at 2:00 AM UTC
+  workflow_dispatch:  # Allow manual triggers
+
+jobs:
+  run_snapshot:
+    runs-on: ubuntu-latest
+    env:
+      DBT_DATABASE: DBT_PROD 
+      DBT_SCHEMA: DBT_PRODUCTION
+      DBT_WAREHOUSE: ${{ secrets.DBT_WAREHOUSE }}
+      DBT_ACCOUNT: ${{ secrets.DBT_ACCOUNT }}
+      DBT_USER: ${{ secrets.DBT_USER }}
+      DBT_PASSWORD: ${{ secrets.DBT_PASSWORD }}
+      DBT_ROLE: ${{ secrets.DBT_ROLE }}
+      DBT_SCHEMA_STG: stg 
+      DBT_SCHEMA_MARTS: marts
+      DBT_SCHEMA_INT: int
+      DBT_SCHEMA_SEEDS: seeds  # Added for seeds schema
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: pip install dbt-snowflake
+    
+    - name: Create profiles.yml
+      run: |
+        mkdir -p ~/.dbt
+        cat > ~/.dbt/profiles.yml << EOF
+        coral_care:
+          target: prod
+          outputs:
+            prod:
+              type: snowflake
+              account: ${{ env.DBT_ACCOUNT }}
+              user: ${{ env.DBT_USER }}
+              password: ${{ env.DBT_PASSWORD }}
+              role: ${{ env.DBT_ROLE }}
+              database: ${{ env.DBT_DATABASE }}
+              warehouse: ${{ env.DBT_WAREHOUSE }}
+              schema: ${{ env.DBT_SCHEMA }}
+              threads: 4
+        EOF
+    
+    - name: Run dbt deps
+      run: dbt deps
+    
+    - name: Run provider availability snapshot
+      run: dbt snapshot --select tag:daily

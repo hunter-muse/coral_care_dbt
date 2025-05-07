@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: int__session
+    description: "Intermediate model for session data combining information from bubble sessions, providers, users, and parents"
+    columns:
+      - name: session_ID
+        description: "Unique identifier for each session"
+        tests:
+          - unique
+          - not_null
+      
+      - name: appointment_id
+        description: "Reference to the appointment"
+        tests:
+          - not_null:
+              severity: warn
+      
+      - name: dependent_id
+        description: "Reference to the dependent"
+        tests:
+          - not_null:
+              severity: warn
+      
+      - name: coral_parent_id
+        description: "Reference to the parent in Coral system"
+        tests:
+          - not_null:
+              severity: warn
+      
+      - name: coral_provider_id
+        description: "Reference to the provider in Coral system"
+        tests:
+          - not_null:
+              severity: warn
+      
+      - name: session_start_date
+        description: "Timestamp of when the session starts"
+        tests:
+          - not_null:
+              severity: warn
+  

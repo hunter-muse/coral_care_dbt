@@ -7,8 +7,8 @@ models:
       - name: session_ID
         description: "Unique identifier for each session"
         tests:
-          - unique
-          - not_null
+          - session_id_quality_test:
+              severity: error
       
       - name: appointment_id
         description: "Reference to the appointment"

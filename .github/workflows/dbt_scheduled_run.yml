@@ -108,3 +108,21 @@ jobs:
     - name: Run dbt build
       if: steps.exec_type.outputs.run_mode == 'full'
       run: dbt build --exclude tag:snapshot --fail-fast  # Exclude snapshots from build
+      
+    # Add Slack notification for scheduled runs only
+    - name: Notify Slack on Scheduled Run Completion
+      if: github.event_name == 'schedule' && always() # Only run for scheduled events, regardless of success/failure
+      uses: slackapi/slack-github-action@v1.25.0
+      with:
+        payload: |
+          {
+            "workflow_name": "dbt CI/CD Scheduled Run",
+            "status": "${{ job.status }}",
+            "repository": "${{ github.repository }}",
+            "run_id": "${{ github.run_id }}",
+            "run_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+            "run_time": "${{ github.event.schedule }}"
+          }
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        SLACK_WEBHOOK_TYPE: WORKFLOW

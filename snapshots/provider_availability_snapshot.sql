@@ -14,7 +14,7 @@ select
 current_date as date_time 
 , provider.coral_provider_id
 , provider_status
-, concat(provider.coral_provider_id, '-', current_date) as provider_availability_id,
+, concat(provider.coral_provider_id, '-', current_date) as provider_availability_id
 --, coalesce(provider.bubble_provider_availability_status , hp.bubble_provider_availability_status) as bubble_provider_availability_status
 , coalesce(provider.PROVIDER_LIFECYCLE_STATUS, hp.provider_lifecycle_status) as provider_lifecycle_status
 , provider.accept_new_patients

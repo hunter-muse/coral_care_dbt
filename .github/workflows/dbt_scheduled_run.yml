@@ -116,7 +116,7 @@ jobs:
       with:
         payload: |
           {
-            "workflow_name": "dbt CI/CD",
+            "workflow_name": "dbt full run",
             "run_type": "${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_type || 'full' }}",
             "trigger_type": "${{ github.event_name }}",
             "status": "${{ job.status }}",

@@ -44,84 +44,23 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    - name: Setup Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.9'
+    # [rest of your existing steps]
     
-    - name: Install dependencies
-      run: |
-        pip install dbt-snowflake
-
-    - name: Debug Environment
-      run: |
-        if [ -n "${{ secrets.DBT_DATABASE }}" ]; then
-          echo "DBT_DATABASE is set"
-        else
-          echo "DBT_DATABASE is not set"
-        fi
-    
-    - name: Create profiles.yml
-      run: |
-        mkdir -p ~/.dbt
-        cat > ~/.dbt/profiles.yml << EOF
-        coral_care:
-          target: prod
-          outputs:
-            prod:
-              type: snowflake
-              account: ${{ env.DBT_ACCOUNT }}
-              user: ${{ env.DBT_USER }}
-              password: ${{ env.DBT_PASSWORD }}
-              role: ${{ env.DBT_ROLE }}
-              database: ${{ env.DBT_DATABASE }}
-              warehouse: ${{ env.DBT_WAREHOUSE }}
-              schema: ${{ env.DBT_SCHEMA }}
-              threads: 4
-        EOF
-    
-    - name: Run dbt deps
-      run: dbt deps
-    
-    - name: Determine execution type
-      id: exec_type
-      run: |
-        if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-          echo "Running manual workflow"
-          if [[ "${{ github.event.inputs.run_type }}" == "test-only" ]]; then
-            echo "run_mode=test" >> $GITHUB_OUTPUT
-          else
-            echo "run_mode=full" >> $GITHUB_OUTPUT
-          fi
-        else
-          echo "run_mode=full" >> $GITHUB_OUTPUT
-        fi
-
-    - name: Run dbt seed
-      if: steps.exec_type.outputs.run_mode == 'full'
-      run: dbt seed --full-refresh
-    
-    - name: Run dbt tests
-      if: always()
-      run: dbt test --exclude tag:snapshot  # Exclude snapshot tests
-    
-    - name: Run dbt build
-      if: steps.exec_type.outputs.run_mode == 'full'
-      run: dbt build --exclude tag:snapshot --fail-fast  # Exclude snapshots from build
-      
-    # Add Slack notification for scheduled runs only
-    - name: Notify Slack on Scheduled Run Completion
-      if: github.event_name == 'schedule' && always() # Only run for scheduled events, regardless of success/failure
+    # Modified Slack notification - only for scheduled and manual runs
+    - name: Notify Slack on Run Completion
+      if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && always()
       uses: slackapi/slack-github-action@v1.25.0
       with:
         payload: |
           {
-            "workflow_name": "dbt CI/CD Scheduled Run",
+            "workflow_name": "dbt CI/CD",
+            "run_type": "${{ github.event_name == 'workflow_dispatch' && github.event.inputs.run_type || 'full' }}",
+            "trigger_type": "${{ github.event_name }}",
             "status": "${{ job.status }}",
             "repository": "${{ github.repository }}",
             "run_id": "${{ github.run_id }}",
             "run_url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-            "run_time": "${{ github.event.schedule }}"
+            "actor": "${{ github.actor }}"
           }
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

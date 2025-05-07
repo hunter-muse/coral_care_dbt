@@ -1,4 +1,4 @@
-select 
+select distinct 
     session_ID, 
     appointment as appointment_id,
     dependant as dependent_id, 

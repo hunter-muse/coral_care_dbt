@@ -1,1 +1,1 @@
-select * from {{ ref('int__session') }}
+select distinct * from {{ ref('int__session') }}

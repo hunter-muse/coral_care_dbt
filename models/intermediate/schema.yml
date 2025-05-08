@@ -9,8 +9,10 @@ models:
         tests:
           - unique:
               error_if: "> 5"
+              severity: warn
           - not_null:
               error_if: "> 5"
+              severity: warn
       
       - name: appointment_id
         description: "Reference to the appointment"

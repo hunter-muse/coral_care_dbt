@@ -104,7 +104,7 @@ ads_with_campaigns as (
 )
 
 -- Now join with parent data, only using one campaign record per click
-select 
+select distinct 
     pj.*,
     ac.campaign_name
 from parent_join pj 

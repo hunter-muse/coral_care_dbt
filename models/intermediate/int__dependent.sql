@@ -1,5 +1,5 @@
 with prep as (
-    select 
+    select distinct 
         dependent.dependent_id,
         dependent.dependent_name,
         SPLIT_PART(dependent.dependent_name, ' ', 1) as dependent_first_name,

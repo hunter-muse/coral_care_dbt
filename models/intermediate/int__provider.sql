@@ -225,7 +225,7 @@ mapped_insurances AS (
     and bubble_provider_id is not null
   )
 
-    SELECT
+    SELECT DISTINCT 
       provider_detail.coral_provider_id,
       provider_detail.bubble_provider_id,
       provider_detail.bubble_provider_user_id,

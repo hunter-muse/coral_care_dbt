@@ -1,6 +1,6 @@
 -- int__school.sql
 with school_data as (
-    select
+    select distinct 
         -- Create unique coral_school_id using MD5 hash of contact_id
         MD5(contact_id::VARCHAR) as coral_school_id,
         

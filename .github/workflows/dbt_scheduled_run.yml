@@ -23,7 +23,7 @@ on:
   
   # Scheduled trigger - runs at 5:00 AM UTC daily
   schedule:
-    - cron: '30 5,11,17,23 * * *'  # For 12:30 AM, 6:30 AM, 12:30 PM, 6:30 PM EST
+    - cron: '30 4,10,16,22 * * *'  # For 12:30 AM, 6:30 AM, 12:30 PM, 6:30 PM Eastern Time
 
 jobs:
   dbt:

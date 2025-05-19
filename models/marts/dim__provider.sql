@@ -47,7 +47,6 @@ select
       target_caseload,
       total_completed_confirmed_sessions,
       last_completed_confirmed_appt,
-      most_recent_session_date,
       next_upcoming_appt,
       first_completed_appointment,
       furthest_upcoming_session,

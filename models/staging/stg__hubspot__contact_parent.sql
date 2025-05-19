@@ -188,7 +188,8 @@ and id not in ( --see below for list of duplicate records names
 '48980972679',
 '9983881860',
 '101016853424', --Emma Roy - likely NOT a duplicate, but we'll remove her to be safe
-'95262303411'   
+'95262303411',
+'122684836734'   
 )  
 and rn = 1
 

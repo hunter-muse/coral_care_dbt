@@ -7,6 +7,7 @@ with source as (
         CAST(deal.contact_id as string) as hubspot_school_id,
         school.school_contact_email AS hubspot_school_email,
         school.coral_school_id,
+        deal.school_confirmed_date_time,
         -- School Pipeline Stages
         deal.date_entered_new_school_lead,
         deal.date_exited_new_school_lead,

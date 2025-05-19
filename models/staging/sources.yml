@@ -30,6 +30,7 @@ sources:
       - name: temp_busy_slot 
       - name: user 
       - name: busy_slot
+      - name: provider_insurance
   
   - name: claims
     database: source_claims

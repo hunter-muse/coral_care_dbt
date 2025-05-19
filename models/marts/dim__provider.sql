@@ -51,6 +51,9 @@ select
       next_upcoming_appt,
       first_completed_appointment,
       furthest_upcoming_session,
+      single_session_completion_rate,
+      recurring_session_completion_rate,
+      last_completed_confirmed_appt_format,
       --provider_lifecycle_status AS provider_lifecycle_status_raw,
       CASE WHEN provider_lifecycle_status = 'Lead' THEN provider_lead_status ELSE provider_lifecycle_status END as provider_lifecycle_status,
       --provider_lead_status 

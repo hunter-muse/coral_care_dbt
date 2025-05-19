@@ -45,8 +45,15 @@ select
       provider_engagement_notes,
       accept_new_patients,
       target_caseload,
+      total_completed_confirmed_sessions,
+      last_completed_confirmed_appt,
+      most_recent_session_date,
+      next_upcoming_appt,
+      first_completed_appointment,
+      furthest_upcoming_session,
       --provider_lifecycle_status AS provider_lifecycle_status_raw,
       CASE WHEN provider_lifecycle_status = 'Lead' THEN provider_lead_status ELSE provider_lifecycle_status END as provider_lifecycle_status,
       --provider_lead_status 
 from {{ ref('int__provider') }} provider
 left join {{ ref('int__hubspot_provider_funnel') }} hspf on provider.coral_provider_id = hspf.coral_provider_id
+left join {{ ref('int__provider_scorecard') }} ps on provider.coral_provider_id = ps.coral_provider_id

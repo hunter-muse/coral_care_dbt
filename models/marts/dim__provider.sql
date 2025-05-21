@@ -1,4 +1,14 @@
-select
+with hubspot_funnel_prep as (
+  select 
+  f.coral_provider_id,
+  f.provider_lead_status, 
+  MAX(d.credentialing_form) as credentialing_form
+  from {{ ref('int__hubspot_provider_funnel') }} f 
+  left join {{ref('stg__hubspot__deal')}} d on f.hubspot_provider_id = d.contact_id 
+  group by f.coral_provider_id, f.provider_lead_status
+)
+
+select distinct 
         provider.coral_provider_id,
       bubble_provider_id,
       bubble_provider_user_id,
@@ -54,8 +64,9 @@ select
       recurring_session_completion_rate,
       last_completed_confirmed_appt_format,
       --provider_lifecycle_status AS provider_lifecycle_status_raw,
-      CASE WHEN provider_lifecycle_status = 'Lead' THEN provider_lead_status ELSE provider_lifecycle_status END as provider_lifecycle_status,
+      CASE WHEN provider_lifecycle_status = 'Lead' THEN hspf.provider_lead_status ELSE provider_lifecycle_status END as provider_lifecycle_status,
+      hspf.credentialing_form
       --provider_lead_status 
 from {{ ref('int__provider') }} provider
-left join {{ ref('int__hubspot_provider_funnel') }} hspf on provider.coral_provider_id = hspf.coral_provider_id
+left join hubspot_funnel_prep hspf on provider.coral_provider_id = hspf.coral_provider_id
 left join {{ ref('int__provider_scorecard') }} ps on provider.coral_provider_id = ps.coral_provider_id

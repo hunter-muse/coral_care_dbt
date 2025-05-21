@@ -112,6 +112,7 @@ select
     deal.PROPERTY_HS_V_2_DATE_EXITED_1024449843 AS date_exited_clinical_interview_provider_sales,
     deal.property_hs_v_2_date_entered_1024449844 as date_entered_pending_tasks_provider_sales, 
     deal.PROPERTY_CONFIRMED_DATE_TIME as school_confirmed_date_time,
+    deal.property_credentialing_form as credentialing_form,
     --THE BELOW FIELDS NEED TO BE ADDED ONCE THE PIPELINE IS FILLED 
    -- deal.property_hs_v_2_date_exited_1024449844 as date_exited_pending_tasks_provider_sales, 
    --deal.property_hs_v_2_date_entered_1024449845 as date_entered_offer_letter_provider_sales, 

@@ -84,6 +84,7 @@ weekly_availability AS (
         SUM(CASE WHEN day_of_week = 'Sun' THEN total_busy_hours ELSE 0 END) AS sunday_busy_hours,
         
         -- Morning segments (using net_morning_hours which accounts for busy time)
+        -- net_morning_hours is the net available hours after subtracting the busy hours
         SUM(CASE WHEN day_of_week = 'Mon' THEN net_morning_hours ELSE 0 END) AS monday_morning_available_hours,
         SUM(CASE WHEN day_of_week = 'Tue' THEN net_morning_hours ELSE 0 END) AS tuesday_morning_available_hours,
         SUM(CASE WHEN day_of_week = 'Wed' THEN net_morning_hours ELSE 0 END) AS wednesday_morning_available_hours,
@@ -91,7 +92,25 @@ weekly_availability AS (
         SUM(CASE WHEN day_of_week = 'Fri' THEN net_morning_hours ELSE 0 END) AS friday_morning_available_hours,
         SUM(CASE WHEN day_of_week = 'Sat' THEN net_morning_hours ELSE 0 END) AS saturday_morning_available_hours,
         SUM(CASE WHEN day_of_week = 'Sun' THEN net_morning_hours ELSE 0 END) AS sunday_morning_available_hours,
-        
+
+        -- morning_hours is the potential available hours before subtracting the busy hours
+        SUM(CASE WHEN day_of_week = 'Mon' THEN morning_hours ELSE 0 END) AS monday_morning_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Tue' THEN morning_hours ELSE 0 END) AS tuesday_morning_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Wed' THEN morning_hours ELSE 0 END) AS wednesday_morning_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Thu' THEN morning_hours ELSE 0 END) AS thursday_morning_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Fri' THEN morning_hours ELSE 0 END) AS friday_morning_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Sat' THEN morning_hours ELSE 0 END) AS saturday_morning_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Sun' THEN morning_hours ELSE 0 END) AS sunday_morning_potential_available_hours,
+
+        SUM(CASE WHEN day_of_week = 'Mon' THEN morning_busy_hours ELSE 0 END) AS monday_morning_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Tue' THEN morning_busy_hours ELSE 0 END) AS tuesday_morning_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Wed' THEN morning_busy_hours ELSE 0 END) AS wednesday_morning_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Thu' THEN morning_busy_hours ELSE 0 END) AS thursday_morning_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Fri' THEN morning_busy_hours ELSE 0 END) AS friday_morning_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Sat' THEN morning_busy_hours ELSE 0 END) AS saturday_morning_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Sun' THEN morning_busy_hours ELSE 0 END) AS sunday_morning_busy_hours,
+
+
         -- Afternoon segments
         SUM(CASE WHEN day_of_week = 'Mon' THEN net_afternoon_hours ELSE 0 END) AS monday_afternoon_available_hours,
         SUM(CASE WHEN day_of_week = 'Tue' THEN net_afternoon_hours ELSE 0 END) AS tuesday_afternoon_available_hours,
@@ -100,6 +119,23 @@ weekly_availability AS (
         SUM(CASE WHEN day_of_week = 'Fri' THEN net_afternoon_hours ELSE 0 END) AS friday_afternoon_available_hours,
         SUM(CASE WHEN day_of_week = 'Sat' THEN net_afternoon_hours ELSE 0 END) AS saturday_afternoon_available_hours,
         SUM(CASE WHEN day_of_week = 'Sun' THEN net_afternoon_hours ELSE 0 END) AS sunday_afternoon_available_hours,
+
+        -- afternoon_hours is the potential available hours before subtracting the busy hours
+        SUM(CASE WHEN day_of_week = 'Mon' THEN afternoon_hours ELSE 0 END) AS monday_afternoon_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Tue' THEN afternoon_hours ELSE 0 END) AS tuesday_afternoon_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Wed' THEN afternoon_hours ELSE 0 END) AS wednesday_afternoon_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Thu' THEN afternoon_hours ELSE 0 END) AS thursday_afternoon_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Fri' THEN afternoon_hours ELSE 0 END) AS friday_afternoon_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Sat' THEN afternoon_hours ELSE 0 END) AS saturday_afternoon_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Sun' THEN afternoon_hours ELSE 0 END) AS sunday_afternoon_potential_available_hours,
+
+        SUM(CASE WHEN day_of_week = 'Mon' THEN afternoon_busy_hours ELSE 0 END) AS monday_afternoon_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Tue' THEN afternoon_busy_hours ELSE 0 END) AS tuesday_afternoon_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Wed' THEN afternoon_busy_hours ELSE 0 END) AS wednesday_afternoon_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Thu' THEN afternoon_busy_hours ELSE 0 END) AS thursday_afternoon_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Fri' THEN afternoon_busy_hours ELSE 0 END) AS friday_afternoon_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Sat' THEN afternoon_busy_hours ELSE 0 END) AS saturday_afternoon_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Sun' THEN afternoon_busy_hours ELSE 0 END) AS sunday_afternoon_busy_hours,
         
         -- Evening segments
         SUM(CASE WHEN day_of_week = 'Mon' THEN net_evening_hours ELSE 0 END) AS monday_evening_available_hours,
@@ -108,7 +144,26 @@ weekly_availability AS (
         SUM(CASE WHEN day_of_week = 'Thu' THEN net_evening_hours ELSE 0 END) AS thursday_evening_available_hours,
         SUM(CASE WHEN day_of_week = 'Fri' THEN net_evening_hours ELSE 0 END) AS friday_evening_available_hours,
         SUM(CASE WHEN day_of_week = 'Sat' THEN net_evening_hours ELSE 0 END) AS saturday_evening_available_hours,
-        SUM(CASE WHEN day_of_week = 'Sun' THEN net_evening_hours ELSE 0 END) AS sunday_evening_available_hours
+        SUM(CASE WHEN day_of_week = 'Sun' THEN net_evening_hours ELSE 0 END) AS sunday_evening_available_hours,
+
+
+        -- evening_hours is the potential available hours before subtracting the busy hours
+        SUM(CASE WHEN day_of_week = 'Mon' THEN evening_hours ELSE 0 END) AS monday_evening_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Tue' THEN evening_hours ELSE 0 END) AS tuesday_evening_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Wed' THEN evening_hours ELSE 0 END) AS wednesday_evening_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Thu' THEN evening_hours ELSE 0 END) AS thursday_evening_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Fri' THEN evening_hours ELSE 0 END) AS friday_evening_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Sat' THEN evening_hours ELSE 0 END) AS saturday_evening_potential_available_hours,
+        SUM(CASE WHEN day_of_week = 'Sun' THEN evening_hours ELSE 0 END) AS sunday_evening_potential_available_hours,
+
+        SUM(CASE WHEN day_of_week = 'Mon' THEN evening_busy_hours ELSE 0 END) AS monday_evening_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Tue' THEN evening_busy_hours ELSE 0 END) AS tuesday_evening_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Wed' THEN evening_busy_hours ELSE 0 END) AS wednesday_evening_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Thu' THEN evening_busy_hours ELSE 0 END) AS thursday_evening_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Fri' THEN evening_busy_hours ELSE 0 END) AS friday_evening_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Sat' THEN evening_busy_hours ELSE 0 END) AS saturday_evening_busy_hours,
+        SUM(CASE WHEN day_of_week = 'Sun' THEN evening_busy_hours ELSE 0 END) AS sunday_evening_busy_hours
+        
     FROM daily_aggregated
     GROUP BY 
         provider_detail,
@@ -221,7 +276,51 @@ SELECT
     ROUND(sunday_morning_available_hours, 2) AS sunday_morning_net_hours,
     ROUND(sunday_afternoon_available_hours, 2) AS sunday_afternoon_net_hours,
     ROUND(sunday_evening_available_hours, 2) AS sunday_evening_net_hours,
+    ROUND(monday_morning_busy_hours, 2) AS monday_morning_busy_hours,
+    ROUND(monday_afternoon_busy_hours, 2) AS monday_afternoon_busy_hours,
+    ROUND(monday_evening_busy_hours, 2) AS monday_evening_busy_hours,   
+    ROUND(tuesday_morning_busy_hours, 2) AS tuesday_morning_busy_hours,
+    ROUND(tuesday_afternoon_busy_hours, 2) AS tuesday_afternoon_busy_hours,
+    ROUND(tuesday_evening_busy_hours, 2) AS tuesday_evening_busy_hours,
+    ROUND(wednesday_morning_busy_hours, 2) AS wednesday_morning_busy_hours,
+    ROUND(wednesday_afternoon_busy_hours, 2) AS wednesday_afternoon_busy_hours,
+    ROUND(wednesday_evening_busy_hours, 2) AS wednesday_evening_busy_hours, 
+    ROUND(thursday_morning_busy_hours, 2) AS thursday_morning_busy_hours,
+    ROUND(thursday_afternoon_busy_hours, 2) AS thursday_afternoon_busy_hours,
+    ROUND(thursday_evening_busy_hours, 2) AS thursday_evening_busy_hours,
+    ROUND(friday_morning_busy_hours, 2) AS friday_morning_busy_hours,
+    ROUND(friday_afternoon_busy_hours, 2) AS friday_afternoon_busy_hours,
+    ROUND(friday_evening_busy_hours, 2) AS friday_evening_busy_hours,   
+    ROUND(saturday_morning_busy_hours, 2) AS saturday_morning_busy_hours,   
+    ROUND(saturday_afternoon_busy_hours, 2) AS saturday_afternoon_busy_hours,   
+    ROUND(saturday_evening_busy_hours, 2) AS saturday_evening_busy_hours,
+    ROUND(sunday_morning_busy_hours, 2) AS sunday_morning_busy_hours,
+    ROUND(sunday_afternoon_busy_hours, 2) AS sunday_afternoon_busy_hours,
+    ROUND(sunday_evening_busy_hours, 2) AS sunday_evening_busy_hours,
+    ROUND(monday_morning_potential_available_hours, 2) AS monday_morning_potential_available_hours,
+    ROUND(monday_afternoon_potential_available_hours, 2) AS monday_afternoon_potential_available_hours,
+    ROUND(monday_evening_potential_available_hours, 2) AS monday_evening_potential_available_hours,
+    ROUND(tuesday_morning_potential_available_hours, 2) AS tuesday_morning_potential_available_hours,
+    ROUND(tuesday_afternoon_potential_available_hours, 2) AS tuesday_afternoon_potential_available_hours,
+    ROUND(tuesday_evening_potential_available_hours, 2) AS tuesday_evening_potential_available_hours,
+    ROUND(wednesday_morning_potential_available_hours, 2) AS wednesday_morning_potential_available_hours,
+    ROUND(wednesday_afternoon_potential_available_hours, 2) AS wednesday_afternoon_potential_available_hours,
+    ROUND(wednesday_evening_potential_available_hours, 2) AS wednesday_evening_potential_available_hours,
+    ROUND(thursday_morning_potential_available_hours, 2) AS thursday_morning_potential_available_hours,
+    ROUND(thursday_afternoon_potential_available_hours, 2) AS thursday_afternoon_potential_available_hours,
+    ROUND(thursday_evening_potential_available_hours, 2) AS thursday_evening_potential_available_hours,
+    ROUND(friday_morning_potential_available_hours, 2) AS friday_morning_potential_available_hours, 
+    ROUND(friday_afternoon_potential_available_hours, 2) AS friday_afternoon_potential_available_hours,
+    ROUND(friday_evening_potential_available_hours, 2) AS friday_evening_potential_available_hours,
+    ROUND(saturday_morning_potential_available_hours, 2) AS saturday_morning_potential_available_hours,
+    ROUND(saturday_afternoon_potential_available_hours, 2) AS saturday_afternoon_potential_available_hours,
+    ROUND(saturday_evening_potential_available_hours, 2) AS saturday_evening_potential_available_hours,
+    ROUND(sunday_morning_potential_available_hours, 2) AS sunday_morning_potential_available_hours,
+    ROUND(sunday_afternoon_potential_available_hours, 2) as sunday_afternoon_potential_available_hours, 
+    ROUND(sunday_evening_potential_available_hours, 2) as sunday_evening_potential_available_hours, 
     
+    
+
     -- Weekly segments (sum of daily segments)
     ROUND((monday_morning_available_hours + tuesday_morning_available_hours + wednesday_morning_available_hours + 
      thursday_morning_available_hours + friday_morning_available_hours + saturday_morning_available_hours + 

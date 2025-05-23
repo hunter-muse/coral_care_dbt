@@ -9,6 +9,7 @@ sources:
       - name: contact 
       - name: deal
       - name: ticket 
+      - name: ticket_contact
       - name: deal_contact
     
   - name: bubble

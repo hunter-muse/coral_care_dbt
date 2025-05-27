@@ -89,11 +89,23 @@ ticket_with_contact AS (
   SELECT 
     t.*,
     tc.contact_id,
+    CASE 
+      WHEN p.coral_provider_id IS NOT NULL THEN p.coral_provider_id
+      ELSE NULL
+    END as coral_provider_id,
+    CASE 
+      WHEN p.coral_provider_id IS NULL AND pa.coral_parent_id IS NOT NULL THEN pa.coral_parent_id
+      ELSE NULL
+    END as coral_parent_id,
     -- Add contact count per ticket
     COUNT(tc.contact_id) OVER (PARTITION BY t.ticket_id) AS num_contacts_on_ticket
   FROM ticket_base t
   LEFT JOIN {{ ref('stg__hubspot__ticket_contact') }} tc 
     ON t.ticket_id = tc.ticket_id
+  LEFT JOIN {{ref('int__provider')}} p 
+    ON tc.contact_id = p.hubspot_provider_id
+  LEFT JOIN {{ref('int__parent')}} pa 
+    ON tc.contact_id = pa.hubspot_parent_id 
 ),
 
 final AS (

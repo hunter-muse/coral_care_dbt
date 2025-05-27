@@ -22,8 +22,8 @@ with source as (
         deal.date_exited_new_provider_lead_provider_recruiting,
         deal.date_entered_interview_booked_provider_recruiting,
         deal.date_exited_interview_booked_provider_recruiting,
-        deal.date_entered_post_interview_provider_recruiting,
-        deal.date_exited_post_interview_provider_recruiting,
+        --deal.date_entered_post_interview_provider_recruiting,
+        --deal.date_exited_post_interview_provider_recruiting,
         deal.date_entered_clinical_interview_provider_recruiting,
         deal.date_exited_clinical_interview_provider_recruiting,
         deal.date_entered_offer_letter_provider_recruiting,
@@ -94,8 +94,8 @@ provider_deals as (
         MAX(date_exited_new_provider_lead_provider_recruiting) as date_exited_new_provider_lead_provider_recruiting,
         MAX(date_entered_interview_booked_provider_recruiting) as date_entered_interview_booked_provider_recruiting,
         MAX(date_exited_interview_booked_provider_recruiting) as date_exited_interview_booked_provider_recruiting,
-        MAX(date_entered_post_interview_provider_recruiting) as date_entered_post_interview_provider_recruiting,
-        MAX(date_exited_post_interview_provider_recruiting) as date_exited_post_interview_provider_recruiting,
+       -- MAX(date_entered_post_interview_provider_recruiting) as date_entered_post_interview_provider_recruiting,
+       --MAX(date_exited_post_interview_provider_recruiting) as date_exited_post_interview_provider_recruiting,
         MAX(date_entered_clinical_interview_provider_recruiting) as date_entered_clinical_interview_provider_recruiting,
         MAX(date_exited_clinical_interview_provider_recruiting) as date_exited_clinical_interview_provider_recruiting,
         MAX(date_entered_offer_letter_provider_recruiting) as date_entered_offer_letter_provider_recruiting,
@@ -188,8 +188,8 @@ enriched as (
         date_exited_new_provider_lead_provider_recruiting,
         date_entered_interview_booked_provider_recruiting,
         date_exited_interview_booked_provider_recruiting,
-        date_entered_post_interview_provider_recruiting,
-        date_exited_post_interview_provider_recruiting,
+        --date_entered_post_interview_provider_recruiting,
+        --date_exited_post_interview_provider_recruiting,
         date_entered_clinical_interview_provider_recruiting,
         date_exited_clinical_interview_provider_recruiting,
         date_entered_offer_letter_provider_recruiting,
@@ -286,12 +286,12 @@ enriched as (
         end as interview_booked_provider_recruiting_status,
         
         -- Post Interview Provider Recruiting Stage
-        case 
-            when date_entered_post_interview_provider_recruiting is null and date_exited_post_interview_provider_recruiting is null then 'never_entered'
-            when date_entered_post_interview_provider_recruiting is not null and date_exited_post_interview_provider_recruiting is null then 'current'
-            when date_entered_post_interview_provider_recruiting = date_exited_post_interview_provider_recruiting then 'skipped'
-            else 'completed'
-        end as post_interview_provider_recruiting_status,
+        -- case 
+        --     when date_entered_post_interview_provider_recruiting is null and date_exited_post_interview_provider_recruiting is null then 'never_entered'
+        --     when date_entered_post_interview_provider_recruiting is not null and date_exited_post_interview_provider_recruiting is null then 'current'
+        --     when date_entered_post_interview_provider_recruiting = date_exited_post_interview_provider_recruiting then 'skipped'
+        --     else 'completed'
+        -- end as post_interview_provider_recruiting_status,
         
         -- Clinical Interview Provider Recruiting Stage
         case 
@@ -516,15 +516,15 @@ enriched as (
         ) as hours_in_interview_booked_provider_recruiting,
         
         -- Post Interview Provider Recruiting Stage
-        ROUND(
-            CASE
-                WHEN date_entered_post_interview_provider_recruiting IS NULL THEN 0
-                WHEN date_exited_post_interview_provider_recruiting IS NULL THEN 
-                    CAST(DATEDIFF('second', date_entered_post_interview_provider_recruiting, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
-                ELSE 
-                    CAST(DATEDIFF('second', date_entered_post_interview_provider_recruiting, date_exited_post_interview_provider_recruiting) AS FLOAT) * (1/3600)
-            END, 2
-        ) as hours_in_post_interview_provider_recruiting,
+        -- ROUND(
+        --     CASE
+        --         WHEN date_entered_post_interview_provider_recruiting IS NULL THEN 0
+        --         WHEN date_exited_post_interview_provider_recruiting IS NULL THEN 
+        --             CAST(DATEDIFF('second', date_entered_post_interview_provider_recruiting, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
+        --         ELSE 
+        --             CAST(DATEDIFF('second', date_entered_post_interview_provider_recruiting, date_exited_post_interview_provider_recruiting) AS FLOAT) * (1/3600)
+        --     END, 2
+        -- ) as hours_in_post_interview_provider_recruiting,
         
         -- Clinical Interview Provider Recruiting Stage
         ROUND(
@@ -656,7 +656,7 @@ enriched as (
         -- ROUND(hours_in_lead_magnet_provider_recruiting / 24, 2) as days_in_lead_magnet_provider_recruiting,
         ROUND(hours_in_new_provider_lead_provider_recruiting / 24, 2) as days_in_new_provider_lead_provider_recruiting,
         ROUND(hours_in_interview_booked_provider_recruiting / 24, 2) as days_in_interview_booked_provider_recruiting,
-        ROUND(hours_in_post_interview_provider_recruiting / 24, 2) as days_in_post_interview_provider_recruiting,
+       -- ROUND(hours_in_post_interview_provider_recruiting / 24, 2) as days_in_post_interview_provider_recruiting,
         ROUND(hours_in_clinical_interview_provider_recruiting / 24, 2) as days_in_clinical_interview_provider_recruiting,
         ROUND(hours_in_offer_letter_provider_recruiting / 24, 2) as days_in_offer_letter_provider_recruiting,
         ROUND(hours_in_pending_tasks_provider_recruiting / 24, 2) as days_in_pending_tasks_provider_recruiting,
@@ -944,7 +944,7 @@ stage_timing_summary as (
             --COALESCE(days_in_lead_magnet_provider_recruiting, 0) +
             COALESCE(days_in_new_provider_lead_provider_recruiting, 0) +
             COALESCE(days_in_interview_booked_provider_recruiting, 0) +
-            COALESCE(days_in_post_interview_provider_recruiting, 0) +
+            --COALESCE(days_in_post_interview_provider_recruiting, 0) +
             COALESCE(days_in_clinical_interview_provider_recruiting, 0) +
             COALESCE(days_in_offer_letter_provider_recruiting, 0) +
             COALESCE(days_in_pending_tasks_provider_recruiting, 0) + 
@@ -975,7 +975,7 @@ stage_timing_summary as (
             --COALESCE(days_in_lead_magnet_provider_recruiting, 0),
             COALESCE(days_in_new_provider_lead_provider_recruiting, 0),
             COALESCE(days_in_interview_booked_provider_recruiting, 0),
-            COALESCE(days_in_post_interview_provider_recruiting, 0),
+            --COALESCE(days_in_post_interview_provider_recruiting, 0),
             COALESCE(days_in_clinical_interview_provider_recruiting, 0),
             COALESCE(days_in_offer_letter_provider_recruiting, 0),
             COALESCE(days_in_recruitment_complete_provider_recruiting, 0),

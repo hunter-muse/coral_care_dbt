@@ -30,6 +30,8 @@ final AS (
     bt.hubspot_object_id,
     bt.ticket_number,
     bt.contact_id,
+    bt.coral_provider_id,
+    bt.coral_parent_id,
     
     -- === QUESTION 1: CORAL CARE vs INBOUND ===
     bt.last_email_type,

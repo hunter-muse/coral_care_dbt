@@ -16,8 +16,8 @@ with source as (
         -- Provider Recruiting Stages
         deal.date_entered_referrals_provider_recruiting,
         deal.date_exited_referrals_provider_recruiting,
-        deal.date_entered_lead_magnet_provider_recruiting,
-        deal.date_exited_lead_magnet_provider_recruiting,
+        -- deal.date_entered_lead_magnet_provider_recruiting,
+        -- deal.date_exited_lead_magnet_provider_recruiting,
         deal.date_entered_new_provider_lead_provider_recruiting,
         deal.date_exited_new_provider_lead_provider_recruiting,
         deal.date_entered_interview_booked_provider_recruiting,
@@ -30,8 +30,8 @@ with source as (
         deal.date_exited_offer_letter_provider_recruiting,
         deal.date_entered_pending_tasks_provider_recruiting, 
         deal.date_exited_pending_tasks_provider_recruiting, 
-        deal.date_entered_onboarding_call_provider_recruiting, 
-        deal.date_exited_onboarding_call_provider_recruiting, 
+        -- deal.date_entered_onboarding_call_provider_recruiting, 
+        -- deal.date_exited_onboarding_call_provider_recruiting, 
         deal.date_entered_pre_launch_provider_recruiting, 
         deal.date_exited_pre_launch_provider_recruiting,
         deal.date_entered_recruitment_complete_provider_recruiting,
@@ -88,8 +88,8 @@ provider_deals as (
         -- Recruitment pipeline fields - take from recruitment pipeline deals
         MAX(date_entered_referrals_provider_recruiting) as date_entered_referrals_provider_recruiting,
         MAX(date_exited_referrals_provider_recruiting) as date_exited_referrals_provider_recruiting,
-        MAX(date_entered_lead_magnet_provider_recruiting) as date_entered_lead_magnet_provider_recruiting,
-        MAX(date_exited_lead_magnet_provider_recruiting) as date_exited_lead_magnet_provider_recruiting,
+        -- MAX(date_entered_lead_magnet_provider_recruiting) as date_entered_lead_magnet_provider_recruiting,
+        -- MAX(date_exited_lead_magnet_provider_recruiting) as date_exited_lead_magnet_provider_recruiting,
         MAX(date_entered_new_provider_lead_provider_recruiting) as date_entered_new_provider_lead_provider_recruiting,
         MAX(date_exited_new_provider_lead_provider_recruiting) as date_exited_new_provider_lead_provider_recruiting,
         MAX(date_entered_interview_booked_provider_recruiting) as date_entered_interview_booked_provider_recruiting,
@@ -103,8 +103,8 @@ provider_deals as (
         -- New stages added after offer letter
         MAX(date_entered_pending_tasks_provider_recruiting) as date_entered_pending_tasks_provider_recruiting,
         MAX(date_exited_pending_tasks_provider_recruiting) as date_exited_pending_tasks_provider_recruiting,
-        MAX(date_entered_onboarding_call_provider_recruiting) as date_entered_onboarding_call_provider_recruiting,
-        MAX(date_exited_onboarding_call_provider_recruiting) as date_exited_onboarding_call_provider_recruiting,
+        -- MAX(date_entered_onboarding_call_provider_recruiting) as date_entered_onboarding_call_provider_recruiting,
+        -- MAX(date_exited_onboarding_call_provider_recruiting) as date_exited_onboarding_call_provider_recruiting,
         MAX(date_entered_pre_launch_provider_recruiting) as date_entered_pre_launch_provider_recruiting,
         MAX(date_exited_pre_launch_provider_recruiting) as date_exited_pre_launch_provider_recruiting,
         MAX(date_entered_recruitment_complete_provider_recruiting) as date_entered_recruitment_complete_provider_recruiting,
@@ -161,29 +161,29 @@ enriched as (
         provider_hubspot_created_date,
         
         -- All date fields remain the same
-        date_entered_pre_launch_provider_onboarding,
-        date_exited_pre_launch_provider_onboarding,
-        date_entered_ready_to_onboard_provider_onboarding,
-        date_exited_ready_to_onboard_provider_onboarding,
-        date_entered_pending_onboarding_tasks_provider_onboarding,
-        date_exited_pending_onboarding_tasks_provider_onboarding,
-        date_entered_schedule_onboarding_call_provider_onboarding,
-        date_exited_schedule_onboarding_call_provider_onboarding,
-        date_entered_onboarding_complete_provider_onboarding,
-        date_exited_onboarding_complete_provider_onboarding,
-        date_entered_checkr_fail_provider_onboarding,
-        date_exited_checkr_fail_provider_onboarding,
-        date_entered_hold_provider_onboarding,
-        date_exited_hold_provider_onboarding,
-        date_entered_cold_provider_onboarding,
-        date_exited_cold_provider_onboarding,
-        date_entered_closed_lost_provider_onboarding,
-        date_entered_disqualified_provider_onboarding,
+        -- date_entered_pre_launch_provider_onboarding,
+        -- date_exited_pre_launch_provider_onboarding,
+        -- date_entered_ready_to_onboard_provider_onboarding,
+        -- date_exited_ready_to_onboard_provider_onboarding,
+        -- date_entered_pending_onboarding_tasks_provider_onboarding,
+        -- date_exited_pending_onboarding_tasks_provider_onboarding,
+        -- date_entered_schedule_onboarding_call_provider_onboarding,
+        -- date_exited_schedule_onboarding_call_provider_onboarding,
+        -- date_entered_onboarding_complete_provider_onboarding,
+        -- date_exited_onboarding_complete_provider_onboarding,
+        -- date_entered_checkr_fail_provider_onboarding,
+        -- date_exited_checkr_fail_provider_onboarding,
+        -- date_entered_hold_provider_onboarding,
+        -- date_exited_hold_provider_onboarding,
+        -- date_entered_cold_provider_onboarding,
+        -- date_exited_cold_provider_onboarding,
+        -- date_entered_closed_lost_provider_onboarding,
+        -- date_entered_disqualified_provider_onboarding,
         
         date_entered_referrals_provider_recruiting,
         date_exited_referrals_provider_recruiting,
-        date_entered_lead_magnet_provider_recruiting,
-        date_exited_lead_magnet_provider_recruiting,
+        --date_entered_lead_magnet_provider_recruiting,
+        --date_exited_lead_magnet_provider_recruiting,
         date_entered_new_provider_lead_provider_recruiting,
         date_exited_new_provider_lead_provider_recruiting,
         date_entered_interview_booked_provider_recruiting,
@@ -196,8 +196,8 @@ enriched as (
         date_exited_offer_letter_provider_recruiting,
         date_entered_pending_tasks_provider_recruiting, 
         date_exited_pending_tasks_provider_recruiting, 
-        date_entered_onboarding_call_provider_recruiting, 
-        date_exited_onboarding_call_provider_recruiting, 
+        --date_entered_onboarding_call_provider_recruiting, 
+        --date_exited_onboarding_call_provider_recruiting, 
         date_entered_pre_launch_provider_recruiting, 
         date_exited_pre_launch_provider_recruiting,
 
@@ -221,36 +221,36 @@ enriched as (
         
         -- Provider Onboarding Stages
         -- Add Pre-Launch Provider Onboarding Stage
-        case 
-            when date_entered_pre_launch_provider_onboarding is null and date_exited_pre_launch_provider_onboarding is null then 'never_entered'
-            when date_entered_pre_launch_provider_onboarding is not null and date_exited_pre_launch_provider_onboarding is null then 'current'
-            when date_entered_pre_launch_provider_onboarding = date_exited_pre_launch_provider_onboarding then 'skipped'
-            else 'completed'
-        end as pre_launch_provider_onboarding_status,
+        -- case 
+        --     when date_entered_pre_launch_provider_onboarding is null and date_exited_pre_launch_provider_onboarding is null then 'never_entered'
+        --     when date_entered_pre_launch_provider_onboarding is not null and date_exited_pre_launch_provider_onboarding is null then 'current'
+        --     when date_entered_pre_launch_provider_onboarding = date_exited_pre_launch_provider_onboarding then 'skipped'
+        --     else 'completed'
+        -- end as pre_launch_provider_onboarding_status,
         
-        -- Ready to Onboard Provider Onboarding Stage
-        case 
-            when date_entered_ready_to_onboard_provider_onboarding is null and date_exited_ready_to_onboard_provider_onboarding is null then 'never_entered'
-            when date_entered_ready_to_onboard_provider_onboarding is not null and date_exited_ready_to_onboard_provider_onboarding is null then 'current'
-            when date_entered_ready_to_onboard_provider_onboarding = date_exited_ready_to_onboard_provider_onboarding then 'skipped'
-            else 'completed'
-        end as ready_to_onboard_provider_onboarding_status,
+        -- -- Ready to Onboard Provider Onboarding Stage
+        -- case 
+        --     when date_entered_ready_to_onboard_provider_onboarding is null and date_exited_ready_to_onboard_provider_onboarding is null then 'never_entered'
+        --     when date_entered_ready_to_onboard_provider_onboarding is not null and date_exited_ready_to_onboard_provider_onboarding is null then 'current'
+        --     when date_entered_ready_to_onboard_provider_onboarding = date_exited_ready_to_onboard_provider_onboarding then 'skipped'
+        --     else 'completed'
+        -- end as ready_to_onboard_provider_onboarding_status,
         
-        -- Pending Onboarding Tasks Provider Onboarding Stage
-        case 
-            when date_entered_pending_onboarding_tasks_provider_onboarding is null and date_exited_pending_onboarding_tasks_provider_onboarding is null then 'never_entered'
-            when date_entered_pending_onboarding_tasks_provider_onboarding is not null and date_exited_pending_onboarding_tasks_provider_onboarding is null then 'current'
-            when date_entered_pending_onboarding_tasks_provider_onboarding = date_exited_pending_onboarding_tasks_provider_onboarding then 'skipped'
-            else 'completed'
-        end as pending_onboarding_tasks_provider_onboarding_status,
+        -- -- Pending Onboarding Tasks Provider Onboarding Stage
+        -- case 
+        --     when date_entered_pending_onboarding_tasks_provider_onboarding is null and date_exited_pending_onboarding_tasks_provider_onboarding is null then 'never_entered'
+        --     when date_entered_pending_onboarding_tasks_provider_onboarding is not null and date_exited_pending_onboarding_tasks_provider_onboarding is null then 'current'
+        --     when date_entered_pending_onboarding_tasks_provider_onboarding = date_exited_pending_onboarding_tasks_provider_onboarding then 'skipped'
+        --     else 'completed'
+        -- end as pending_onboarding_tasks_provider_onboarding_status,
         
-        -- Schedule Onboarding Call Provider Onboarding Stage
-        case 
-            when date_entered_schedule_onboarding_call_provider_onboarding is null and date_exited_schedule_onboarding_call_provider_onboarding is null then 'never_entered'
-            when date_entered_schedule_onboarding_call_provider_onboarding is not null and date_exited_schedule_onboarding_call_provider_onboarding is null then 'current'
-            when date_entered_schedule_onboarding_call_provider_onboarding = date_exited_schedule_onboarding_call_provider_onboarding then 'skipped'
-            else 'completed'
-        end as schedule_onboarding_call_provider_onboarding_status,
+        -- -- Schedule Onboarding Call Provider Onboarding Stage
+        -- case 
+        --     when date_entered_schedule_onboarding_call_provider_onboarding is null and date_exited_schedule_onboarding_call_provider_onboarding is null then 'never_entered'
+        --     when date_entered_schedule_onboarding_call_provider_onboarding is not null and date_exited_schedule_onboarding_call_provider_onboarding is null then 'current'
+        --     when date_entered_schedule_onboarding_call_provider_onboarding = date_exited_schedule_onboarding_call_provider_onboarding then 'skipped'
+        --     else 'completed'
+        -- end as schedule_onboarding_call_provider_onboarding_status,
         
         -- Provider Recruiting Stages
         -- Referrals Provider Recruiting Stage
@@ -262,12 +262,12 @@ enriched as (
         end as referrals_provider_recruiting_status,
         
         -- Lead Magnet Provider Recruiting Stage
-        case 
-            when date_entered_lead_magnet_provider_recruiting is null and date_exited_lead_magnet_provider_recruiting is null then 'never_entered'
-            when date_entered_lead_magnet_provider_recruiting is not null and date_exited_lead_magnet_provider_recruiting is null then 'current'
-            when date_entered_lead_magnet_provider_recruiting = date_exited_lead_magnet_provider_recruiting then 'skipped'
-            else 'completed'
-        end as lead_magnet_provider_recruiting_status,
+        -- case 
+        --     when date_entered_lead_magnet_provider_recruiting is null and date_exited_lead_magnet_provider_recruiting is null then 'never_entered'
+        --     when date_entered_lead_magnet_provider_recruiting is not null and date_exited_lead_magnet_provider_recruiting is null then 'current'
+        --     when date_entered_lead_magnet_provider_recruiting = date_exited_lead_magnet_provider_recruiting then 'skipped'
+        --     else 'completed'
+        -- end as lead_magnet_provider_recruiting_status,
         
         -- New Provider Lead Provider Recruiting Stage
         case 
@@ -318,12 +318,12 @@ enriched as (
         end as pending_tasks_provider_recruiting_status,
 
         -- Onboarding Call Provider Recruiting Stage
-        case 
-            when date_entered_onboarding_call_provider_recruiting is null and date_exited_onboarding_call_provider_recruiting is null then 'never_entered'
-            when date_entered_onboarding_call_provider_recruiting is not null and date_exited_onboarding_call_provider_recruiting is null then 'current'
-            when date_entered_onboarding_call_provider_recruiting = date_exited_onboarding_call_provider_recruiting then 'skipped'
-            else 'completed'
-        end as onboarding_call_provider_recruiting_status,
+        -- case 
+        --     when date_entered_onboarding_call_provider_recruiting is null and date_exited_onboarding_call_provider_recruiting is null then 'never_entered'
+        --     when date_entered_onboarding_call_provider_recruiting is not null and date_exited_onboarding_call_provider_recruiting is null then 'current'
+        --     when date_entered_onboarding_call_provider_recruiting = date_exited_onboarding_call_provider_recruiting then 'skipped'
+        --     else 'completed'
+        -- end as onboarding_call_provider_recruiting_status,
 
         --Pre-launch Provider Recruiting Stage
         case 
@@ -406,70 +406,70 @@ enriched as (
         
         -- Calculate hours in each stage
         -- Pre-Launch Provider Onboarding Stage
-        ROUND(
-            CASE
-                WHEN date_entered_pre_launch_provider_onboarding IS NULL THEN 0
-                WHEN date_exited_pre_launch_provider_onboarding IS NULL THEN 
-                    CAST(DATEDIFF('second', date_entered_pre_launch_provider_onboarding, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
-                ELSE 
-                    CAST(DATEDIFF('second', date_entered_pre_launch_provider_onboarding, date_exited_pre_launch_provider_onboarding) AS FLOAT) * (1/3600)
-            END, 2
-        ) as hours_in_pre_launch_provider_onboarding,
+        -- ROUND(
+        --     CASE
+        --         WHEN date_entered_pre_launch_provider_onboarding IS NULL THEN 0
+        --         WHEN date_exited_pre_launch_provider_onboarding IS NULL THEN 
+        --             CAST(DATEDIFF('second', date_entered_pre_launch_provider_onboarding, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
+        --         ELSE 
+        --             CAST(DATEDIFF('second', date_entered_pre_launch_provider_onboarding, date_exited_pre_launch_provider_onboarding) AS FLOAT) * (1/3600)
+        --     END, 2
+        -- ) as hours_in_pre_launch_provider_onboarding,
         
-        -- Ready to Onboard Provider Onboarding Stage
-        ROUND(
-            CASE
-                WHEN date_entered_ready_to_onboard_provider_onboarding IS NULL THEN 0
-                WHEN date_exited_ready_to_onboard_provider_onboarding IS NULL THEN 
-                    CAST(DATEDIFF('second', date_entered_ready_to_onboard_provider_onboarding, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
-                ELSE 
-                    CAST(DATEDIFF('second', date_entered_ready_to_onboard_provider_onboarding, date_exited_ready_to_onboard_provider_onboarding) AS FLOAT) * (1/3600)
-            END, 2
-        ) as hours_in_ready_to_onboard_provider_onboarding,
+        -- -- Ready to Onboard Provider Onboarding Stage
+        -- ROUND(
+        --     CASE
+        --         WHEN date_entered_ready_to_onboard_provider_onboarding IS NULL THEN 0
+        --         WHEN date_exited_ready_to_onboard_provider_onboarding IS NULL THEN 
+        --             CAST(DATEDIFF('second', date_entered_ready_to_onboard_provider_onboarding, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
+        --         ELSE 
+        --             CAST(DATEDIFF('second', date_entered_ready_to_onboard_provider_onboarding, date_exited_ready_to_onboard_provider_onboarding) AS FLOAT) * (1/3600)
+        --     END, 2
+        -- ) as hours_in_ready_to_onboard_provider_onboarding,
         
-        -- Pending Onboarding Tasks Provider Onboarding Stage
-        ROUND(
-            CASE
-                WHEN date_entered_pending_onboarding_tasks_provider_onboarding IS NULL THEN 0
-                WHEN date_exited_pending_onboarding_tasks_provider_onboarding IS NULL THEN 
-                    CAST(DATEDIFF('second', date_entered_pending_onboarding_tasks_provider_onboarding, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
-                ELSE 
-                    CAST(DATEDIFF('second', date_entered_pending_onboarding_tasks_provider_onboarding, date_exited_pending_onboarding_tasks_provider_onboarding) AS FLOAT) * (1/3600)
-            END, 2
-        ) as hours_in_pending_onboarding_tasks_provider_onboarding,
+        -- -- Pending Onboarding Tasks Provider Onboarding Stage
+        -- ROUND(
+        --     CASE
+        --         WHEN date_entered_pending_onboarding_tasks_provider_onboarding IS NULL THEN 0
+        --         WHEN date_exited_pending_onboarding_tasks_provider_onboarding IS NULL THEN 
+        --             CAST(DATEDIFF('second', date_entered_pending_onboarding_tasks_provider_onboarding, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
+        --         ELSE 
+        --             CAST(DATEDIFF('second', date_entered_pending_onboarding_tasks_provider_onboarding, date_exited_pending_onboarding_tasks_provider_onboarding) AS FLOAT) * (1/3600)
+        --     END, 2
+        -- ) as hours_in_pending_onboarding_tasks_provider_onboarding,
         
-        -- Schedule Onboarding Call Provider Onboarding Stage
-        ROUND(
-            CASE
-                WHEN date_entered_schedule_onboarding_call_provider_onboarding IS NULL THEN 0
-                WHEN date_exited_schedule_onboarding_call_provider_onboarding IS NULL THEN 
-                    CAST(DATEDIFF('second', date_entered_schedule_onboarding_call_provider_onboarding, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
-                ELSE 
-                    CAST(DATEDIFF('second', date_entered_schedule_onboarding_call_provider_onboarding, date_exited_schedule_onboarding_call_provider_onboarding) AS FLOAT) * (1/3600)
-            END, 2
-        ) as hours_in_schedule_onboarding_call_provider_onboarding,
+        -- -- Schedule Onboarding Call Provider Onboarding Stage
+        -- ROUND(
+        --     CASE
+        --         WHEN date_entered_schedule_onboarding_call_provider_onboarding IS NULL THEN 0
+        --         WHEN date_exited_schedule_onboarding_call_provider_onboarding IS NULL THEN 
+        --             CAST(DATEDIFF('second', date_entered_schedule_onboarding_call_provider_onboarding, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
+        --         ELSE 
+        --             CAST(DATEDIFF('second', date_entered_schedule_onboarding_call_provider_onboarding, date_exited_schedule_onboarding_call_provider_onboarding) AS FLOAT) * (1/3600)
+        --     END, 2
+        -- ) as hours_in_schedule_onboarding_call_provider_onboarding,
         
-        -- Checkr Fail Provider Onboarding Stage
-        ROUND(
-            CASE
-                WHEN date_entered_checkr_fail_provider_onboarding IS NULL THEN 0
-                WHEN date_exited_checkr_fail_provider_onboarding IS NULL THEN 
-                    CAST(DATEDIFF('second', date_entered_checkr_fail_provider_onboarding, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
-                ELSE 
-                    CAST(DATEDIFF('second', date_entered_checkr_fail_provider_onboarding, date_exited_checkr_fail_provider_onboarding) AS FLOAT) * (1/3600)
-            END, 2
-        ) as hours_in_checkr_fail_provider_onboarding,
+        -- -- Checkr Fail Provider Onboarding Stage
+        -- ROUND(
+        --     CASE
+        --         WHEN date_entered_checkr_fail_provider_onboarding IS NULL THEN 0
+        --         WHEN date_exited_checkr_fail_provider_onboarding IS NULL THEN 
+        --             CAST(DATEDIFF('second', date_entered_checkr_fail_provider_onboarding, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
+        --         ELSE 
+        --             CAST(DATEDIFF('second', date_entered_checkr_fail_provider_onboarding, date_exited_checkr_fail_provider_onboarding) AS FLOAT) * (1/3600)
+        --     END, 2
+        -- ) as hours_in_checkr_fail_provider_onboarding,
         
-        -- Hold Provider Onboarding Stage
-        ROUND(
-            CASE
-                WHEN date_entered_hold_provider_onboarding IS NULL THEN 0
-                WHEN date_exited_hold_provider_onboarding IS NULL THEN 
-                    CAST(DATEDIFF('second', date_entered_hold_provider_onboarding, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
-                ELSE 
-                    CAST(DATEDIFF('second', date_entered_hold_provider_onboarding, date_exited_hold_provider_onboarding) AS FLOAT) * (1/3600)
-            END, 2
-        ) as hours_in_hold_provider_onboarding,
+        -- -- Hold Provider Onboarding Stage
+        -- ROUND(
+        --     CASE
+        --         WHEN date_entered_hold_provider_onboarding IS NULL THEN 0
+        --         WHEN date_exited_hold_provider_onboarding IS NULL THEN 
+        --             CAST(DATEDIFF('second', date_entered_hold_provider_onboarding, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
+        --         ELSE 
+        --             CAST(DATEDIFF('second', date_entered_hold_provider_onboarding, date_exited_hold_provider_onboarding) AS FLOAT) * (1/3600)
+        --     END, 2
+        -- ) as hours_in_hold_provider_onboarding,
         
         -- Referrals Provider Recruiting Stage
         ROUND(
@@ -483,15 +483,15 @@ enriched as (
         ) as hours_in_referrals_provider_recruiting,
         
         -- Lead Magnet Provider Recruiting Stage
-        ROUND(
-            CASE
-                WHEN date_entered_lead_magnet_provider_recruiting IS NULL THEN 0
-                WHEN date_exited_lead_magnet_provider_recruiting IS NULL THEN 
-                    CAST(DATEDIFF('second', date_entered_lead_magnet_provider_recruiting, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
-                ELSE 
-                    CAST(DATEDIFF('second', date_entered_lead_magnet_provider_recruiting, date_exited_lead_magnet_provider_recruiting) AS FLOAT) * (1/3600)
-            END, 2
-        ) as hours_in_lead_magnet_provider_recruiting,
+        -- ROUND(
+        --     CASE
+        --         WHEN date_entered_lead_magnet_provider_recruiting IS NULL THEN 0
+        --         WHEN date_exited_lead_magnet_provider_recruiting IS NULL THEN 
+        --             CAST(DATEDIFF('second', date_entered_lead_magnet_provider_recruiting, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
+        --         ELSE 
+        --             CAST(DATEDIFF('second', date_entered_lead_magnet_provider_recruiting, date_exited_lead_magnet_provider_recruiting) AS FLOAT) * (1/3600)
+        --     END, 2
+        -- ) as hours_in_lead_magnet_provider_recruiting,
         
         -- New Provider Lead Provider Recruiting Stage
         ROUND(
@@ -558,15 +558,15 @@ enriched as (
             END, 2
         ) as hours_in_pending_tasks_provider_recruiting,
 
-        ROUND(
-            CASE 
-                WHEN date_entered_onboarding_call_provider_recruiting IS NULL THEN 0
-                WHEN date_exited_onboarding_call_provider_recruiting IS NULL THEN 
-                    CAST(DATEDIFF('second', date_entered_onboarding_call_provider_recruiting, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
-                ELSE 
-                    CAST(DATEDIFF('second', date_entered_onboarding_call_provider_recruiting, date_exited_onboarding_call_provider_recruiting) AS FLOAT) * (1/3600)
-            END, 2
-        ) as hours_in_onboarding_call_provider_recruiting,
+        -- ROUND(
+        --     CASE 
+        --         WHEN date_entered_onboarding_call_provider_recruiting IS NULL THEN 0
+        --         WHEN date_exited_onboarding_call_provider_recruiting IS NULL THEN 
+        --             CAST(DATEDIFF('second', date_entered_onboarding_call_provider_recruiting, CURRENT_TIMESTAMP()) AS FLOAT) * (1/3600)
+        --         ELSE 
+        --             CAST(DATEDIFF('second', date_entered_onboarding_call_provider_recruiting, date_exited_onboarding_call_provider_recruiting) AS FLOAT) * (1/3600)
+        --     END, 2
+        -- ) as hours_in_onboarding_call_provider_recruiting,
 
         ROUND(
             CASE 
@@ -644,38 +644,38 @@ enriched as (
             END, 2
         ) as hours_in_hold_provider_recruiting,
         
-        -- Convert hours to days for each stage
-        ROUND(hours_in_pre_launch_provider_onboarding / 24, 2) as days_in_pre_launch_provider_onboarding,
-        ROUND(hours_in_ready_to_onboard_provider_onboarding / 24, 2) as days_in_ready_to_onboard_provider_onboarding,
-        ROUND(hours_in_pending_onboarding_tasks_provider_onboarding / 24, 2) as days_in_pending_onboarding_tasks_provider_onboarding,
-        ROUND(hours_in_schedule_onboarding_call_provider_onboarding / 24, 2) as days_in_schedule_onboarding_call_provider_onboarding,
-        ROUND(hours_in_checkr_fail_provider_onboarding / 24, 2) as days_in_checkr_fail_provider_onboarding,
-        ROUND(hours_in_hold_provider_onboarding / 24, 2) as days_in_hold_provider_onboarding,
+        -- -- Convert hours to days for each stage
+        -- ROUND(hours_in_pre_launch_provider_onboarding / 24, 2) as days_in_pre_launch_provider_onboarding,
+        -- ROUND(hours_in_ready_to_onboard_provider_onboarding / 24, 2) as days_in_ready_to_onboard_provider_onboarding,
+        -- ROUND(hours_in_pending_onboarding_tasks_provider_onboarding / 24, 2) as days_in_pending_onboarding_tasks_provider_onboarding,
+        -- ROUND(hours_in_schedule_onboarding_call_provider_onboarding / 24, 2) as days_in_schedule_onboarding_call_provider_onboarding,
+        -- ROUND(hours_in_checkr_fail_provider_onboarding / 24, 2) as days_in_checkr_fail_provider_onboarding,
+        -- ROUND(hours_in_hold_provider_onboarding / 24, 2) as days_in_hold_provider_onboarding,
         
         ROUND(hours_in_referrals_provider_recruiting / 24, 2) as days_in_referrals_provider_recruiting,
-        ROUND(hours_in_lead_magnet_provider_recruiting / 24, 2) as days_in_lead_magnet_provider_recruiting,
+        -- ROUND(hours_in_lead_magnet_provider_recruiting / 24, 2) as days_in_lead_magnet_provider_recruiting,
         ROUND(hours_in_new_provider_lead_provider_recruiting / 24, 2) as days_in_new_provider_lead_provider_recruiting,
         ROUND(hours_in_interview_booked_provider_recruiting / 24, 2) as days_in_interview_booked_provider_recruiting,
         ROUND(hours_in_post_interview_provider_recruiting / 24, 2) as days_in_post_interview_provider_recruiting,
         ROUND(hours_in_clinical_interview_provider_recruiting / 24, 2) as days_in_clinical_interview_provider_recruiting,
         ROUND(hours_in_offer_letter_provider_recruiting / 24, 2) as days_in_offer_letter_provider_recruiting,
         ROUND(hours_in_pending_tasks_provider_recruiting / 24, 2) as days_in_pending_tasks_provider_recruiting,
-        ROUND(hours_in_onboarding_call_provider_recruiting / 24, 2) as days_in_onboarding_call_provider_recruiting,
+        -- ROUND(hours_in_onboarding_call_provider_recruiting / 24, 2) as days_in_onboarding_call_provider_recruiting,
         ROUND(hours_in_pre_launch_provider_recruiting / 24, 2) as days_in_pre_launch_provider_recruiting,
         ROUND(hours_in_recruitment_complete_provider_recruiting / 24, 2) as days_in_recruitment_complete_provider_recruiting,
         ROUND(hours_in_re_activate_provider_recruiting / 24, 2) as days_in_re_activate_provider_recruiting,
         ROUND(hours_in_interview_cx_provider_recruiting / 24, 2) as days_in_interview_cx_provider_recruiting,
         ROUND(hours_in_pending_referral_specialties_provider_recruiting / 24, 2) as days_in_pending_referral_specialties_provider_recruiting,
         ROUND(hours_in_ready_for_kickoff_provider_recruiting / 24, 2) as days_in_ready_for_kickoff_provider_recruiting,
-        ROUND(hours_in_hold_provider_recruiting / 24, 2) as days_in_hold_provider_recruiting,
+        ROUND(hours_in_hold_provider_recruiting / 24, 2) as days_in_hold_provider_recruiting
         
         -- Add Checkr Fail Provider Onboarding Stage status
-        case 
-            when date_entered_checkr_fail_provider_onboarding is null and date_exited_checkr_fail_provider_onboarding is null then 'never_entered'
-            when date_entered_checkr_fail_provider_onboarding is not null and date_exited_checkr_fail_provider_onboarding is null then 'current'
-            when date_entered_checkr_fail_provider_onboarding = date_exited_checkr_fail_provider_onboarding then 'skipped'
-            else 'completed'
-        end as checkr_fail_provider_onboarding_status
+        -- case 
+        --     when date_entered_checkr_fail_provider_onboarding is null and date_exited_checkr_fail_provider_onboarding is null then 'never_entered'
+        --     when date_entered_checkr_fail_provider_onboarding is not null and date_exited_checkr_fail_provider_onboarding is null then 'current'
+        --     when date_entered_checkr_fail_provider_onboarding = date_exited_checkr_fail_provider_onboarding then 'skipped'
+        --     else 'completed'
+        -- end as checkr_fail_provider_onboarding_status
     from provider_deals
 ),
 
@@ -941,14 +941,14 @@ stage_timing_summary as (
         ROUND(
             -- Provider Recruiting Stages
             COALESCE(days_in_referrals_provider_recruiting, 0) +
-            COALESCE(days_in_lead_magnet_provider_recruiting, 0) +
+            --COALESCE(days_in_lead_magnet_provider_recruiting, 0) +
             COALESCE(days_in_new_provider_lead_provider_recruiting, 0) +
             COALESCE(days_in_interview_booked_provider_recruiting, 0) +
             COALESCE(days_in_post_interview_provider_recruiting, 0) +
             COALESCE(days_in_clinical_interview_provider_recruiting, 0) +
             COALESCE(days_in_offer_letter_provider_recruiting, 0) +
             COALESCE(days_in_pending_tasks_provider_recruiting, 0) + 
-            COALESCE(days_in_onboarding_call_provider_recruiting, 0) + 
+            -- COALESCE(days_in_onboarding_call_provider_recruiting, 0) + 
             COALESCE(days_in_pre_launch_provider_recruiting, 0) + 
             COALESCE(days_in_recruitment_complete_provider_recruiting, 0) +
             COALESCE(days_in_re_activate_provider_recruiting, 0) + 
@@ -972,7 +972,7 @@ stage_timing_summary as (
         GREATEST(
             -- Provider Recruiting Stages
             COALESCE(days_in_referrals_provider_recruiting, 0),
-            COALESCE(days_in_lead_magnet_provider_recruiting, 0),
+            --COALESCE(days_in_lead_magnet_provider_recruiting, 0),
             COALESCE(days_in_new_provider_lead_provider_recruiting, 0),
             COALESCE(days_in_interview_booked_provider_recruiting, 0),
             COALESCE(days_in_post_interview_provider_recruiting, 0),

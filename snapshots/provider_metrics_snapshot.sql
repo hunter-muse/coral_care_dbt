@@ -16,10 +16,10 @@ with time_to_x_sessions as (
   Select 
 pro.provider_first_name || ' ' || pro.provider_last_name as provider_name
 ,pro.coral_provider_id
-,coalesce(hp.DATE_ENTERED_LEGACY_ONBOARDING_COMPLETE_PROVIDER_ONBOARDING,FIRST_LOGIN_DATE) as onboarding_date
+--,coalesce(hp.DATE_ENTERED_LEGACY_ONBOARDING_COMPLETE_PROVIDER_ONBOARDING,FIRST_LOGIN_DATE) as onboarding_date
 ,session_created_date
 ,datediff(DAY,
-coalesce(hp.DATE_ENTERED_LEGACY_ONBOARDING_COMPLETE_PROVIDER_ONBOARDING,FIRST_LOGIN_DATE)
+coalesce(hp.date_entered_recruitment_complete_provider_recruiting,FIRST_LOGIN_DATE)
 ,session_created_date) as time_to_session
 ,rank() over (partition by pro.coral_provider_id order by session_created_date asc) as session_id_rank2
 
@@ -155,19 +155,19 @@ net_avail.friday_evening_net_hours as friday_evening_available_hours,
 net_avail.saturday_evening_net_hours as saturday_evening_available_hours,
 net_avail.sunday_evening_net_hours as sunday_evening_available_hours,
 
-coalesce(pf.RECRUITING_CURRENT_STAGE, SALES_CURRENT_STAGE) as current_stage,
+RECRUITING_CURRENT_STAGE as current_stage,
 pf.CLOSED_LOST_PROVIDER_RECRUITING_STATUS,
-coalesce(RECRUITING_TOTAL_DAYS_IN_FUNNEL,0)+coalesce(SALES_TOTAL_DAYS_IN_FUNNEL,0) as total_days_in_funnel,
+coalesce(TOTAL_DAYS_IN_FUNNEL,0) as total_days_in_funnel,
 pf.DATE_ENTERED_NEW_PROVIDER_LEAD_PROVIDER_RECRUITING::Date as DATE_ENTERED_NEW_PROVIDER_LEAD_PROVIDER_RECRUITING,
 pf.DATE_ENTERED_CLINICAL_INTERVIEW_PROVIDER_RECRUITING::Date as DATE_ENTERED_CLINICAL_INTERVIEW_PROVIDER_RECRUITING,
 pf.DATE_ENTERED_OFFER_LETTER_PROVIDER_RECRUITING::Date as DATE_ENTERED_OFFER_LETTER_PROVIDER_RECRUITING,
-pf.DATE_ENTERED_LEGACY_PENDING_ONBOARDING_TASKS_PROVIDER_ONBOARDING::Date as DATE_ENTERED_PENDING_ONBOARDING_TASKS_PROVIDER_ONBOARDING,
-pf.DATE_ENTERED_LEGACY_ONBOARDING_COMPLETE_PROVIDER_ONBOARDING::Date as DATE_ENTERED_ONBOARDING_COMPLETE_PROVIDER_ONBOARDING,
+--pf.DATE_ENTERED_LEGACY_PENDING_ONBOARDING_TASKS_PROVIDER_ONBOARDING::Date as DATE_ENTERED_PENDING_ONBOARDING_TASKS_PROVIDER_ONBOARDING,
+--pf.DATE_ENTERED_LEGACY_ONBOARDING_COMPLETE_PROVIDER_ONBOARDING::Date as DATE_ENTERED_ONBOARDING_COMPLETE_PROVIDER_ONBOARDING,
 DAYS_IN_NEW_PROVIDER_LEAD_PROVIDER_RECRUITING,
 DAYS_IN_CLINICAL_INTERVIEW_PROVIDER_RECRUITING,
 DAYS_IN_OFFER_LETTER_PROVIDER_RECRUITING,
-coalesce(DAYS_IN_LEGACY_PENDING_ONBOARDING_TASKS_PROVIDER_ONBOARDING,DAYS_IN_PENDING_TASKS_PROVIDER_RECRUITING) as days_in_onboarding_tasks,
-coalesce(DAYS_IN_LEGACY_SCHEDULE_ONBOARDING_CALL_PROVIDER_ONBOARDING,DAYS_IN_ONBOARDING_CALL_PROVIDER_RECRUITING) as days_in_onboarding_call,
+--coalesce(DAYS_IN_LEGACY_PENDING_ONBOARDING_TASKS_PROVIDER_ONBOARDING,DAYS_IN_PENDING_TASKS_PROVIDER_RECRUITING) as days_in_onboarding_tasks,
+--coalesce(DAYS_IN_LEGACY_SCHEDULE_ONBOARDING_CALL_PROVIDER_ONBOARDING,DAYS_IN_ONBOARDING_CALL_PROVIDER_RECRUITING) as days_in_onboarding_call,
 coalesce(FARTHEST_OUT_SESSION_DATE,hp.most_recent_session_date) as last_session,
 CERTIFICATION_INFO,
 ttx.time_to_session as time_to_1st_booked_session,
@@ -175,7 +175,7 @@ ttx2.time_to_session as time_to_2nd_booked_session,
 ttx3.time_to_session as time_to_5th_booked_session,
 ttx4.time_to_session as time_to_10th_booked_session,
 ttx5.time_to_session as time_to_25th_booked_session,
-coalesce(RECRUITING_HOURS_IN_CURRENT_STAGE,SALES_HOURS_IN_CURRENT_STAGE)/24.0 as days_in_current_stage,
+coalesce(HOURS_IN_CURRENT_STAGE,0)/24.0 as days_in_current_stage,
 case when coalesce(provider.INSURANCES_ACCEPTED_NAMES, hp.insurances_accepted_names) is null then 0
     else coalesce(length(coalesce(provider.INSURANCES_ACCEPTED_NAMES, hp.insurances_accepted_names))- length(replace(coalesce(provider.INSURANCES_ACCEPTED_NAMES, hp.insurances_accepted_names),',','')),0)+1 end as total_insurances_enrolled,
 rank() over (partition by provider.provider_first_name || ' ' || provider.provider_last_name, provider.state, provider.provider_specialty order by random()) as deal_id_rank

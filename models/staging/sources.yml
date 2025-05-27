@@ -10,7 +10,11 @@ sources:
       - name: deal
       - name: ticket 
       - name: ticket_contact
+      - name: ticket_engagement 
       - name: deal_contact
+      - name: engagement 
+      - name: engagement_call
+      - name: engagement_email
     
   - name: bubble
     database: source_bubble

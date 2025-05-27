@@ -150,7 +150,7 @@ select
     r.days_in_new_provider_lead_provider_recruiting,
     r.days_in_interview_booked_provider_recruiting,
     r.days_in_interview_cx_provider_recruiting,
-    r.days_in_post_interview_provider_recruiting,
+    --0r.days_in_post_interview_provider_recruiting,
     r.days_in_clinical_interview_provider_recruiting,
     r.days_in_pending_referral_specialties_provider_recruiting,
     r.days_in_offer_letter_provider_recruiting,

@@ -28,7 +28,7 @@ parent_join as (
     CASE 
         WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('self-pay', 'out-of-network') 
             THEN 'Self-Pay (includes out-of-network)'
-        WHEN LOWER(hubspot.type_of_payment) IN ('I prefer to pay myself', 'No, I will pay out of pocket') 
+        WHEN LOWER(type_of_payment) IN ('i prefer to pay myself', 'no, i will pay out of pocket')
             THEN 'Self-Pay (includes out-of-network)'
         WHEN LOWER(TRIM(hubspot.insurance_provider)) IN ('blue-cross-blue-shield-of-massachusetts', 'blue cross blue shield of massachusetts', 'blue cross blue shield of massachussetts', 'anthem') 
             THEN 'Blue Cross Blue Shield of Massachusetts'

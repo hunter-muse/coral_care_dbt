@@ -114,6 +114,6 @@ left join ads_with_campaigns ac
     on pj.parent_google_click_id = ac.gclid
     and ac.rn = 1  -- Only take the first campaign record for each click
 WHERE 
-pj.coral_parent_id IS NOT IN ( --duplicate parent records 
+pj.coral_parent_id NOT IN ( --duplicate parent records 
     '8c882fea1429388131f9938d9965ff3b'
 )
